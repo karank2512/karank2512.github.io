@@ -89,20 +89,19 @@ There are two ways. **Option A (GitHub Actions) is recommended** — push and fo
 ### Option A — GitHub Actions (recommended)
 A workflow is already included at `.github/workflows/deploy.yml`.
 
-1. Create a repo and push this project:
+1. Push this project to `https://github.com/karank2512/karank2512.github.io`:
    ```bash
-   git init
    git add .
-   git commit -m "Initial portfolio"
-   git branch -M main
-   git remote add origin https://github.com/karank2512/<repo-name>.git
-   git push -u origin main
+   git commit -m "Update portfolio"
+   git push origin main
    ```
 2. On GitHub: **Settings → Pages → Build and deployment → Source = GitHub Actions**.
-3. Every push to `main` builds and deploys automatically. Your site lands at
-   `https://karank2512.github.io/<repo-name>/`.
+3. Every push to `main` builds and deploys automatically.
 
-> Tip: for a clean `https://karank2512.github.io/` URL, name the repo **`karank2512.github.io`**.
+**Custom domain:** `public/CNAME` contains `karankapur.com`, so the build keeps the
+custom domain wired up — the live site stays at **https://karankapur.com/**. (GitHub's
+Pages → Custom domain setting should already show `karankapur.com`.) If you ever drop the
+custom domain, delete `public/CNAME` and the site falls back to `https://karank2512.github.io/`.
 
 ### Option B — `gh-pages` branch (manual)
 ```bash
