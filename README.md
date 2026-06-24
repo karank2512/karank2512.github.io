@@ -7,21 +7,6 @@ Built to be skimmed in 60 seconds and edited from **one file**.
 
 ---
 
-## ✨ What's inside
-
-- **One-page site** with smooth anchor nav, scroll-spy, and a mobile menu
-- **Interactive hero terminal** that types rotating system commands
-- **Project case-study cards** with cursor spotlight + metrics
-- **Vertical experience timeline**
-- **Interactive skills** — click a category to see which projects it powers
-- **"Life outside the IDE"** hobby cards
-- **Spotify section** (auto-converts a normal playlist link into an embed; graceful fallback if empty)
-- **Animated stat counters**, magnetic buttons, cursor glow
-- Fully **responsive**, **keyboard-accessible**, and **`prefers-reduced-motion`** aware
-- **SEO + OpenGraph** metadata and a generated social preview image
-
----
-
 ## 🚀 Quick start
 
 > You need **Node.js 18+** installed. Get it at https://nodejs.org (LTS).
@@ -79,67 +64,6 @@ The "Resume" buttons currently point to a **Google Drive** link (set in `links.r
 ### Update the social preview
 - `og-image.png` lives in `public/`. Replace it with any 1200×630 image.
 - In `index.html`, set `og:url` and `og:image` to **absolute** URLs once you know your final domain (some platforms like Slack/Twitter require absolute URLs).
-
----
-
-## 🌐 Deploy to GitHub Pages
-
-There are two ways. **Option A (GitHub Actions) is recommended** — push and forget.
-
-### Option A — GitHub Actions (recommended)
-A workflow is already included at `.github/workflows/deploy.yml`.
-
-1. Push this project to `https://github.com/karank2512/karank2512.github.io`:
-   ```bash
-   git add .
-   git commit -m "Update portfolio"
-   git push origin main
-   ```
-2. On GitHub: **Settings → Pages → Build and deployment → Source = GitHub Actions**.
-3. Every push to `main` builds and deploys automatically.
-
-**Custom domain:** `public/CNAME` contains `karankapur.com`, so the build keeps the
-custom domain wired up — the live site stays at **https://karankapur.com/**. (GitHub's
-Pages → Custom domain setting should already show `karankapur.com`.) If you ever drop the
-custom domain, delete `public/CNAME` and the site falls back to `https://karank2512.github.io/`.
-
-### Option B — `gh-pages` branch (manual)
-```bash
-npm run deploy
-```
-This builds and pushes `/dist` to a `gh-pages` branch (using the `gh-pages` dev dependency).
-Then set **Settings → Pages → Source = Deploy from a branch → `gh-pages` / root**.
-
-> The Vite config uses `base: "./"` (relative paths), so the build works under any repo subpath without extra configuration.
-
----
-
-## ✅ Final QA checklist
-
-Before sharing the link, run through this:
-
-**Content**
-- [ ] Name, headline, and one-liner read the way you want
-- [ ] All 7 projects have correct metrics, stacks, and links
-- [ ] Experience dates and bullets are accurate
-- [ ] `public/resume.pdf` is your latest resume
-- [ ] Spotify link added (or fallback intentionally left)
-- [ ] Email / GitHub / LinkedIn links go to the right places
-
-**Function**
-- [ ] `npm run build` completes with no errors
-- [ ] Nav links scroll to the right sections; scroll-spy highlights correctly
-- [ ] Mobile menu opens/closes and locks scroll
-- [ ] Project tag filter works
-- [ ] Skills categories switch the "lights up" projects
-- [ ] Resume opens in a new tab
-
-**Quality**
-- [ ] Looks right at 375px (mobile), 768px (tablet), 1440px (desktop)
-- [ ] Test with **reduced motion** on (macOS: Settings → Accessibility → Display → Reduce motion) — animations should calm down, nothing should break
-- [ ] Tab through the page — focus rings visible, skip-link appears on first Tab
-- [ ] OG preview looks right (test at https://www.opengraph.xyz/ after deploy)
-- [ ] Lighthouse: Performance / Accessibility / SEO all green
 
 ---
 
