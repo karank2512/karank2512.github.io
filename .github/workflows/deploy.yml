@@ -19,11 +19,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
-      - run: npm install
+          node-version: 24 # Upgraded from 20 to clear the platform deprecation
+          cache: 'npm'     # Speeds up your build runs by caching packages
+          
+      - run: npm ci       # Replaced 'npm install' to ensure a stable, clean build
+      
       - run: npm run build
+      
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
