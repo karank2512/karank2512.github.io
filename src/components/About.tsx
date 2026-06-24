@@ -39,7 +39,7 @@ export default function About() {
             ))}
           </div>
           <p className="mt-4 font-mono text-xs text-muted">
-            // numbers from real shipped work — details in the timeline below.
+            // numbers from real shipped work, details in the timeline below.
           </p>
         </Reveal>
       </div>

@@ -26,7 +26,7 @@ export default function Projects() {
       id="work"
       eyebrow="02 / featured work"
       title="Things I’ve built and shipped."
-      intro="A mix of low-level systems, real client data products, and sports/F1 analytics. Each one is a small case study — what it does, the numbers, and what it proves."
+      intro="A mix of low-level systems, real client data products, and sports/F1 analytics. Each one is a small case study: what it does, the numbers, and what it proves."
     >
       {/* tag filter */}
       <Reveal>

@@ -62,10 +62,10 @@ export const identity = {
     "AI/ML & Data Engineer building fast systems, useful models, and sports-flavored analytics.",
   // the personal, human one-liner
   oneLiner:
-    "CS + DS at UW-Madison. Co-founder of thaw. Usually somewhere between the gym, a golf course, a playlist, and a weird data problem.",
+    "CS + DS grad, UW-Madison. Co-founder of thaw. Usually somewhere between the gym, a golf course, a playlist, and a weird data problem.",
   location: "Madison, WI",
   education:
-    "B.S. Computer Science + Data Science, Certificate in Entrepreneurship — University of Wisconsin–Madison (May 2026)",
+    "B.S. Computer Science + Data Science, Certificate in Entrepreneurship, University of Wisconsin-Madison (May 2026)",
   // roles Karan is targeting — shown as a rotating word in the hero
   targets: [
     "AI/ML Engineering",
@@ -101,7 +101,7 @@ export const terminalCommands: { cmd: string; out: string }[] = [
 ];
 
 export const about: string[] = [
-  "I’m a CS + Data Science student at UW-Madison who likes living where infrastructure meets insight — the messy middle where a system has to be fast *and* the numbers have to mean something.",
+  "I’m a CS + Data Science new grad from UW-Madison who likes living where infrastructure meets insight: the messy middle where a system has to be fast and the numbers have to mean something.",
   "Most of my favorite work starts as a pile of noisy data or a slow pipeline and ends as something people actually use: a sub-second LLM fork, an analyte forecast that saves a lab a rerun, a model that explains a quarterback’s decision.",
   "Off the clock I’m at the gym, on a golf course losing balls, learning to DJ, planning the next trip, or arguing about an F1 strategy call. I like models more when they explain something happening at full speed.",
 ];
@@ -111,7 +111,7 @@ export const projects: Project[] = [
     title: "thaw",
     blurb: "An open-source Rust + CUDA system that snapshots and restores live LLM state.",
     detail:
-      "thaw turns LLM session branching from a cold-boot tax into a near-instant fork by snapshotting and restoring live inference state. I own the cloud storage layer — durable persistence and retrieval of large snapshots (weights, KV cache, prefix-cache metadata, scheduler state) wired into thaw’s double-buffered restore path.",
+      "thaw turns LLM session branching from a cold-boot tax into a near-instant fork by snapshotting and restoring live inference state. I own the cloud storage layer: durable persistence and retrieval of large snapshots (weights, KV cache, prefix-cache metadata, scheduler state) wired into thaw’s double-buffered restore path.",
     proves:
       "I can reason about GPUs, memory, and storage at a low level and turn it into infrastructure other people build on.",
     stack: ["Rust", "CUDA", "PyO3 FFI", "gRPC", "AWS S3", "LSM-trees", "Raft"],
@@ -131,7 +131,7 @@ export const projects: Project[] = [
     title: "NFL Quarterback Decision Metric",
     blurb: "A model that scores quarterback decision quality beyond the box score.",
     detail:
-      "Built a metric that grades the decision a QB made — not just the outcome — using play context, coverage, and expected value. The goal: separate good process from lucky results, the way a scout would.",
+      "Built a metric that grades the decision a QB made, not just the outcome, using play context, coverage, and expected value. The goal: separate good process from lucky results, the way a scout would.",
     proves: "I can take a sport I love and turn intuition into a defensible, data-backed metric.",
     stack: ["Python", "Pandas", "scikit-learn", "NumPy", "Matplotlib"],
     metrics: [
@@ -145,7 +145,7 @@ export const projects: Project[] = [
     title: "Eurofins Predictive Analytics System",
     blurb: "End-to-end system that forecasts analyte results before the lab runs the test.",
     detail:
-      "Senior design capstone for Eurofins Scientific: a FastAPI + React + TypeScript platform that turns 10K+ historical records into pre-test analyte forecasts with confidence scores and comparable-sample recommendations — cutting rerun-related delays and giving technicians a head start.",
+      "Senior design capstone for Eurofins Scientific: a FastAPI + React + TypeScript platform that turns 10K+ historical records into pre-test analyte forecasts with confidence scores and comparable-sample recommendations, cutting rerun-related delays and giving technicians a head start.",
     proves: "I can ship a real data product for a real client, from ingestion pipeline to UI.",
     stack: ["FastAPI", "React", "TypeScript", "Pandas", "scikit-learn"],
     metrics: [
@@ -160,7 +160,7 @@ export const projects: Project[] = [
     title: "Formula 1 Race Strategy Prediction Pipeline",
     blurb: "A pipeline that models pit windows and tyre strategy across a race.",
     detail:
-      "Ingests timing, tyre, and stint data to predict race-strategy decisions — when to pit, which compound, and how the undercut plays out. F1 is the perfect testbed: high-stakes decisions made at 300 km/h with telemetry attached.",
+      "Ingests timing, tyre, and stint data to predict race-strategy decisions: when to pit, which compound, and how the undercut plays out. F1 is the perfect testbed: high-stakes decisions made at 300 km/h with telemetry attached.",
     proves: "I can build a data pipeline around a fast-moving, real-world decision problem.",
     stack: ["Python", "Pandas", "scikit-learn", "BigQuery"],
     metrics: [
@@ -174,7 +174,7 @@ export const projects: Project[] = [
     title: "MLB Pitching Release Point Analysis",
     blurb: "Analysis of pitcher release points and what they reveal about deception and risk.",
     detail:
-      "Studied pitch release-point consistency and clustering to surface signal about repertoire, tunneling, and tip-offs — translating biomechanical scatter into something a coaching staff could read.",
+      "Studied pitch release-point consistency and clustering to surface signal about repertoire, tunneling, and tip-offs, translating biomechanical scatter into something a coaching staff could read.",
     proves: "I’m comfortable in the data-viz + statistics lane, not just the modeling one.",
     stack: ["Python", "Pandas", "Matplotlib", "R", "ggplot2"],
     metrics: [
@@ -198,10 +198,10 @@ export const projects: Project[] = [
   },
   {
     title: "Custom UNIX Shell",
-    blurb: "A shell written from scratch in C — pipes, redirection, job control.",
+    blurb: "A shell written from scratch in C: pipes, redirection, job control.",
     detail:
       "Implemented a working command shell in C: parsing, process creation, pipelines, I/O redirection, and built-ins. The kind of project that makes the OS stop being a black box.",
-    proves: "I understand what’s happening under the abstractions — processes, fds, syscalls.",
+    proves: "I understand what’s happening under the abstractions: processes, fds, syscalls.",
     stack: ["C", "Linux/UNIX", "Systems Programming"],
     metrics: [
       { value: "Pipes + IO", label: "redirection" },
@@ -220,13 +220,13 @@ export const experience: Experience[] = [
     end: "Present",
     bullets: [
       "Engineered thaw, a Rust + CUDA inference system that cut vLLM session branching from ~340s cold boot to a 0.88s median fork on H100s by snapshotting and restoring live LLM state.",
-      "Own the cloud storage layer — durable persistence and retrieval of large snapshots (weights, KV cache, prefix-cache metadata, scheduler state).",
+      "Own the cloud storage layer: durable persistence and retrieval of large snapshots (weights, KV cache, prefix-cache metadata, scheduler state).",
       "Wired cloud-backed snapshots into a double-buffered restore path, contributing to 14.3 GB/s weight restore throughput and 3.4× faster 70B model loading.",
     ],
     tags: ["Rust", "CUDA", "AWS S3", "gRPC", "Systems"],
   },
   {
-    role: "Data Engineer — Senior Design Capstone",
+    role: "Data Engineer (Senior Design Capstone)",
     org: "Eurofins Scientific",
     location: "Madison, WI",
     start: "Jan 2026",
@@ -253,7 +253,7 @@ export const experience: Experience[] = [
   },
   {
     role: "AI Fellow",
-    org: "Wisconsin Summer AI Lab — OpenAI × UW-Madison",
+    org: "Wisconsin Summer AI Lab, OpenAI × UW-Madison",
     location: "Madison, WI",
     start: "Jun 2025",
     end: "Aug 2025",
@@ -369,7 +369,7 @@ export const music = {
   //   https://open.spotify.com/playlist/XXXXXXXXXXXX
   // The component converts it to an embed automatically.
   spotifyUrl: "https://open.spotify.com/playlist/7GjJGKWvqkg4NHLWb91YwL?si=ebbf57ae829f448c",
-  caption: "What’s on rotation while I build — gym sets, study sessions, and questionable car singalongs.",
+  caption: "What’s on rotation while I build: gym sets, study sessions, and questionable car singalongs.",
 };
 
 export const contact = {

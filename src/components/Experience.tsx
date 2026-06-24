@@ -8,7 +8,7 @@ export default function Experience() {
       id="experience"
       eyebrow="03 / experience"
       title="Where I’ve done the work."
-      intro="From an open-source inference startup to a corporate compliance floor — a spread that taught me to build fast and account for the boring, important parts."
+      intro="From an open-source inference startup to a corporate compliance floor. A spread that taught me to build fast and account for the boring, important parts."
     >
       <div className="relative">
         {/* vertical rail */}
@@ -31,7 +31,7 @@ export default function Experience() {
                       <span className="text-muted">· {job.org}</span>
                     </h3>
                     <span className="shrink-0 font-mono text-xs text-muted">
-                      {job.start} — {job.end}
+                      {job.start} - {job.end}
                     </span>
                   </div>
                   <p className="mt-0.5 font-mono text-xs text-muted">{job.location}</p>
