@@ -54,6 +54,17 @@ export type Hobby = {
   line: string;
 };
 
+export type Photo = {
+  src: string;
+  alt: string;
+  caption?: string;
+};
+
+export type HingePrompt = {
+  prompt: string;
+  answer: string;
+};
+
 export const identity = {
   name: "Karan Kapur",
   initials: "KK",
@@ -86,13 +97,15 @@ export const links = {
   linkedin: "https://www.linkedin.com/in/karankapur5",
   // Recruiter-facing resume (Google Drive — opens a preview they can read + download).
   // To use a local file instead, drop a PDF at /public/resume.pdf and set this to "./resume.pdf".
-  resume: "https://drive.google.com/file/d/1_fXjnSd0VKHgB0k2Rz906LIHbPDBng5K/view?usp=sharing",
+  resume: "https://drive.google.com/file/d/1ZQ9X3MWkRsg8dWeEyoD7dzHzET1OYz6V/view?usp=drivesdk",
 };
 
 // Rotating "system" commands for the hero terminal.
 // Each line "types" out, prints its result, then moves to the next.
 export const terminalCommands: { cmd: string; out: string }[] = [
   { cmd: "thaw fork --session llm", out: "✓ live LLM state forked in 0.88s median on H100s" },
+  { cmd: "relayiq route --field email", out: "✓ 3.3× cheaper per usable lead, low-confidence writes gated" },
+  { cmd: "refball model --officiating", out: "✓ 8,874 games, 102 refs → a carefully qualified null" },
   { cmd: "f1 predict --race strategy", out: "✓ pit windows + tyre deltas modeled per stint" },
   { cmd: "nfl analyze --qb-decision", out: "✓ decision quality scored beyond box-score stats" },
   { cmd: "eurofins forecast --analyte", out: "✓ 10K+ records → pre-test analyte predictions" },
@@ -125,6 +138,38 @@ export const projects: Project[] = [
       { label: "thaw.sh", href: "https://thaw.sh/" },
       { label: "GitHub", href: "https://github.com/thaw-ai/thaw" },
     ],
+    featured: true,
+  },
+  {
+    title: "RelayIQ — Enrichment Control Plane",
+    blurb: "An open-source control plane that decides when GTM enrichment credits are worth spending.",
+    detail:
+      "RelayIQ sits between Clay-style workflows, webhooks, and CRMs (HubSpot adapter), deciding per field whether to spend enrichment credits, routing each field to the best-fit data provider, and gating low-confidence writes out of the CRM. Idempotent webhook dedup, pre-enrichment filters, caching, and field-level routing — with every credit logged to a queryable cost ledger.",
+    proves: "I can design a control plane around a real cost problem, not just a pipeline around data.",
+    stack: ["Python", "FastAPI", "TypeScript", "React", "Docker", "Terraform", "HubSpot API"],
+    metrics: [
+      { value: "3.3×", label: "cost per usable lead cut" },
+      { value: ".682 → .773", label: "field precision" },
+      { value: "495", label: "seeded benchmark submissions" },
+    ],
+    tags: ["Data Engineering", "GTM Engineering", "Infra"],
+    links: [{ label: "GitHub", href: "https://github.com/karank2512/RelayIQ" }],
+    featured: true,
+  },
+  {
+    title: "Ref Ball? — NBA Officiating Impact Analysis",
+    blurb: "A Bayesian answer to every fan's favorite conspiracy: do the refs decide games?",
+    detail:
+      "An open-source Bayesian hierarchical analysis of NBA officiating impact (PyMC): multi-membership referee-crew models over 585 playoff and 8,289 regular-season games across 102 referees, with a fully reproducible pipeline and a Streamlit app. Every finding stress-tested with placebo permutation tests, injection-recovery power analysis, and leave-one-season-out validation — controlling for market expectations via betting closing lines, and reporting a carefully qualified null result with limitations stated up front.",
+    proves: "I care enough about statistical rigor to publish a null result and defend it.",
+    stack: ["Python", "PyMC", "Pandas", "Streamlit", "Bayesian modeling"],
+    metrics: [
+      { value: "8,874", label: "games modeled" },
+      { value: "102", label: "referees, crew-level effects" },
+      { value: "Null", label: "carefully qualified result" },
+    ],
+    tags: ["Sports Analytics", "AI/ML", "Analytics & Viz"],
+    links: [{ label: "GitHub", href: "https://github.com/karank2512/refball" }],
     featured: true,
   },
   {
@@ -376,3 +421,58 @@ export const contact = {
   closing:
     "I’m looking for roles where I can build useful systems, ship data products, and solve problems with real-world impact.",
 };
+
+// ── Fun mode (Hinge-style profile) ──────────────────────────────────────────
+// Photos live in /public/photos/. Order = order in the profile stack.
+export const photos: Photo[] = [
+  {
+    src: "./photos/pro-headshot.png",
+    alt: "Karan's professional headshot, all-black suit",
+  },
+  {
+    src: "./photos/graduation.png",
+    alt: "Karan popping champagne in a graduation gown in front of Bascom Hall",
+    caption: "CS+DS grad from University of Wisconsin - Madison",
+  },
+  {
+    src: "./photos/bar-night.png",
+    alt: "Karan at a neon-lit bar, mid gesture",
+  },
+  {
+    src: "./photos/atv-trail.png",
+    alt: "Karan riding an ATV down a dusty desert trail",
+    caption: "Sending it through Cabo dust.",
+  },
+  {
+    src: "./photos/christkindlmarket.png",
+    alt: "Karan smiling in the snow at Christkindlmarket Chicago",
+  },
+];
+
+// Hinge-style prompt cards — but I'm looking for a job, not a date.
+// Rewrite these freely, they read best in your voice.
+export const hingePrompts: HingePrompt[] = [
+  {
+    prompt: "My simple pleasures",
+    answer:
+      "Golf on a Saturday morning, a clean gym pump, and a pipeline that passes on the first run.",
+  },
+  {
+    prompt: "Together, we could…",
+    answer:
+      "work on something real — data engineering, AI/ML systems, data analytics, GTM engineering, or forward-deployed builds. You bring the messy problem, I'll bring the obsession.",
+  },
+  {
+    prompt: "Green flags I look for",
+    answer:
+      "Hard problems, real users, a team that ships, and someone who says \"let's look at the data\" unironically.",
+  },
+  {
+    prompt: "Don't hate me if I…",
+    answer: "spend 20 minutes perfecting a DJ transition you'll hear for 8 seconds.",
+  },
+  {
+    prompt: "The way to win me over is",
+    answer: "a weird data problem, a real deadline, and the freedom to chase both.",
+  },
+];

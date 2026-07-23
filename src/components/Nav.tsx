@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { identity, links } from "../data/profile";
+import { useMode } from "../context/ModeContext";
 import { CloseIcon, FileIcon, MenuIcon } from "./icons";
 
 const NAV_ITEMS = [
@@ -17,6 +18,7 @@ export default function Nav() {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState<string>("about");
   const reduce = useReducedMotion();
+  const { setMode } = useMode();
 
   // Subtle background once the user scrolls past the hero fold.
   useEffect(() => {
@@ -55,6 +57,8 @@ export default function Nav() {
         scrolled ? "border-b border-line bg-ink/80 backdrop-blur-md" : "border-b border-transparent"
       }`}
     >
+      {/* Red Bull racing stripe */}
+      <div className="racing-stripe h-0.5 w-full" aria-hidden />
       <nav className="mx-auto flex h-16 max-w-content items-center justify-between px-5 sm:px-8">
         <a
           href="#top"
@@ -88,6 +92,14 @@ export default function Nav() {
           >
             <FileIcon width={16} height={16} /> Resume
           </a>
+          <button
+            type="button"
+            onClick={() => setMode("fun")}
+            className="ml-1 inline-flex items-center gap-1.5 rounded-lg border border-line bg-panel px-3 py-2 text-sm font-medium text-muted transition-colors hover:border-fun-accent/60 hover:text-fun-accent"
+            title="Switch to the fun (Hinge-style) version"
+          >
+            <span aria-hidden>💘</span> Fun mode
+          </button>
         </div>
 
         {/* Mobile toggle */}
@@ -133,6 +145,16 @@ export default function Nav() {
               >
                 <FileIcon width={18} height={18} /> Resume
               </a>
+              <button
+                type="button"
+                onClick={() => {
+                  setOpen(false);
+                  setMode("fun");
+                }}
+                className="mt-1 inline-flex items-center gap-2 rounded-lg border border-line bg-panel px-3 py-3 text-base font-medium text-muted"
+              >
+                <span aria-hidden>💘</span> Switch to fun mode
+              </button>
             </div>
           </motion.div>
         )}

@@ -5,8 +5,9 @@ import Reveal from "./Reveal";
 /**
  * Turn a normal Spotify share link into an embeddable URL.
  * Accepts playlist / album / track / artist links. Returns null if unusable.
+ * `theme: "dark"` forces Spotify's dark embed; "auto" lets it pick.
  */
-function toEmbedUrl(url: string): string | null {
+export function toEmbedUrl(url: string, theme: "dark" | "auto" = "dark"): string | null {
   if (!url) return null;
   try {
     const u = new URL(url);
@@ -16,7 +17,8 @@ function toEmbedUrl(url: string): string | null {
     const parts = u.pathname.split("/").filter(Boolean); // [type, id]
     if (parts.length < 2) return null;
     const [type, id] = parts;
-    return `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`;
+    const themeParam = theme === "dark" ? "&theme=0" : "";
+    return `https://open.spotify.com/embed/${type}/${id}?utm_source=generator${themeParam}`;
   } catch {
     return null;
   }
@@ -28,7 +30,7 @@ export default function Music() {
   return (
     <Section
       id="music"
-      eyebrow="06 / on rotation"
+      eyebrow="sector 06 // team radio"
       title="The soundtrack to the build."
       intro={music.caption}
     >

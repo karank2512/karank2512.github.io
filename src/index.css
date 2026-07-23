@@ -10,6 +10,28 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Fun mode flips the page to a warm light scheme. */
+html[data-mode="fun"] {
+  color-scheme: light;
+}
+html[data-mode="fun"] body {
+  background-color: theme("colors.fun.bg");
+  color: theme("colors.fun.ink");
+}
+html[data-mode="fun"] ::selection {
+  background: theme("colors.fun.accent");
+  color: #fff;
+}
+html[data-mode="fun"] ::-webkit-scrollbar-track {
+  background: theme("colors.fun.bg");
+}
+html[data-mode="fun"] ::-webkit-scrollbar-thumb {
+  background: theme("colors.fun.line");
+}
+html[data-mode="fun"] :focus-visible {
+  outline-color: theme("colors.fun.accent");
+}
+
 /* Respect users who don't want motion: kill smooth scroll + animations. */
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -36,7 +58,7 @@ html {
 
   ::selection {
     background: theme("colors.accent");
-    color: #06150f;
+    color: #10131f;
   }
 
   /* Slim, on-brand scrollbar */
@@ -52,7 +74,7 @@ html {
     border-radius: 999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #313640;
+    background: #2a3a5e;
   }
 
   /* Visible focus ring for keyboard users */
@@ -71,9 +93,20 @@ html {
     background-size: 56px 56px;
   }
 
-  /* Soft accent glow blob */
+  /* Soft accent glow blob (Red Bull yellow) */
   .glow {
-    background: radial-gradient(circle at center, rgba(91, 233, 198, 0.18), transparent 65%);
+    background: radial-gradient(circle at center, rgba(255, 209, 0, 0.14), transparent 65%);
+  }
+
+  /* Racing stripe — red → yellow, used as a hairline flourish. */
+  .racing-stripe {
+    background: linear-gradient(
+      90deg,
+      theme("colors.accent2") 0%,
+      theme("colors.accent2") 45%,
+      theme("colors.accent") 55%,
+      theme("colors.accent") 100%
+    );
   }
 
   /* Hairline-bordered raised surface */
@@ -95,5 +128,14 @@ html {
 
   .link-underline {
     @apply relative text-muted transition-colors hover:text-text;
+  }
+
+  /* ── Fun mode primitives ─────────────────────────────────────────── */
+  .fun-card {
+    @apply rounded-3xl border border-fun-line bg-fun-card shadow-[0_2px_16px_rgba(43,38,34,0.06)];
+  }
+
+  .fun-chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-fun-line bg-fun-bg px-3 py-1.5 text-xs font-semibold text-fun-sub;
   }
 }

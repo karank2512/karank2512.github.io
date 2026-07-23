@@ -9,19 +9,25 @@ import Music from "./components/Music";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import CursorGlow from "./components/CursorGlow";
+import CircuitBackground from "./components/CircuitBackground";
+import ModeGate from "./components/ModeGate";
+import FunProfile from "./components/fun/FunProfile";
+import { ModeProvider, useMode } from "./context/ModeContext";
 
-export default function App() {
+/** Serious mode — the F1/Red Bull engineering site. */
+function SeriousSite() {
   return (
     <>
       {/* Skip link for keyboard / screen-reader users */}
       <a
         href="#about"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-[#06150f]"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:bg-accent focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-ink"
       >
         Skip to content
       </a>
 
       <CursorGlow />
+      <CircuitBackground />
       <Nav />
 
       <main className="relative z-10">
@@ -37,5 +43,20 @@ export default function App() {
 
       <Footer />
     </>
+  );
+}
+
+function Site() {
+  const { mode } = useMode();
+
+  if (!mode) return <ModeGate />;
+  return mode === "serious" ? <SeriousSite /> : <FunProfile />;
+}
+
+export default function App() {
+  return (
+    <ModeProvider>
+      <Site />
+    </ModeProvider>
   );
 }
