@@ -17,8 +17,8 @@ export default function Contact() {
 
       <div className="relative mx-auto max-w-content px-5 py-24 sm:px-8 sm:py-32">
         <Reveal>
-          <p className="section-eyebrow">07 / contact</p>
-          <h2 className="mt-3 max-w-3xl text-3xl font-bold tracking-tight sm:text-5xl">
+          <p className="section-eyebrow">sector 07 // pit wall</p>
+          <h2 className="mt-3 max-w-3xl font-display text-3xl font-bold tracking-tight sm:text-5xl">
             Let’s build something worth shipping.
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-muted sm:text-lg">
@@ -31,7 +31,7 @@ export default function Contact() {
             <Magnetic>
               <a
                 href={`mailto:${links.email}`}
-                className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-semibold text-[#06150f] transition-transform hover:-translate-y-0.5"
+                className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3.5 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
               >
                 <MailIcon width={18} height={18} /> {links.email}
               </a>

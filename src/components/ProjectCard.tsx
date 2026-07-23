@@ -38,13 +38,18 @@ export default function ProjectCard({ project }: { project: Project }) {
         className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
         style={{
           opacity: spot.active ? 1 : 0,
-          background: `radial-gradient(420px circle at ${spot.x}% ${spot.y}%, rgba(91,233,198,0.10), transparent 70%)`,
+          background: `radial-gradient(420px circle at ${spot.x}% ${spot.y}%, rgba(255,209,0,0.08), transparent 70%)`,
         }}
       />
 
       <div className="relative flex flex-1 flex-col">
-        {/* tags */}
+        {/* tags + podium badge */}
         <div className="mb-4 flex flex-wrap gap-2">
+          {project.featured && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-accent/50 bg-accent/10 px-2.5 py-1 text-xs font-semibold text-accent">
+              🏆 podium finish
+            </span>
+          )}
           {project.tags.map((t) => (
             <span key={t} className="chip">
               {t}
@@ -57,7 +62,10 @@ export default function ProjectCard({ project }: { project: Project }) {
         <p className="mt-3 text-sm leading-relaxed text-muted">{project.detail}</p>
 
         {/* metrics */}
-        <div className="mt-5 grid grid-cols-3 gap-3">
+        <p className="mt-5 font-mono text-[10px] uppercase tracking-[0.25em] text-accent2">
+          // telemetry
+        </p>
+        <div className="mt-2 grid grid-cols-3 gap-3">
           {project.metrics.map((m) => (
             <div key={m.label} className="rounded-lg border border-line bg-ink/40 p-2.5">
               <div className="font-mono text-sm font-semibold text-text">{m.value}</div>

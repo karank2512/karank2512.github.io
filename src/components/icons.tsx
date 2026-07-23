@@ -54,6 +54,12 @@ export const ExternalIcon = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+export const HeartIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg {...base(props)}>
+    <path d="M19.5 12.57 12 20l-7.5-7.43A5 5 0 1 1 12 6.01a5 5 0 1 1 7.5 6.56Z" />
+  </svg>
+);
+
 export const MenuIcon = (props: SVGProps<SVGSVGElement>) => (
   <svg {...base(props)}>
     <path d="M4 6h16M4 12h16M4 18h16" />

@@ -47,6 +47,14 @@ export default function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_75%)]" />
       <div className="glow pointer-events-none absolute -top-40 left-1/2 h-[40rem] w-[40rem] -translate-x-1/2 opacity-70" />
 
+      {/* the car — fades into the midnight backdrop behind everything */}
+      <img
+        src="./f1-car.png"
+        alt=""
+        aria-hidden
+        className="pointer-events-none absolute bottom-0 right-0 w-[52rem] max-w-none opacity-40 [mask-image:linear-gradient(to_left,black_35%,transparent_95%)] sm:opacity-50 lg:w-[64rem]"
+      />
+
       <div className="relative mx-auto grid max-w-content grid-cols-1 items-center gap-12 px-5 pb-16 pt-32 sm:px-8 sm:pt-40 lg:grid-cols-[1.05fr_0.95fr] lg:pb-28">
         {/* Left: identity */}
         <div>
@@ -60,7 +68,7 @@ export default function Hero() {
               Open to {new Date().getFullYear()} new-grad roles
             </p>
 
-            <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
+            <h1 className="font-display text-4xl font-black leading-[1.05] tracking-tight sm:text-6xl">
               {identity.name}
             </h1>
 
@@ -80,7 +88,7 @@ export default function Hero() {
               <Magnetic>
                 <a
                   href="#work"
-                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-[#06150f] transition-transform hover:-translate-y-0.5"
+                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-ink transition-transform hover:-translate-y-0.5"
                 >
                   View Projects <ArrowIcon width={16} height={16} />
                 </a>

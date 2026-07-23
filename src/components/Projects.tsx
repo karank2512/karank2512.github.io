@@ -24,9 +24,9 @@ export default function Projects() {
   return (
     <Section
       id="work"
-      eyebrow="02 / featured work"
-      title="Things I’ve built and shipped."
-      intro="A mix of low-level systems, real client data products, and sports/F1 analytics. Each one is a small case study: what it does, the numbers, and what it proves."
+      eyebrow="sector 02 // grand prix record"
+      title="The trophy cabinet."
+      intro="Every project is a race weekend: a hard problem, a build under pressure, and numbers on the board. Low-level systems, real client data products, and sports analytics — filter by category."
     >
       {/* tag filter */}
       <Reveal>

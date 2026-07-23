@@ -4,19 +4,35 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Core surface palette — edit here to re-theme the whole site.
-        ink: "#0A0B0D", // page background
-        panel: "#121317", // cards / raised surfaces
-        panel2: "#191B20", // hover / nested surfaces
-        line: "#23262D", // borders / hairlines
-        text: "#E7E8EA", // primary text
-        muted: "#9A9CA3", // secondary text
-        accent: "#5BE9C6", // primary accent (cool / systems)
-        accent2: "#FFC65C", // secondary accent (warm / energy)
+        // ── Serious mode · F1 Red Bull livery ─────────────────────────
+        ink: "#060A14", // page background (midnight navy)
+        panel: "#0C1322", // cards / raised surfaces
+        panel2: "#131C31", // hover / nested surfaces
+        line: "#1D2942", // borders / hairlines
+        text: "#EAEFF9", // primary text
+        muted: "#8E9CB8", // secondary text
+        accent: "#FFD100", // Red Bull yellow (primary accent)
+        accent2: "#FF3B5C", // Red Bull red (secondary accent)
+
+        // ── Fun mode · Hinge profile ───────────────────────────────────
+        fun: {
+          bg: "#FAF5EF", // warm paper background
+          card: "#FFFFFF", // profile cards
+          ink: "#2B2622", // primary text
+          sub: "#7A6F66", // secondary text
+          line: "#EBE2D8", // borders
+          accent: "#E14F63", // rose / coral
+          accent2: "#F4A83D", // warm amber
+        },
       },
       fontFamily: {
         sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["'JetBrains Mono'", "ui-monospace", "SFMono-Regular", "monospace"],
+        // Serious headings — racing-adjacent
+        display: ["'Titillium Web'", "Inter", "ui-sans-serif", "sans-serif"],
+        // Fun mode pairing
+        funserif: ["Fraunces", "Georgia", "serif"],
+        funsans: ["Nunito", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       maxWidth: {
         content: "72rem",

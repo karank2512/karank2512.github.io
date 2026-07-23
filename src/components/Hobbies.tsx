@@ -9,7 +9,7 @@ export default function Hobbies() {
   return (
     <Section
       id="life"
-      eyebrow="05 / life outside the IDE"
+      eyebrow="sector 05 // off track"
       title="The stuff that makes the work make sense."
       intro="I’m better at building when I’m not only building. Here’s where the rest of the time goes."
     >

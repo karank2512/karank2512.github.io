@@ -13,8 +13,8 @@ export default function Skills() {
   return (
     <Section
       id="skills"
-      eyebrow="04 / skills"
-      title="A technical playground."
+      eyebrow="sector 04 // the garage"
+      title="What's in the garage."
       intro="Grouped by what they’re actually for. Pick a category to see which projects it powers."
     >
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
