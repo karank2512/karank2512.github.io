@@ -104,7 +104,7 @@ export default function CircuitBackground() {
         />
         {/* start/finish line */}
         <line x1={180} y1={416} x2={180} y2={444} stroke="rgba(255,209,0,0.25)" strokeWidth={4} strokeDasharray="4 4" />
-        {/* the car — top-down F1 silhouette, nose pointing along the track */}
+        {/* the car: top-down F1 silhouette, nose pointing along the track */}
         <g ref={carRef}>
           <circle r={26} fill="rgba(255,209,0,0.10)" />
           <g opacity={0.95} transform="scale(1.45)">

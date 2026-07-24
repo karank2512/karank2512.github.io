@@ -11,10 +11,11 @@ import Footer from "./components/Footer";
 import CursorGlow from "./components/CursorGlow";
 import CircuitBackground from "./components/CircuitBackground";
 import ModeGate from "./components/ModeGate";
+import StartLights from "./components/StartLights";
 import FunProfile from "./components/fun/FunProfile";
 import { ModeProvider, useMode } from "./context/ModeContext";
 
-/** Serious mode — the F1/Red Bull engineering site. */
+/** Serious mode: the F1/Red Bull engineering site. */
 function SeriousSite() {
   return (
     <>
@@ -47,10 +48,17 @@ function SeriousSite() {
 }
 
 function Site() {
-  const { mode } = useMode();
+  const { mode, startLights, dismissStartLights } = useMode();
 
   if (!mode) return <ModeGate />;
-  return mode === "serious" ? <SeriousSite /> : <FunProfile />;
+  if (mode === "fun") return <FunProfile />;
+  return (
+    <>
+      <SeriousSite />
+      {/* race-start sequence overlays the site, then fades to reveal it */}
+      {startLights && <StartLights onDone={dismissStartLights} />}
+    </>
+  );
 }
 
 export default function App() {

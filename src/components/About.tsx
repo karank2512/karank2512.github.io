@@ -33,12 +33,12 @@ export default function About() {
           <div className="relative mb-5 overflow-hidden rounded-2xl border border-line bg-panel">
             <div className="racing-stripe h-1 w-full" aria-hidden />
 
-            {/* portrait with number overlay — 4:5 matches the source photo so the face never crops */}
+            {/* portrait with number overlay; square matches the source photo so nothing crops */}
             <div className="relative">
               <img
-                src="./photos/pro-headshot.png"
-                alt="Karan Kapur, professional headshot"
-                className="aspect-[4/5] w-full object-cover"
+                src="./photos/driver-card.png"
+                alt="Karan Kapur in a Red Bull Racing team suit"
+                className="aspect-square w-full object-cover"
               />
               <div
                 className="pointer-events-none absolute inset-0 bg-gradient-to-t from-panel via-transparent"
@@ -60,10 +60,10 @@ export default function About() {
               </div>
             </div>
 
-            {/* spec sheet — F1 driver page style rows */}
+            {/* spec sheet: F1 driver page style rows */}
             <dl className="divide-y divide-line border-t border-line">
               {[
-                { k: "Team", v: "Free agent — 2026 silly season" },
+                { k: "Team", v: "Free agent, 2026 silly season" },
                 { k: "Seat", v: "AI/ML & Data Engineer" },
                 { k: "Academy", v: "UW-Madison · CS + Data Science '26" },
                 { k: "Base", v: identity.location },

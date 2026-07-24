@@ -26,7 +26,7 @@ export default function Projects() {
       id="work"
       eyebrow="sector 02 // grand prix record"
       title="The trophy cabinet."
-      intro="Every project is a race weekend: a hard problem, a build under pressure, and numbers on the board. Low-level systems, real client data products, and sports analytics — filter by category."
+      intro="Every project is a race weekend: a hard problem, a build under pressure, and numbers on the board. Low-level systems, real client data products, and sports analytics; filter by category."
     >
       {/* tag filter */}
       <Reveal>

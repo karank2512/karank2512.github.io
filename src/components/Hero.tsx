@@ -47,7 +47,7 @@ export default function Hero() {
       <div className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_50%_0%,black,transparent_75%)]" />
       <div className="glow pointer-events-none absolute -top-40 left-1/2 h-[40rem] w-[40rem] -translate-x-1/2 opacity-70" />
 
-      {/* the car — fades into the midnight backdrop behind everything */}
+      {/* the car; fades into the midnight backdrop behind everything */}
       <img
         src="./f1-car.png"
         alt=""

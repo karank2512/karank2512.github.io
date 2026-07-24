@@ -29,7 +29,7 @@ const VITALS = [
   "✈️ Open to relocation",
 ];
 
-/** Fun mode — the whole site as a Hinge-style profile. */
+/** Fun mode: the whole site as a Hinge-style profile. */
 export default function FunProfile() {
   return (
     <div id="fun-top" className="min-h-screen bg-fun-bg font-funsans text-fun-ink">

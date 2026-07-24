@@ -98,7 +98,7 @@ html[data-mode="fun"] :focus-visible {
     background: radial-gradient(circle at center, rgba(255, 209, 0, 0.14), transparent 65%);
   }
 
-  /* Racing stripe — red → yellow, used as a hairline flourish. */
+  /* Racing stripe (red to yellow), used as a hairline flourish. */
   .racing-stripe {
     background: linear-gradient(
       90deg,

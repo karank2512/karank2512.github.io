@@ -3,7 +3,7 @@ import Reveal from "../Reveal";
 import { ExternalIcon, FileIcon } from "../icons";
 
 /**
- * "My work, but make it casual" — light project cards for fun mode.
+ * "My work, but make it casual": light project cards for fun mode.
  * Title + one-liner + link. The deep case studies live in serious mode.
  */
 export default function FunWork() {
@@ -13,7 +13,7 @@ export default function FunWork() {
     <section id="fun-work" aria-label="What I'm building">
       <Reveal>
         <h2 className="font-funserif text-2xl font-semibold text-fun-ink sm:text-3xl">
-          Not just a pretty profile —
+          Not just a pretty profile,
         </h2>
         <p className="mt-1 font-funsans text-sm font-semibold text-fun-sub">
           a few things I've actually built. Want the full nerd version? Hit serious mode. 🏎️
@@ -34,7 +34,7 @@ export default function FunWork() {
                     href={p.links[0].href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    aria-label={`${p.title} — ${p.links[0].label}`}
+                    aria-label={`${p.title}: ${p.links[0].label}`}
                     className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-fun-line text-fun-sub transition-colors hover:border-fun-accent hover:text-fun-accent"
                   >
                     <ExternalIcon width={16} height={16} />

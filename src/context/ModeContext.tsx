@@ -17,6 +17,9 @@ type ModeContextValue = {
   setMode: (mode: Mode) => void;
   /** clears the stored choice and returns the visitor to the gate */
   resetMode: () => void;
+  /** true right after the visitor switches into serious mode → play the F1 start lights */
+  startLights: boolean;
+  dismissStartLights: () => void;
 };
 
 const ModeContext = createContext<ModeContextValue | null>(null);
@@ -32,6 +35,7 @@ function readStoredMode(): Mode | null {
 
 export function ModeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<Mode | null>(readStoredMode);
+  const [startLights, setStartLights] = useState(false);
 
   // Keep <html data-mode> in sync so global CSS (body bg, selection…) follows.
   useEffect(() => {
@@ -42,16 +46,23 @@ export function ModeProvider({ children }: { children: ReactNode }) {
     }
   }, [mode]);
 
-  const setMode = useCallback((next: Mode) => {
-    setModeState(next);
-    try {
-      localStorage.setItem(STORAGE_KEY, next);
-    } catch {
-      /* private browsing — choice just won't persist */
-    }
-    // A mode switch is a fresh page, not a mid-scroll reskin.
-    window.scrollTo({ top: 0, behavior: "auto" });
-  }, []);
+  const setMode = useCallback(
+    (next: Mode) => {
+      // Entering serious mode gets the full grand-prix start sequence.
+      if (next === "serious" && mode !== "serious") setStartLights(true);
+      setModeState(next);
+      try {
+        localStorage.setItem(STORAGE_KEY, next);
+      } catch {
+        /* private browsing; choice just won't persist */
+      }
+      // A mode switch is a fresh page, not a mid-scroll reskin.
+      window.scrollTo({ top: 0, behavior: "auto" });
+    },
+    [mode]
+  );
+
+  const dismissStartLights = useCallback(() => setStartLights(false), []);
 
   const resetMode = useCallback(() => {
     setModeState(null);
@@ -63,7 +74,11 @@ export function ModeProvider({ children }: { children: ReactNode }) {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, []);
 
-  return <ModeContext.Provider value={{ mode, setMode, resetMode }}>{children}</ModeContext.Provider>;
+  return (
+    <ModeContext.Provider value={{ mode, setMode, resetMode, startLights, dismissStartLights }}>
+      {children}
+    </ModeContext.Provider>
+  );
 }
 
 export function useMode(): ModeContextValue {

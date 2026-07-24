@@ -1,6 +1,6 @@
 import type { Variants } from "framer-motion";
 
-// Shared easing — a soft, confident ease-out used across reveals.
+// Shared easing: a soft, confident ease-out used across reveals.
 export const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 export const fadeUp: Variants = {
