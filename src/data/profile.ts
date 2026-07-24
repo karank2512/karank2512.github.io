@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- *  profile.ts — SINGLE SOURCE OF TRUTH
+ *  profile.ts - SINGLE SOURCE OF TRUTH
  * ============================================================================
  *  Edit everything about the site from this one file:
  *    - identity / headline / one-liner   -> `identity`
@@ -77,7 +77,7 @@ export const identity = {
   location: "Madison, WI",
   education:
     "B.S. Computer Science + Data Science, Certificate in Entrepreneurship, University of Wisconsin-Madison (May 2026)",
-  // roles Karan is targeting — shown as a rotating word in the hero
+  // roles Karan is targeting, shown as a rotating word in the hero
   targets: [
     "AI/ML Engineering",
     "Data Engineering",
@@ -95,7 +95,7 @@ export const links = {
   email: "kkapur5@wisc.edu",
   github: "https://github.com/karank2512",
   linkedin: "https://www.linkedin.com/in/karankapur5",
-  // Recruiter-facing resume (Google Drive — opens a preview they can read + download).
+  // Recruiter-facing resume (Google Drive; opens a preview they can read + download).
   // To use a local file instead, drop a PDF at /public/resume.pdf and set this to "./resume.pdf".
   resume: "https://drive.google.com/file/d/1ZQ9X3MWkRsg8dWeEyoD7dzHzET1OYz6V/view?usp=drivesdk",
 };
@@ -122,15 +122,15 @@ export const about: string[] = [
 export const projects: Project[] = [
   {
     title: "thaw",
-    blurb: "An open-source Rust + CUDA system that snapshots and restores live LLM state.",
+    blurb: "Open-source Rust + CUDA system that snapshots and restores live LLM state.",
     detail:
-      "thaw turns LLM session branching from a cold-boot tax into a near-instant fork by snapshotting and restoring live inference state. I own the cloud storage layer: durable persistence and retrieval of large snapshots (weights, KV cache, prefix-cache metadata, scheduler state) wired into thaw’s double-buffered restore path.",
+      "The problem: branching an LLM session normally means a full cold boot. thaw forks a live session in under a second; I built the cloud storage layer that saves and restores the snapshots.",
     proves:
       "I can reason about GPUs, memory, and storage at a low level and turn it into infrastructure other people build on.",
     stack: ["Rust", "CUDA", "PyO3 FFI", "gRPC", "AWS S3", "LSM-trees", "Raft"],
     metrics: [
-      { value: "340s → 0.88s", label: "cold boot → median fork" },
-      { value: "14.3 GB/s", label: "weight restore throughput" },
+      { value: "0.88s", label: "to fork a live session (was 340s)" },
+      { value: "14.3 GB/s", label: "snapshot restore speed" },
       { value: "3.4×", label: "faster 70B model loading" },
     ],
     tags: ["AI Systems", "Low-Level Systems", "Infra"],
@@ -141,32 +141,32 @@ export const projects: Project[] = [
     featured: true,
   },
   {
-    title: "RelayIQ — Enrichment Control Plane",
-    blurb: "An open-source control plane that decides when GTM enrichment credits are worth spending.",
+    title: "RelayIQ: Enrichment Control Plane",
+    blurb: "Open-source control plane that decides when GTM enrichment credits are worth spending.",
     detail:
-      "RelayIQ sits between Clay-style workflows, webhooks, and CRMs (HubSpot adapter), deciding per field whether to spend enrichment credits, routing each field to the best-fit data provider, and gating low-confidence writes out of the CRM. Idempotent webhook dedup, pre-enrichment filters, caching, and field-level routing — with every credit logged to a queryable cost ledger.",
+      "The problem: enrichment workflows burn credits on fields they don't need and write junk into the CRM. RelayIQ spends credits only where they pay off and blocks low-confidence data at the door.",
     proves: "I can design a control plane around a real cost problem, not just a pipeline around data.",
     stack: ["Python", "FastAPI", "TypeScript", "React", "Docker", "Terraform", "HubSpot API"],
     metrics: [
-      { value: "3.3×", label: "cost per usable lead cut" },
-      { value: ".682 → .773", label: "field precision" },
-      { value: "495", label: "seeded benchmark submissions" },
+      { value: "3.3×", label: "cheaper per usable lead" },
+      { value: "68% → 77%", label: "accuracy of data written to CRM" },
+      { value: "495", label: "test leads with known answers" },
     ],
     tags: ["Data Engineering", "GTM Engineering", "Infra"],
     links: [{ label: "GitHub", href: "https://github.com/karank2512/RelayIQ" }],
     featured: true,
   },
   {
-    title: "Ref Ball? — NBA Officiating Impact Analysis",
-    blurb: "A Bayesian answer to every fan's favorite conspiracy: do the refs decide games?",
+    title: "Ref Ball? NBA Officiating Analysis",
+    blurb: "Do NBA refs decide games? A Bayesian model says: probably not.",
     detail:
-      "An open-source Bayesian hierarchical analysis of NBA officiating impact (PyMC): multi-membership referee-crew models over 585 playoff and 8,289 regular-season games across 102 referees, with a fully reproducible pipeline and a Streamlit app. Every finding stress-tested with placebo permutation tests, injection-recovery power analysis, and leave-one-season-out validation — controlling for market expectations via betting closing lines, and reporting a carefully qualified null result with limitations stated up front.",
+      "The problem: every fan swears the refs rig games, but nobody tests it properly. I modeled 8,874 games in PyMC and found no meaningful referee effect after stress-testing the result from every angle.",
     proves: "I care enough about statistical rigor to publish a null result and defend it.",
     stack: ["Python", "PyMC", "Pandas", "Streamlit", "Bayesian modeling"],
     metrics: [
-      { value: "8,874", label: "games modeled" },
-      { value: "102", label: "referees, crew-level effects" },
-      { value: "Null", label: "carefully qualified result" },
+      { value: "8,874", label: "NBA games modeled" },
+      { value: "102", label: "referees tracked" },
+      { value: "No effect", label: "the verdict, after stress tests" },
     ],
     tags: ["Sports Analytics", "AI/ML", "Analytics & Viz"],
     links: [{ label: "GitHub", href: "https://github.com/karank2512/refball" }],
@@ -176,81 +176,81 @@ export const projects: Project[] = [
     title: "NFL Quarterback Decision Metric",
     blurb: "A model that scores quarterback decision quality beyond the box score.",
     detail:
-      "Built a metric that grades the decision a QB made, not just the outcome, using play context, coverage, and expected value. The goal: separate good process from lucky results, the way a scout would.",
+      "The problem: box scores reward lucky throws. This metric grades the decision itself, using coverage and expected value, so a smart throw that fails still scores well.",
     proves: "I can take a sport I love and turn intuition into a defensible, data-backed metric.",
     stack: ["Python", "Pandas", "scikit-learn", "NumPy", "Matplotlib"],
     metrics: [
-      { value: "EV-based", label: "decision scoring" },
-      { value: "Play-level", label: "context features" },
+      { value: "EV-based", label: "scores the choice, not the outcome" },
+      { value: "Play-level", label: "coverage + game context inputs" },
     ],
     tags: ["Sports Analytics", "AI/ML"],
     featured: true,
   },
   {
     title: "Eurofins Predictive Analytics System",
-    blurb: "End-to-end system that forecasts analyte results before the lab runs the test.",
+    blurb: "Forecasts lab test results before the lab runs the test.",
     detail:
-      "Senior design capstone for Eurofins Scientific: a FastAPI + React + TypeScript platform that turns 10K+ historical records into pre-test analyte forecasts with confidence scores and comparable-sample recommendations, cutting rerun-related delays and giving technicians a head start.",
+      "The problem: labs run costly tests blind, and reruns waste days. This capstone for Eurofins Scientific predicts the result first, with a confidence score attached, so technicians get a head start.",
     proves: "I can ship a real data product for a real client, from ingestion pipeline to UI.",
     stack: ["FastAPI", "React", "TypeScript", "Pandas", "scikit-learn"],
     metrics: [
-      { value: "10K+", label: "records modeled" },
-      { value: "4+", label: "business units served" },
-      { value: "Confidence", label: "scored predictions" },
+      { value: "10K+", label: "past lab records learned from" },
+      { value: "4+", label: "business units covered" },
+      { value: "Scored", label: "confidence on every prediction" },
     ],
     tags: ["Data Engineering", "AI/ML"],
     featured: true,
   },
   {
     title: "Formula 1 Race Strategy Prediction Pipeline",
-    blurb: "A pipeline that models pit windows and tyre strategy across a race.",
+    blurb: "Models pit windows and tyre strategy across a race.",
     detail:
-      "Ingests timing, tyre, and stint data to predict race-strategy decisions: when to pit, which compound, and how the undercut plays out. F1 is the perfect testbed: high-stakes decisions made at 300 km/h with telemetry attached.",
+      "The problem: pit strategy decides races but is mostly gut feel. This pipeline models tyre wear and pit windows from timing data to predict the right call for each stint.",
     proves: "I can build a data pipeline around a fast-moving, real-world decision problem.",
     stack: ["Python", "Pandas", "scikit-learn", "BigQuery"],
     metrics: [
-      { value: "Per-stint", label: "strategy modeling" },
-      { value: "Pit-window", label: "predictions" },
+      { value: "Per-stint", label: "tyre + strategy modeling" },
+      { value: "Pit-window", label: "timing predictions" },
     ],
     tags: ["Sports Analytics", "Data Engineering"],
     featured: true,
   },
   {
     title: "MLB Pitching Release Point Analysis",
-    blurb: "Analysis of pitcher release points and what they reveal about deception and risk.",
+    blurb: "Finds which pitchers are tipping their pitches.",
     detail:
-      "Studied pitch release-point consistency and clustering to surface signal about repertoire, tunneling, and tip-offs, translating biomechanical scatter into something a coaching staff could read.",
-    proves: "I’m comfortable in the data-viz + statistics lane, not just the modeling one.",
+      "The problem: a pitcher whose release point drifts is readable. This analysis clusters release points to show who is consistent and who is giving their pitches away.",
+    proves: "I'm comfortable in the data-viz + statistics lane, not just the modeling one.",
     stack: ["Python", "Pandas", "Matplotlib", "R", "ggplot2"],
     metrics: [
-      { value: "Release-pt", label: "clustering" },
-      { value: "Visual", label: "scouting output" },
+      { value: "Clustered", label: "release-point consistency" },
+      { value: "Visual", label: "scouting-style output" },
     ],
     tags: ["Sports Analytics", "Analytics & Viz"],
   },
   {
     title: "AI-Powered Intrusion Detection System",
-    blurb: "An ML system that flags anomalous network behavior in near real time.",
+    blurb: "Flags network intrusions in near real time.",
     detail:
-      "Trained models on network traffic to separate normal patterns from intrusions, tuning for the precision/recall trade-off that actually matters when false alarms are expensive.",
+      "The problem: attacks hide inside normal-looking traffic. Trained models to flag intrusions as they happen, tuned so false alarms stay rare.",
     proves: "I can apply ML to security and care about the trade-offs, not just accuracy.",
     stack: ["Python", "scikit-learn", "PyTorch", "Pandas"],
     metrics: [
-      { value: "Real-time", label: "anomaly flags" },
-      { value: "Tuned", label: "precision / recall" },
+      { value: "Real-time", label: "anomaly detection" },
+      { value: "Tuned", label: "to keep false alarms rare" },
     ],
     tags: ["AI Systems", "Security"],
   },
   {
     title: "Custom UNIX Shell",
-    blurb: "A shell written from scratch in C: pipes, redirection, job control.",
+    blurb: "A working shell written from scratch in C.",
     detail:
-      "Implemented a working command shell in C: parsing, process creation, pipelines, I/O redirection, and built-ins. The kind of project that makes the OS stop being a black box.",
-    proves: "I understand what’s happening under the abstractions: processes, fds, syscalls.",
+      "Parsing, process creation, pipes, I/O redirection, and built-ins, all from scratch. The project that makes the OS stop being a black box.",
+    proves: "I understand what's happening under the abstractions: processes, fds, syscalls.",
     stack: ["C", "Linux/UNIX", "Systems Programming"],
     metrics: [
-      { value: "Pipes + IO", label: "redirection" },
-      { value: "From scratch", label: "in C" },
+      { value: "Pipes + IO", label: "redirection, job control" },
+      { value: "From scratch", label: "no frameworks, just C" },
     ],
     tags: ["Low-Level Systems"],
   },
@@ -449,7 +449,7 @@ export const photos: Photo[] = [
   },
 ];
 
-// Hinge-style prompt cards — but I'm looking for a job, not a date.
+// Hinge-style prompt cards, but I'm looking for a job, not a date.
 // Rewrite these freely, they read best in your voice.
 export const hingePrompts: HingePrompt[] = [
   {
@@ -460,7 +460,7 @@ export const hingePrompts: HingePrompt[] = [
   {
     prompt: "Together, we could…",
     answer:
-      "work on something real — data engineering, AI/ML systems, data analytics, GTM engineering, or forward-deployed builds. You bring the messy problem, I'll bring the obsession.",
+      "work on something real: data engineering, AI/ML systems, data analytics, GTM engineering, or forward-deployed builds. You bring the messy problem, I'll bring the obsession.",
   },
   {
     prompt: "Green flags I look for",

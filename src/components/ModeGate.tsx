@@ -31,7 +31,7 @@ export default function ModeGate() {
 
       {/* the two doors */}
       <div className="grid grid-cols-1 gap-4 px-4 pb-6 sm:px-6 md:grid-cols-2 md:gap-6 md:pb-10">
-        {/* Serious — F1 Red Bull */}
+        {/* Serious: F1 Red Bull */}
         <motion.button
           type="button"
           onClick={() => setMode("serious")}
@@ -56,7 +56,7 @@ export default function ModeGate() {
               The engineer.
             </h2>
             <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted">
-              Case studies, telemetry, and shipped systems — full throttle, no small talk.
+              Case studies, telemetry, and shipped systems. Full throttle, no small talk.
             </p>
             <span className="mt-5 inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-3 text-sm font-semibold text-ink transition-transform group-hover:-translate-y-0.5">
               Lights out <ArrowIcon width={16} height={16} />
@@ -64,7 +64,7 @@ export default function ModeGate() {
           </div>
         </motion.button>
 
-        {/* Fun — Hinge profile */}
+        {/* Fun: Hinge profile */}
         <motion.button
           type="button"
           onClick={() => setMode("fun")}
@@ -96,7 +96,7 @@ export default function ModeGate() {
               The human.
             </h2>
             <p className="mt-2 max-w-sm font-funsans text-sm leading-relaxed text-fun-sub">
-              Photos, prompts, and green flags — like a dating profile, but the projects are real.
+              Photos, prompts, and green flags; like a dating profile, but the projects are real.
             </p>
             <span className="mt-5 inline-flex items-center gap-2 rounded-full bg-fun-accent px-5 py-3 font-funsans text-sm font-bold text-white transition-transform group-hover:-translate-y-0.5">
               Open the profile <ArrowIcon width={16} height={16} />

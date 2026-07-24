@@ -3,7 +3,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import type { HingePrompt, Photo } from "../../data/profile";
 import { HeartIcon } from "../icons";
 
-/** Hinge-style like button — purely for fun, fills rose when tapped. */
+/** Hinge-style like button, purely for fun; fills rose when tapped. */
 function LikeButton({ label }: { label: string }) {
   const [liked, setLiked] = useState(false);
   const reduce = useReducedMotion();

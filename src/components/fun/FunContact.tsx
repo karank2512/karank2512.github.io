@@ -18,7 +18,7 @@ export default function FunContact() {
             Consider this a like with a comment.
           </h2>
           <p className="mx-auto mt-2 max-w-sm font-funsans text-sm leading-relaxed text-fun-sub">
-            Recruiter, teammate, or fellow F1 conspiracy theorist — my inbox is open.
+            Recruiter, teammate, or fellow F1 conspiracy theorist; my inbox is open.
           </p>
 
           <a

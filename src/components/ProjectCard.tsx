@@ -92,8 +92,8 @@ export default function ProjectCard({ project }: { project: Project }) {
             ))}
           </div>
 
-          {/* links */}
-          {project.links && project.links.length > 0 && (
+          {/* links, or an honest note when there's no public repo */}
+          {project.links && project.links.length > 0 ? (
             <div className="mt-4 flex flex-wrap gap-3">
               {project.links.map((l) => (
                 <a
@@ -112,6 +112,10 @@ export default function ProjectCard({ project }: { project: Project }) {
                 </a>
               ))}
             </div>
+          ) : (
+            <p className="mt-4 font-mono text-[11px] text-muted/70">
+              // no public repo, happy to walk through the code
+            </p>
           )}
         </div>
       </div>

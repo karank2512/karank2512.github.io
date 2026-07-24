@@ -9,7 +9,7 @@ export default function Experience() {
       id="experience"
       eyebrow="sector 03 // racing history"
       title="Career results."
-      intro="Every seat I've driven — from an open-source inference startup to a corporate compliance floor. Team, season, and what went on the board."
+      intro="Every seat I've driven, from an open-source inference startup to a corporate compliance floor. Team, season, and what went on the board."
     >
       <div className="relative">
         {/* vertical rail */}
@@ -28,7 +28,7 @@ export default function Experience() {
 
               <Reveal delay={i * 0.04}>
                 <div className="card overflow-hidden">
-                  {/* season header — pit board style */}
+                  {/* season header, pit board style */}
                   <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line bg-panel2/60 px-5 py-2.5 sm:px-6">
                     <span className="font-mono text-[11px] uppercase tracking-[0.2em] text-accent">
                       Season {job.start} – {job.end}
