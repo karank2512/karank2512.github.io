@@ -4,6 +4,31 @@ import AxeBuilder from '@axe-core/playwright';
 /** The visible sound control: the turntable button on wide fine-pointer screens, the touch button otherwise. */
 const playButton = (page: Page) => page.locator('button.snd:visible');
 
+type Box = { x: number; y: number; width: number; height: number };
+/** True when two boxes share any area (touching edges do not count). */
+const overlaps = (a: Box, b: Box): boolean =>
+  a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+const fmt = (b: Box): string => `x ${b.x.toFixed(0)} y ${b.y.toFixed(0)} w ${b.width.toFixed(0)} h ${b.height.toFixed(0)}`;
+
+/**
+ * Wait for the hero entrance to finish: the finite time-based animations
+ * under the hero (the rise). Looping ones (the field) and scroll-driven ones
+ * never settle, so they are left out.
+ */
+async function settleHero(page: Page): Promise<void> {
+  await page.evaluate(() =>
+    Promise.all(
+      (document.querySelector('.hero')?.getAnimations({ subtree: true }) ?? [])
+        .filter((a) => a.timeline instanceof DocumentTimeline && a.effect?.getTiming().iterations !== Infinity)
+        .map((a) => a.finished),
+    ),
+  );
+}
+
+/** Two frames, so a scroll reveal has settled after scrollIntoView. */
+const twoFrames = (page: Page) =>
+  page.evaluate(() => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))));
+
 test.describe('home page', () => {
   test('has no serious or critical axe violations', async ({ page }, testInfo) => {
     await page.goto('/');
@@ -329,9 +354,131 @@ test.describe('home page', () => {
     await expect(page.locator('#thaw .rcpt .row')).not.toHaveCount(0);
     // the tour stage spans the full content column, past the tile column
     const [tourBox, roleBox] = await Promise.all([page.locator('#tour-stick').boundingBox(), page.locator('#thaw .r').boundingBox()]);
-    if (page.viewportSize()!.width > 520) expect(tourBox!.x).toBeLessThan(roleBox!.x);
+    if (page.viewportSize()!.width > 599) expect(tourBox!.x).toBeLessThan(roleBox!.x);
     await page.locator('#projects').scrollIntoViewIfNeeded();
     await expect(caps.nth(4)).toHaveClass(/on/);
+  });
+
+  test('entry tiles have their own column or banner and never cover the text', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    const width = page.viewportSize()!.width;
+    const wide = width > 599;
+    const rows = page.locator('#experience .roles > li, #leadership .roles > li');
+    const n = await rows.count();
+    expect(n).toBeGreaterThanOrEqual(7);
+    for (let i = 0; i < n; i++) {
+      const row = rows.nth(i);
+      await row.scrollIntoViewIfNeeded();
+      await twoFrames(page);
+      const tile = await row.locator('.tile').boundingBox();
+      expect(tile, `row ${i} has a tile`).not.toBeNull();
+      const texts: Array<[string, Box]> = [];
+      for (const sel of ['.r', '.w', '.ln']) {
+        const box = await row.locator(sel).first().boundingBox();
+        expect(box, `row ${i} ${sel}`).not.toBeNull();
+        texts.push([sel, box!]);
+      }
+      for (const [sel, box] of texts) {
+        expect(overlaps(tile!, box), `row ${i}: the tile (${fmt(tile!)}) covers ${sel} (${fmt(box)})`).toBe(false);
+        expect(box.x, `row ${i} ${sel} starts inside the viewport`).toBeGreaterThanOrEqual(0);
+        expect(box.x + box.width, `row ${i} ${sel} ends inside the viewport`).toBeLessThanOrEqual(width);
+        if (wide) {
+          // the tile's own column: every text box starts to the right of it
+          expect(box.x, `row ${i} ${sel} sits right of the tile`).toBeGreaterThanOrEqual(tile!.x + tile!.width);
+        } else {
+          // a full-width banner: every text box starts below it
+          expect(box.y, `row ${i} ${sel} sits under the tile`).toBeGreaterThanOrEqual(tile!.y + tile!.height);
+        }
+      }
+      if (width > 820) {
+        // about twice the old 11 by 8.5rem area on desktop
+        expect(tile!.width).toBeGreaterThanOrEqual(250);
+        expect(tile!.height).toBeGreaterThanOrEqual(185);
+        expect(tile!.width * tile!.height).toBeGreaterThanOrEqual(47000);
+      } else if (wide) {
+        expect(tile!.width).toBeGreaterThanOrEqual(220);
+        expect(tile!.height).toBeGreaterThanOrEqual(165);
+      } else {
+        // the banner spans the row and is at least 200px tall
+        const rowBox = (await row.boundingBox())!;
+        expect(tile!.height).toBeGreaterThanOrEqual(200);
+        expect(tile!.x + tile!.width).toBeGreaterThanOrEqual(rowBox.x + rowBox.width - 1);
+        expect(tile!.width).toBeGreaterThanOrEqual(rowBox.width - 32);
+      }
+    }
+    // the thaw project copy starts under the tile row and is never covered either
+    const thaw = page.locator('#thaw');
+    await thaw.scrollIntoViewIfNeeded();
+    await twoFrames(page);
+    const [thawTile, more] = await Promise.all([thaw.locator('.tile').boundingBox(), thaw.locator('.more').boundingBox()]);
+    expect(more!.y).toBeGreaterThanOrEqual(thawTile!.y + thawTile!.height);
+    // the Delta chapter entry carries its three sentences in full, laid out in the text column
+    const delta = page.locator('#leadership .roles > li', { hasText: 'President, Delta Chapter' });
+    await expect(delta).toHaveCount(1);
+    await expect(delta.locator('.ln')).toContainText('Liaison to the national council and alumni boards.');
+    const [deltaTile, deltaLine] = await Promise.all([delta.locator('.tile').boundingBox(), delta.locator('.ln').boundingBox()]);
+    expect(overlaps(deltaTile!, deltaLine!)).toBe(false);
+    expect(deltaLine!.height).toBeGreaterThan(40);
+  });
+
+  test('Contact me and Press play are inside the first screen', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await settleHero(page);
+    const { width, height } = page.viewportSize()!;
+    const play = playButton(page);
+    await expect(play).toHaveCount(1);
+    const contact = page.getByRole('link', { name: 'Contact me' });
+    const [pb, cb, head] = await Promise.all([play.boundingBox(), contact.boundingBox(), page.locator('header.top').boundingBox()]);
+    expect(pb).not.toBeNull();
+    expect(cb).not.toBeNull();
+    for (const [name, box] of [['Press play', pb!], ['Contact me', cb!]] as const) {
+      expect(box.x, `${name} left edge`).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width, `${name} right edge`).toBeLessThanOrEqual(width);
+      expect(box.y, `${name} under the header`).toBeGreaterThanOrEqual(head!.y + head!.height);
+      expect(box.y + box.height, `${name} bottom edge inside ${width} by ${height}`).toBeLessThanOrEqual(height);
+    }
+    // viewport coordinates, so the page must not have scrolled
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  });
+
+  test('no section clips its content or shows a blank graphic', async ({ page }) => {
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    await settleHero(page);
+    const { width } = page.viewportSize()!;
+    // nothing spills past the viewport width
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width);
+    // the headshot and the HUD leave the name alone
+    const [pic, h1] = await Promise.all([page.locator('#hero img.pic').boundingBox(), page.locator('#hero h1').boundingBox()]);
+    expect(overlaps(pic!, h1!), `headshot ${fmt(pic!)} over the name ${fmt(h1!)}`).toBe(false);
+    if (width > 820) {
+      const tl = (await page.locator('.hud-tl').boundingBox())!;
+      expect(tl.y + tl.height, `HUD ${fmt(tl)} over the name ${fmt(h1!)}`).toBeLessThanOrEqual(h1!.y);
+    }
+    // every visible static drawing has a real box inside its stage: the hero
+    // lattice, the turntable, the three card scenes and every entry tile
+    const drawings = page.locator('.stage svg.fb:visible');
+    const count = await drawings.count();
+    expect(count).toBeGreaterThanOrEqual(width > 820 ? 12 : 11);
+    for (let i = 0; i < count; i++) {
+      const svg = drawings.nth(i);
+      await svg.scrollIntoViewIfNeeded();
+      await twoFrames(page);
+      const [box, stage] = await Promise.all([svg.boundingBox(), svg.locator('xpath=..').boundingBox()]);
+      expect(box!.width, `drawing ${i} width`).toBeGreaterThanOrEqual(40);
+      expect(box!.height, `drawing ${i} height`).toBeGreaterThanOrEqual(30);
+      expect(box!.x, `drawing ${i} inside its stage`).toBeGreaterThanOrEqual(stage!.x - 1);
+      expect(box!.x + box!.width, `drawing ${i} inside its stage`).toBeLessThanOrEqual(stage!.x + stage!.width + 1);
+      expect(box!.y, `drawing ${i} inside its stage`).toBeGreaterThanOrEqual(stage!.y - 1);
+      expect(box!.y + box!.height, `drawing ${i} inside its stage`).toBeLessThanOrEqual(stage!.y + stage!.height + 1);
+    }
+    // the contact links sit inside the page width
+    for (const link of await page.locator('#contact a').all()) {
+      const box = (await link.boundingBox())!;
+      expect(box.x + box.width).toBeLessThanOrEqual(width);
+    }
   });
 
   test('captures a reference screenshot', async ({ page }, testInfo) => {
