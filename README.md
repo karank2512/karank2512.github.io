@@ -1,116 +1,43 @@
-# Karan Kapur — Personal Portfolio
+# karankapur.com
 
-A fast, minimal, recruiter-friendly portfolio with a technical/terminal personality.
-Built to be skimmed in 60 seconds and edited from **one file**.
+Personal site for Karan Kapur. Static Astro 5, zero framework JavaScript, one small script for the opt-in sound control. Design direction B, "Crate": a record sleeve in sunset colors with a CSS turntable. The contract is in `DESIGN.md`.
 
-**Stack:** React + Vite + TypeScript + Tailwind CSS + Framer Motion.
+## Quick start
 
----
-
-## 🚀 Quick start
-
-> You need **Node.js 18+** installed. Get it at https://nodejs.org (LTS).
+Needs Node 20 or newer.
 
 ```bash
-# 1. install dependencies
 npm install
+npm run dev        # http://localhost:4321
+npm run build      # outputs dist/
+npm run preview    # serves dist/ on 127.0.0.1:4321
+```
 
-# 2. run the dev server (http://localhost:5173)
-npm run dev
+## Checks
 
-# 3. build for production (outputs to /dist)
+```bash
+npm run check                          # astro check
 npm run build
-
-# 4. preview the production build locally
-npm run preview
+npx playwright install chromium        # once
+npm run test:e2e                       # Playwright + axe at 390, 820, 1440
+npm run lhci                           # Lighthouse CI budgets against dist/
 ```
 
-Optional type-check: `npm run typecheck`
+CI runs the same plus a lychee link check over the built HTML. See `.github/workflows/ci.yml`.
 
----
+## Editing content
 
-## ✏️ How to edit (everything lives in one file)
+Everything the page says lives in `src/content/`, validated by `src/content.config.ts`:
 
-Open **`src/data/profile.ts`**. That's the single source of truth. No need to touch components.
+| File | What |
+|---|---|
+| `profile/main.json` | Name, approved tagline and intro bullets, contact links, playlist, photo |
+| `projects/thaw.json` | Featured work. Each metric needs `setup` and a `source` URL or the build fails |
+| `projects/*.json` with `"kind": "crate"` | The other projects. Leave `links` empty to render a sleeve with no link |
+| `experience/*.json` | One sentence per role |
 
-| What you want to change | Edit this in `src/data/profile.ts` |
-| --- | --- |
-| **Name, headline, one-liner, target roles** | `identity` |
-| **Email, GitHub, LinkedIn, Resume path** | `links` |
-| **Hero terminal commands** | `terminalCommands` |
-| **About paragraphs** | `about` |
-| **Projects** (title, blurb, metrics, stack, tags, links) | `projects` |
-| **Work history / timeline** | `experience` |
-| **Skill categories + related projects** | `skillGroups` (and `languages`) |
-| **Hobby cards** | `hobbies` |
-| **Spotify playlist** | `music.spotifyUrl` |
-| **Closing contact line** | `contact` |
+Metric numbers must come from `_brief/RECEIPTS.md`. Rationale for every direction change is in `_brief/DECISIONS.md`.
 
-### Replace the resume
-The "Resume" buttons currently point to a **Google Drive** link (set in `links.resume`) so recruiters can preview + download it. To swap it, just change `links.resume` in `profile.ts` to a new Drive link — or, to host the PDF on the site itself, drop a file at **`public/resume.pdf`** and set `links.resume: "./resume.pdf"`.
+## Deploy
 
-### Add your Spotify playlist
-1. In Spotify: open a playlist → **Share → Copy link to playlist**
-2. Paste it into `music.spotifyUrl`, e.g.
-   ```ts
-   spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M",
-   ```
-   The component turns it into an embed automatically. Leave it `""` to show the fallback state.
-
-### Re-theme colors / fonts
-- **Colors:** `tailwind.config.js` → `theme.extend.colors` (the `accent` value drives the whole look).
-- **Fonts:** swap the Google Fonts `<link>` in `index.html` and `theme.extend.fontFamily` in `tailwind.config.js`.
-
-### Update the social preview
-- `og-image.png` lives in `public/`. Replace it with any 1200×630 image.
-- In `index.html`, set `og:url` and `og:image` to **absolute** URLs once you know your final domain (some platforms like Slack/Twitter require absolute URLs).
-
----
-
-## 🗂 Project structure
-
-```
-.
-├── index.html                 # SEO + OG meta, font links, app mount
-├── package.json
-├── vite.config.ts             # base: "./" for GitHub Pages
-├── tailwind.config.js         # colors, fonts, animations
-├── postcss.config.js
-├── .github/workflows/deploy.yml
-├── public/
-│   ├── resume.pdf             # ← your resume
-│   ├── og-image.png           # social preview (1200×630)
-│   ├── favicon.svg
-│   └── .nojekyll
-└── src/
-    ├── main.tsx
-    ├── App.tsx                # section order
-    ├── index.css             # Tailwind layers + base styles
-    ├── data/
-    │   └── profile.ts        # ← EDIT EVERYTHING HERE
-    ├── lib/
-    │   └── motion.ts         # shared animation variants
-    └── components/
-        ├── Nav.tsx
-        ├── Hero.tsx
-        ├── Terminal.tsx
-        ├── About.tsx
-        ├── Projects.tsx
-        ├── ProjectCard.tsx
-        ├── Experience.tsx
-        ├── Skills.tsx
-        ├── Hobbies.tsx
-        ├── Music.tsx
-        ├── Contact.tsx
-        ├── Footer.tsx
-        ├── CursorGlow.tsx
-        ├── CountUp.tsx
-        ├── Magnetic.tsx
-        ├── Reveal.tsx
-        ├── Section.tsx
-        └── icons.tsx
-```
-
----
-
-Built by Karan Kapur. Fork it, break it, make it yours.
+`deploy.yml` builds `main` and publishes `dist/` to GitHub Pages. `public/CNAME` keeps the custom domain. The `v2` branch is not wired to deploy yet.

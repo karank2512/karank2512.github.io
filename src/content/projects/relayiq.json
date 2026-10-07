@@ -1,0 +1,11 @@
+{
+  "title": "RelayIQ",
+  "kind": "crate",
+  "order": 1,
+  "tagline": "Enrichment control plane",
+  "summary": "Before any paid enrichment call goes out, RelayIQ decides whether the record is worth spending on, and blocks low-confidence data from reaching the CRM.",
+  "note": "Benchmarked against simulated providers, not live vendor APIs.",
+  "links": [
+    { "label": "GitHub", "href": "https://github.com/karank2512/RelayIQ" }
+  ]
+}

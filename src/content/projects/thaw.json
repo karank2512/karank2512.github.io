@@ -1,0 +1,54 @@
+{
+  "title": "thaw",
+  "kind": "featured",
+  "order": 0,
+  "tagline": "Open-source LLM inference infrastructure in Rust and CUDA",
+  "summary": "Open-source LLM inference infrastructure in Rust and CUDA. My part is the cloud storage layer: weights, KV cache, prefix-cache metadata and scheduler state, saved and brought back together so a running session can fork instead of cold booting. The numbers below are from the team's benchmark runs, with the hardware and model printed next to each. Read it like a tracklist, with the setup where the runtime goes.",
+  "credit": "Co-founded thaw with N. Matteson and M. Yu",
+  "links": [
+    { "label": "github.com/thaw-ai/thaw", "href": "https://github.com/thaw-ai/thaw" },
+    { "label": "thaw.sh", "href": "https://thaw.sh" }
+  ],
+  "hardware": "H100 80GB and H100 SXM. Llama-3.1-8B unless a size is given.",
+  "metrics": [
+    {
+      "no": "A1",
+      "label": "Median session fork",
+      "value": "0.88",
+      "unit": "s",
+      "setup": "H100 80GB, Llama-3.1-8B. Bit-identical at the fork boundary.",
+      "source": "https://github.com/thaw-ai/thaw/blob/main/site/receipts/2026-04-20_h100_fork_pool_rl.json"
+    },
+    {
+      "no": "A2",
+      "label": "Weight restore",
+      "value": "14.6",
+      "unit": "GB/s",
+      "setup": "H100, 32B model, TP=1. 65 GB in 4.5 s.",
+      "source": "https://github.com/thaw-ai/thaw/blob/main/site/receipts/2026-06-17_h100x2_restore_audit.json"
+    },
+    {
+      "no": "A3",
+      "label": "Weight restore, two cards",
+      "value": "28.8",
+      "unit": "GB/s",
+      "setup": "2 x H100, 72B model, TP=2.",
+      "source": "https://github.com/thaw-ai/thaw/blob/main/site/receipts/2026-06-17_h100x2_restore_audit.json"
+    },
+    {
+      "no": "A4",
+      "label": "Hot-swap",
+      "value": "0.29",
+      "unit": "s",
+      "setup": "H100 SXM, 8B model, at 55 GB/s.",
+      "source": "https://github.com/thaw-ai/thaw/blob/main/README.md"
+    },
+    {
+      "no": "B1",
+      "label": "Restore fidelity",
+      "value": "Bit-identical",
+      "setup": "Checked across 8 model architectures.",
+      "source": "https://thaw.sh"
+    }
+  ]
+}

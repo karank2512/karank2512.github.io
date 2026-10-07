@@ -3,6 +3,15 @@ dist
 dist-ssr
 *.local
 
+# Astro
+.astro/
+
+# Test and audit output
+test-results/
+playwright-report/
+.lighthouseci/
+lychee-out.md
+
 # Local editor / tooling config (machine-specific)
 .claude/
 .DS_Store

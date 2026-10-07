@@ -1,0 +1,38 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import Liner from '../components/Liner.astro';
+import Crate from '../components/Crate.astro';
+import Background from '../components/Background.astro';
+import Contact from '../components/Contact.astro';
+import Footer from '../components/Footer.astro';
+
+const profile = await getEntry('profile', 'main');
+if (!profile) throw new Error('src/content/profile/main.json is missing');
+
+const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
+const featured = projects.find((p) => p.data.kind === 'featured');
+if (!featured) throw new Error('No featured project. Set "kind": "featured" on one project.');
+const crate = projects.filter((p) => p.data.kind === 'crate');
+
+const roles = (await getCollection('experience')).sort((a, b) => a.data.order - b.data.order);
+
+const { name, tagline, intro, education, contact, music, photo } = profile.data;
+const title = `${name}. Engineer, co-founder of thaw.`;
+const description =
+  'Karan Kapur co-founded thaw, open-source LLM inference infrastructure in Rust and CUDA, and owns its cloud storage layer. Looking for founding engineer, forward deployed or GTM engineering roles at AI startups.';
+---
+
+<Base title={title} description={description}>
+  <Header name={name} />
+  <main id="main">
+    <Hero name={name} tagline={tagline} intro={intro} email={contact.email} music={music} />
+    <Liner project={featured} />
+    <Crate projects={crate} />
+    <Background roles={roles} education={education} photo={photo} />
+    <Contact {...contact} />
+  </main>
+  <Footer />
+</Base>

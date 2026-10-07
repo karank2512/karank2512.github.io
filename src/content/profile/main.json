@@ -1,0 +1,29 @@
+{
+  "name": "Karan Kapur",
+  "tagline": "Engineer. Co-founder of thaw. Based in Madison, WI. Open to relocating in the US.",
+  "intro": [
+    "I started coding to settle an argument with my dad about IPL. My first project was a match predictor.",
+    "I co-founded thaw, where I own the storage layer that lets a running LLM session fork in under a second. I also built RelayIQ, which decides whether a lead is worth enriching before you pay for it.",
+    "Before any of that I played table tennis at the national level in India. These days I cook, DJ, golf, and follow F1 closely.",
+    "I'm looking for a founding engineer, forward deployed or GTM engineering role at an AI startup."
+  ],
+  "education": "B.S. Computer Science and Data Science, Certificate in Entrepreneurship, University of Wisconsin-Madison, May 2026.",
+  "contact": {
+    "email": "kkapur5@wisc.edu",
+    "github": "https://github.com/karank2512",
+    "linkedin": "https://www.linkedin.com/in/karankapur5",
+    "resume": "/resume.pdf"
+  },
+  "music": {
+    "playlistId": "3RQb1MUtERqcwUlZdncPRN",
+    "playlistTitle": "Home not house",
+    "openingTrack": "On 2nite",
+    "openingArtist": "Silva Bumpa"
+  },
+  "photo": {
+    "src": "/photos/pro-headshot.png",
+    "alt": "Karan Kapur, head and shoulders, in a black suit.",
+    "width": 300,
+    "height": 400
+  }
+}

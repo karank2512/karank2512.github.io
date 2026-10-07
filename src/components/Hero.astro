@@ -1,0 +1,39 @@
+---
+import Turntable from './Turntable.astro';
+
+interface Props {
+  name: string;
+  tagline: string;
+  intro: string[];
+  email: string;
+  music: {
+    playlistId: string;
+    playlistTitle: string;
+    openingTrack: string;
+    openingArtist: string;
+  };
+}
+const { name, tagline, intro, email, music } = Astro.props;
+const [first, ...rest] = name.split(' ');
+const last = rest.join(' ');
+
+/** Link the first mention of thaw and RelayIQ without changing the approved words. */
+function linkify(text: string): string {
+  return text
+    .replace(/\bthaw\b/, '<a href="#thaw">thaw</a>')
+    .replace(/\bRelayIQ\b/, '<a href="#crate">RelayIQ</a>');
+}
+---
+
+<section class="hero" aria-labelledby="h1">
+  <div class="sun" aria-hidden="true"></div>
+  <div>
+    <h1 id="h1"><span class="l">{first}</span><span class="l">{last}</span></h1>
+    <div class="role-wrap"><p class="role">{tagline}</p></div>
+    <ul class="intro">
+      {intro.map((line) => <li set:html={linkify(line)} />)}
+    </ul>
+    <a class="cta" href={`mailto:${email}`}>Contact me</a>
+  </div>
+  <Turntable {...music} />
+</section>

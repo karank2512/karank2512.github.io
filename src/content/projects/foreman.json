@@ -1,0 +1,11 @@
+{
+  "title": "Foreman",
+  "kind": "crate",
+  "order": 2,
+  "tagline": "Staffing agency for AI workers, open source",
+  "summary": "The agent-harness side of the problem thaw attacks from underneath. Early and opinionated.",
+  "note": "The one I most want to talk about.",
+  "links": [
+    { "label": "GitHub", "href": "https://github.com/karank2512/Foreman" }
+  ]
+}

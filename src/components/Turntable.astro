@@ -1,0 +1,94 @@
+---
+/**
+ * The sound control. Off by default. The Spotify iframe is not in the DOM
+ * until the button is pressed, so no third-party request happens on load.
+ * On touch devices (pointer: coarse) the CSS hides the plinth and renders
+ * the same button as a plain large play button.
+ */
+interface Props {
+  playlistId: string;
+  playlistTitle: string;
+  openingTrack: string;
+  openingArtist: string;
+}
+const { playlistId, playlistTitle, openingTrack, openingArtist } = Astro.props;
+const embedSrc = `https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator`;
+---
+
+<div class="deck">
+  <div class="plinth">
+    <div class="disc" aria-hidden="true">
+      <svg viewBox="0 0 100 100">
+        <defs>
+          <path id="label-ring" d="M50,50 m-13,0 a13,13 0 1,1 26,0 a13,13 0 1,1 -26,0"></path>
+        </defs>
+        <circle cx="50" cy="50" r="16" fill="#FFB347"></circle>
+        <circle cx="50" cy="50" r="2.2" fill="#FFF4E3"></circle>
+        <text font-family="DM Mono, monospace" font-size="3.1" fill="#2A1710" letter-spacing=".5">
+          <textPath href="#label-ring">HOME NOT HOUSE &#183; SIDE A &#183; 33&#8531; RPM &#183; KK &#183; </textPath>
+        </text>
+      </svg>
+    </div>
+    <div class="arm" aria-hidden="true"><i></i></div>
+  </div>
+
+  <button
+    class="needle"
+    id="snd"
+    type="button"
+    aria-pressed="false"
+    aria-controls="sleeve"
+    data-embed-src={embedSrc}
+    data-embed-title={`Spotify playlist: ${playlistTitle}`}
+  >
+    <span class="lbl">
+      <svg class="ico" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path class="play" d="M6 4l14 8-14 8z" fill="currentColor"></path>
+        <g class="pause" fill="currentColor"><rect x="5" y="4" width="5" height="16"></rect><rect x="14" y="4" width="5" height="16"></rect></g>
+      </svg>
+      <span class="off">Press play</span>
+      <span class="on fine">Lift the needle</span>
+      <span class="on coarse">Stop</span>
+    </span>
+    <span class="k"><span class="off">Sound off</span><span class="on">Playing</span></span>
+  </button>
+  <p class="hint">
+    Opens <strong>{playlistTitle}</strong>, the playlist I practice to, starting with {openingTrack} by {openingArtist}.
+    Nothing plays until you press.
+  </p>
+
+  <div id="sleeve" aria-live="polite">
+    <div>
+      <div class="in">
+        <p>If it does not start on its own, tap play once inside the player. Logged-out listeners get 30 second previews.</p>
+        <div id="emb"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const button = document.getElementById('snd') as HTMLButtonElement | null;
+  const slot = document.getElementById('emb');
+  if (button && slot) {
+    let on = false;
+    button.addEventListener('click', () => {
+      on = !on;
+      button.setAttribute('aria-pressed', String(on));
+      document.body.classList.toggle('on', on);
+      if (on) {
+        const frame = document.createElement('iframe');
+        frame.src = button.dataset.embedSrc ?? '';
+        frame.title = button.dataset.embedTitle ?? 'Spotify playlist';
+        frame.width = '100%';
+        frame.height = '352';
+        frame.loading = 'lazy';
+        frame.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+        slot.replaceChildren(frame);
+      } else {
+        // Removing the iframe is the only reliable way to stop the audio.
+        slot.replaceChildren();
+      }
+    });
+  }
+</script>

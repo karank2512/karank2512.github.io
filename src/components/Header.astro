@@ -1,0 +1,16 @@
+---
+interface Props {
+  name: string;
+}
+const { name } = Astro.props;
+---
+
+<header class="top">
+  <span class="mono">{name}</span>
+  <nav class="mono" aria-label="Sections">
+    <a href="#thaw">thaw</a>
+    <a href="#crate">Work</a>
+    <a href="#background">Background</a>
+    <a href="#contact">Contact</a>
+  </nav>
+</header>

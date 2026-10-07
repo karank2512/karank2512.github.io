@@ -1,0 +1,32 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  roles: CollectionEntry<'experience'>[];
+  education: string;
+  photo: { src: string; alt: string; width: number; height: number };
+}
+const { roles, education, photo } = Astro.props;
+---
+
+<section class="bg" id="background" aria-labelledby="h-bg">
+  <div class="me rv">
+    <h2 id="h-bg">Background.</h2>
+    <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" />
+    <p>{education}</p>
+  </div>
+  <div class="rv">
+    <ol class="roles">
+      {roles.map((r) => (
+        <li>
+          <span class="r">
+            {r.data.role}
+            <span class="o">{r.data.org}, {r.data.location}</span>
+          </span>
+          <span class="w">{r.data.start} to {r.data.end}</span>
+          <span class="ln">{r.data.line}</span>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>

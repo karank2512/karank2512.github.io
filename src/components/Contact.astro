@@ -1,0 +1,20 @@
+---
+interface Props {
+  email: string;
+  github: string;
+  linkedin: string;
+  resume: string;
+}
+const { email, github, linkedin, resume } = Astro.props;
+---
+
+<section class="say" id="contact" aria-labelledby="h-say">
+  <h2 id="h-say" class="rv">Say hey.</h2>
+  <p class="rv">Building something early and need an engineer who ships? Email is fastest.</p>
+  <ul class="rv">
+    <li><a href={`mailto:${email}`}>{email}</a></li>
+    <li><a href={github}>GitHub</a></li>
+    <li><a href={linkedin}>LinkedIn</a></li>
+    <li><a href={resume}>Resume, PDF</a></li>
+  </ul>
+</section>
