@@ -3,8 +3,7 @@
   "kind": "crate",
   "order": 3,
   "tagline": "Buying-signals pipeline",
-  "summary": "Ingests public buying signals, normalizes them, and hands clean events to whatever sits downstream. GTM plumbing, built the way infra should be.",
-  "note": "Open source soon.",
+  "summary": "Who's hiring for the problem you solve? Hiring is the earliest public sign a team has budget: a company opening a burst of sales roles is growing its sales team, and growing sales teams tend to buy tools. tell reads public job boards, sorts postings into 10 role families, and scores how fast each company is hiring in yours. Every score links to the posts behind it. Open source soon.",
   "caption": "Public events, job posts, filings and news, converge into a ranked account list.",
   "links": []
 }

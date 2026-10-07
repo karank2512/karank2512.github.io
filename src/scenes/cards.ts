@@ -52,8 +52,8 @@ const RX = [4, -5, 6, -4];
 const RY = [-9, 7, -6, 10];
 const DY = [-20, 24, -12, 20];
 const DZ = [-40, 20, -60, 30];
-/** Card height before the cards are measured; the CSS default for --ch. */
-export const CH_DEFAULT = 470;
+/** Card height before the cards are measured; the CSS default for --ch (the tallest card's copy runs to about 545px at 320px wide). */
+export const CH_DEFAULT = 580;
 
 /**
  * Resting slots for n cards of height ch in a deck w wide (the deck is the

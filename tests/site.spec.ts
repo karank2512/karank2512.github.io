@@ -341,6 +341,49 @@ test.describe('home page', () => {
     await expect(page.locator('#cards .card', { hasText: 'RelayIQ' }).locator('.cap')).toContainText('simulated providers');
   });
 
+  test('project cards carry the approved copy and hold all of it', async ({ page }) => {
+    await page.goto('/');
+    const relay = page.locator('#cards .card', { hasText: 'RelayIQ' });
+    await expect(relay).toContainText('Spend control for lead enrichment. Sits between Clay-style workflows and the CRM.');
+    await expect(relay.locator('.note')).toContainText('Providers were simulated, not live vendors.');
+    const foreman = page.locator('#cards .card', { hasText: 'Foreman' });
+    await expect(foreman).toContainText('Describe a job in plain English and Foreman designs a worker for it.');
+    await expect(foreman.locator('.note')).toContainText('An agent harness for recurring work.');
+    await expect(foreman).not.toContainText('Early and opinionated');
+    await expect(foreman).not.toContainText('most want to talk about');
+    const tell = page.locator('#cards div.card', { hasText: 'tell' });
+    await expect(tell).toContainText("Who's hiring for the problem you solve?");
+    await expect(tell).toContainText('Every score links to the posts behind it. Open source soon.');
+    await expect(tell.locator('.note')).toHaveCount(0);
+    // the longer copy fits: before the motion module runs, the CSS card height
+    // holds every card's content; after it, the measured height does
+    const deck = page.locator('#deck');
+    // the three boxes of a slot are read in the same frame: the cards drift
+    // in depth once the module runs, so separate round trips could disagree
+    const check = async (when: string): Promise<void> => {
+      const slots = await page.evaluate(() =>
+        Array.from(document.querySelectorAll<HTMLElement>('#cards .slot')).map((slot) => {
+          const r = (el: Element | null): Box => {
+            const b = el?.getBoundingClientRect() ?? new DOMRect();
+            return { x: b.x, y: b.y, width: b.width, height: b.height };
+          };
+          return { title: slot.querySelector('h3')?.textContent ?? '', slot: r(slot), card: r(slot.querySelector('.card')), copy: r(slot.querySelector('.card > p')) };
+        }),
+      );
+      expect(slots).toHaveLength(3);
+      for (const { title, slot, card, copy } of slots) {
+        expect(card.height, `${when}: the ${title} card is no taller than its slot`).toBeLessThanOrEqual(slot.height + 1);
+        expect(copy.y + copy.height, `${when}: the ${title} copy ends inside the card`).toBeLessThanOrEqual(card.y + card.height - 8);
+      }
+    };
+    await expect(deck).not.toHaveClass(/live/);
+    await check('before the motion module');
+    await deck.scrollIntoViewIfNeeded();
+    await expect(deck).toHaveClass(/live/);
+    await twoFrames(page);
+    await check('after the motion module');
+  });
+
   test('the tour opens inside the thaw entry and its captions follow the scroll', async ({ page }) => {
     await page.goto('/');
     const more = page.locator('#tour-more');
@@ -454,25 +497,66 @@ test.describe('home page', () => {
     const [pic, h1] = await Promise.all([page.locator('#hero img.pic').boundingBox(), page.locator('#hero h1').boundingBox()]);
     expect(overlaps(pic!, h1!), `headshot ${fmt(pic!)} over the name ${fmt(h1!)}`).toBe(false);
     if (width > 820) {
+      // the top-left label ends a real distance above the name, not just short of it
       const tl = (await page.locator('.hud-tl').boundingBox())!;
-      expect(tl.y + tl.height, `HUD ${fmt(tl)} over the name ${fmt(h1!)}`).toBeLessThanOrEqual(h1!.y);
+      expect(h1!.y - (tl.y + tl.height), `HUD ${fmt(tl)} clears the name ${fmt(h1!)} by at least 6px`).toBeGreaterThanOrEqual(6);
     }
     // every visible static drawing has a real box inside its stage: the hero
-    // lattice, the turntable, the three card scenes and every entry tile
-    const drawings = page.locator('.stage svg.fb:visible');
-    const count = await drawings.count();
-    expect(count).toBeGreaterThanOrEqual(width > 820 ? 12 : 11);
-    for (let i = 0; i < count; i++) {
-      const svg = drawings.nth(i);
-      await svg.scrollIntoViewIfNeeded();
-      await twoFrames(page);
-      const [box, stage] = await Promise.all([svg.boundingBox(), svg.locator('xpath=..').boundingBox()]);
-      expect(box!.width, `drawing ${i} width`).toBeGreaterThanOrEqual(40);
-      expect(box!.height, `drawing ${i} height`).toBeGreaterThanOrEqual(30);
-      expect(box!.x, `drawing ${i} inside its stage`).toBeGreaterThanOrEqual(stage!.x - 1);
-      expect(box!.x + box!.width, `drawing ${i} inside its stage`).toBeLessThanOrEqual(stage!.x + stage!.width + 1);
-      expect(box!.y, `drawing ${i} inside its stage`).toBeGreaterThanOrEqual(stage!.y - 1);
-      expect(box!.y + box!.height, `drawing ${i} inside its stage`).toBeLessThanOrEqual(stage!.y + stage!.height + 1);
+    // lattice, the turntable, the three card scenes and every entry tile.
+    // Measured in one pass inside the page (scroll each into view, wait two
+    // frames for the scroll reveal, read both boxes) so the test does not
+    // make five round trips per drawing and stall under load.
+    const drawings = await page.evaluate(async () => {
+      const settle = (): Promise<void> => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => r())));
+      const rect = (el: Element): Box => {
+        const r = el.getBoundingClientRect();
+        return { x: r.x, y: r.y, width: r.width, height: r.height };
+      };
+      const out: Array<{ id: string; box: Box; stage: Box }> = [];
+      for (const svg of Array.from(document.querySelectorAll<SVGSVGElement>('.stage svg.fb'))) {
+        // the same visibility rule as Playwright's :visible: a non-empty box and no visibility: hidden
+        const r0 = svg.getBoundingClientRect();
+        if (r0.width === 0 || r0.height === 0 || getComputedStyle(svg).visibility === 'hidden') continue;
+        svg.scrollIntoView({ block: 'center', behavior: 'instant' });
+        await settle();
+        const stage = svg.parentElement as HTMLElement;
+        out.push({ id: stage.id || `${stage.dataset.scene ?? 'stage'}:${stage.dataset.role ?? ''}`, box: rect(svg), stage: rect(stage) });
+      }
+      return out;
+    });
+    expect(drawings.length).toBeGreaterThanOrEqual(width > 820 ? 12 : 11);
+    for (const { id, box, stage } of drawings) {
+      expect(box.width, `drawing ${id} width`).toBeGreaterThanOrEqual(40);
+      expect(box.height, `drawing ${id} height`).toBeGreaterThanOrEqual(30);
+      expect(box.x, `drawing ${id} inside its stage`).toBeGreaterThanOrEqual(stage.x - 1);
+      expect(box.x + box.width, `drawing ${id} inside its stage`).toBeLessThanOrEqual(stage.x + stage.width + 1);
+      expect(box.y, `drawing ${id} inside its stage`).toBeGreaterThanOrEqual(stage.y - 1);
+      expect(box.y + box.height, `drawing ${id} inside its stage`).toBeLessThanOrEqual(stage.y + stage.height + 1);
+    }
+    // the entry drawings fill their tiles: each role mark's paths span at
+    // least 80% of its own viewBox on the longer axis, so no tile is mostly
+    // empty frame around a small picture
+    const fills = await page.evaluate(() =>
+      Array.from(document.querySelectorAll<SVGSVGElement>('.tile .stage svg.fb')).map((svg) => {
+        const vb = svg.viewBox.baseVal;
+        let x0 = Infinity;
+        let y0 = Infinity;
+        let x1 = -Infinity;
+        let y1 = -Infinity;
+        for (const path of Array.from(svg.querySelectorAll('path'))) {
+          const b = path.getBBox();
+          x0 = Math.min(x0, b.x);
+          y0 = Math.min(y0, b.y);
+          x1 = Math.max(x1, b.x + b.width);
+          y1 = Math.max(y1, b.y + b.height);
+        }
+        return { role: svg.parentElement?.getAttribute('data-role') ?? '', w: (x1 - x0) / vb.width, h: (y1 - y0) / vb.height };
+      }),
+    );
+    expect(fills.length).toBeGreaterThanOrEqual(7);
+    for (const f of fills) {
+      expect(Math.max(f.w, f.h), `the ${f.role} drawing fills its frame (w ${f.w.toFixed(2)}, h ${f.h.toFixed(2)})`).toBeGreaterThanOrEqual(0.8);
+      expect(Math.max(f.w, f.h), `the ${f.role} drawing stays inside its frame`).toBeLessThanOrEqual(1);
     }
     // the contact links sit inside the page width
     for (const link of await page.locator('#contact a').all()) {

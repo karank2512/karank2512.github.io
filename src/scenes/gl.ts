@@ -325,12 +325,18 @@ export class Stage {
   private first = true;
   private lastT = 0;
 
-  constructor(private readonly o: SceneOptions, private readonly view: View, private readonly still = 0) {
+  constructor(private readonly o: SceneOptions, private view: View, private readonly still = 0) {
     this.renderer = makeRenderer(o.canvas);
     addLights(this.scene);
     this.scene.add(this.root);
     this.ro = new ResizeObserver(() => this.resize());
     this.ro.observe(o.stage);
+    this.resize();
+  }
+
+  /** Replace the view (a fit measured from the built scene) and refit the camera. */
+  refit(view: View): void {
+    this.view = view;
     this.resize();
   }
 

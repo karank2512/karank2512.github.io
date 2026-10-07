@@ -9,6 +9,11 @@
  *
  * The isometric projection matches src/scenes/iso.ts: x right-down, z
  * left-down, y up.
+ *
+ * The project cards keep the fixed 320 by 220 frame their scenes were drawn
+ * for. The role drawings (the Experience and Leadership tiles) get a viewBox
+ * cut to their own bounds plus a small margin, so each fills its tile at any
+ * aspect; the hairlines stay one pixel through vector-effect in the CSS.
  */
 interface Props {
   id: string;
@@ -16,10 +21,20 @@ interface Props {
 const { id } = Astro.props;
 
 const S = 40; // px per scene unit
-const iso = (x: number, y: number, z: number): [number, number] => [
-  160 + (x - z) * 0.866 * S,
-  110 + ((x + z) * 0.5 - y) * S,
-];
+/** Bounds of every projected point, for the fitted viewBox. */
+let minX = Infinity;
+let minY = Infinity;
+let maxX = -Infinity;
+let maxY = -Infinity;
+const iso = (x: number, y: number, z: number): [number, number] => {
+  const px = 160 + (x - z) * 0.866 * S;
+  const py = 110 + ((x + z) * 0.5 - y) * S;
+  if (px < minX) minX = px;
+  if (px > maxX) maxX = px;
+  if (py < minY) minY = py;
+  if (py > maxY) maxY = py;
+  return [px, py];
+};
 const r1 = (n: number): string => (Math.round(n * 10) / 10).toString();
 const P = (x: number, y: number, z: number): string => iso(x, y, z).map(r1).join(' ');
 
@@ -231,9 +246,21 @@ if (id === 'relayiq') {
   const a = seatAngle(SEATED - 0.5);
   ember += box(Math.cos(a) * SEAT_RX, HY + 0.2, Math.sin(a) * SEAT_RZ, 0.04, 0.04, 0.04);
 }
+
+/** The role drawings are framed by their own bounds; the card drawings keep the fixed frame. */
+const ROLE_IDS = new Set(['thaw', 'eurofins', 'ece', 'ai-lab', 'hcl', 'kek-vp', 'kek-delta-president']);
+let viewBox = '0 0 320 220';
+if (ROLE_IDS.has(id) && Number.isFinite(minX) && Number.isFinite(minY)) {
+  const w = maxX - minX;
+  const h = maxY - minY;
+  // 7% of the longer side plus 2px for the stroke, so the drawing fills about
+  // 86% of its frame on its longer axis and never touches the tile's hairline
+  const pad = Math.max(w, h) * 0.07 + 2;
+  viewBox = `${r1(minX - pad)} ${r1(minY - pad)} ${r1(w + 2 * pad)} ${r1(h + 2 * pad)}`;
+}
 ---
 
-<svg class="fb mark" viewBox="0 0 320 220" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" data-label={label}>
+<svg class="fb mark" viewBox={viewBox} preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" data-label={label}>
   {base && <path d={base} />}
   {sage && <path class="sg" d={sage} />}
   {ember && <path class="em" d={ember} />}

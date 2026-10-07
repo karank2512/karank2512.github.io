@@ -577,6 +577,76 @@ const scenes: Record<string, RoleScene> = {
   'kek-delta-president': kekDeltaPresident,
 };
 
+/** The sampling window and step for the fit: two rounds of the longest cycle (15 s), 120 instants. */
+const FIT_SPAN = 30;
+const FIT_STEP = 0.25;
+/** Half the Stage camera's 30 degree field of view, as a tangent. */
+const FIT_TAN = Math.tan((30 * Math.PI) / 360);
+const fitPt = new THREE.Vector3();
+
+/**
+ * Fit the view to the scene itself, so the drawing fills the tile instead
+ * of sitting small inside a frame guessed by hand. Every position is a pure
+ * function of time, so the scene is sampled over two rounds of its longest
+ * cycle; every block corner (the hairline edge set already holds them) and
+ * every hairline point is projected onto the camera's right and up axes for
+ * the view's yaw and pitch. The target moves to the centre of what was drawn
+ * and the radii become its half extents, grown for perspective (the nearest
+ * point by its depth toward the camera at the distance a 1.36 tile implies)
+ * and by 3%; fitDistance adds its own margins. The yaw and pitch stay.
+ */
+function fitView(root: THREE.Group, built: Built, base: View, still: number): View {
+  // camera axes as three.js lookAt builds them: z from the target toward the eye, y up
+  const z = v(Math.sin(base.yaw) * Math.cos(base.pitch), Math.sin(base.pitch), Math.cos(base.yaw) * Math.cos(base.pitch));
+  const x = v(0, 1, 0).cross(z).normalize();
+  const y = z.clone().cross(x);
+  let hMin = Infinity;
+  let hMax = -Infinity;
+  let vMin = Infinity;
+  let vMax = -Infinity;
+  let dMax = -Infinity;
+  const take = (px: number, py: number, pz: number): void => {
+    fitPt.set(px, py, pz).sub(base.target);
+    const h = fitPt.dot(x);
+    const vv = fitPt.dot(y);
+    const d = fitPt.dot(z);
+    if (h < hMin) hMin = h;
+    if (h > hMax) hMax = h;
+    if (vv < vMin) vMin = vv;
+    if (vv > vMax) vMax = vv;
+    if (d > dMax) dMax = d;
+  };
+  const sample = (): void => {
+    root.updateMatrixWorld(true);
+    root.traverse((obj) => {
+      if (obj instanceof THREE.InstancedMesh) return; // its corners are in the Blocks edge set
+      const geometry = (obj as THREE.Object3D & { geometry?: THREE.BufferGeometry }).geometry;
+      const pos = geometry?.getAttribute('position');
+      if (!pos) return;
+      for (let i = 0; i < pos.count; i++) {
+        fitPt.fromBufferAttribute(pos, i).applyMatrix4(obj.matrixWorld);
+        take(fitPt.x, fitPt.y, fitPt.z);
+      }
+    });
+  };
+  const times: number[] = [still];
+  for (let t = 0; t < FIT_SPAN; t += FIT_STEP) times.push(t);
+  for (const t of times) {
+    built.tick(t);
+    sample();
+  }
+  if (!Number.isFinite(hMin) || !Number.isFinite(vMin)) return base;
+  let rh = Math.max(0.1, (hMax - hMin) / 2);
+  let rv = Math.max(0.1, (vMax - vMin) / 2);
+  const target = base.target.clone().addScaledVector(x, (hMin + hMax) / 2).addScaledVector(y, (vMin + vMax) / 2);
+  // perspective: the nearest point projects larger by dist / (dist - depth)
+  const dist = Math.max(rh / (0.86 * FIT_TAN * 1.36), rv / (0.82 * FIT_TAN));
+  const near = dMax > 0 && dMax < dist * 0.6 ? dist / (dist - dMax) : 1;
+  rh *= near * 1.03;
+  rv *= near * 1.03;
+  return { rh, rv, yaw: base.yaw, pitch: base.pitch, target };
+}
+
 export function mount(o: SceneOptions): Handle {
   const def = scenes[o.stage.dataset.role ?? ''];
   if (!def) {
@@ -585,6 +655,7 @@ export function mount(o: SceneOptions): Handle {
   }
   const stage = new Stage(o, def.view, def.still);
   const built = def.build(stage.root);
+  stage.refit(fitView(stage.root, built, def.view, def.still));
   stage.run((_dt, t) => {
     built.tick(t);
     stage.root.rotation.y = Math.sin(t * 0.25) * 0.04;
