@@ -21,3 +21,7 @@ lychee-out.md
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+# Playwright CLI output (may contain credentials)
+.playwright-cli/
+graphify-out/
+_brief/
