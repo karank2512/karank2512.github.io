@@ -140,19 +140,22 @@ header.top nav a:hover::after, header.top nav a:focus-visible::after { scale: 1 
   overflow: hidden;
   min-height: calc(100vh - var(--head));
 }
-/* Animated background: a field of hairline crosses on one composited layer
-   that drifts one tile diagonally every 14 s. Paused when the hero leaves the
-   viewport, when the tab is hidden, and under reduced motion. */
+/* Animated background: the fork field. One 64px tile in Line 2 holds a short
+   token tick and a tiny fork mark, repeated as a flat hairline pattern on a
+   single composited layer that drifts one tile diagonally every 18 s. Only
+   `translate` animates, so the compositor moves the layer and the main
+   thread does nothing. Paused when the hero leaves the viewport or the tab
+   is hidden (.paused, set by the page script), off under reduced motion. */
 .field {
   position: absolute;
   z-index: -1;
-  top: -48px;
-  left: -48px;
-  width: calc(100% + 48px);
-  height: calc(100% + 48px);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M24 20v8M20 24h8' stroke='%232a2420' stroke-width='1'/%3E%3C/svg%3E");
-  background-size: 48px 48px;
-  animation: drift 14s linear infinite;
+  top: -64px;
+  left: -64px;
+  width: calc(100% + 64px);
+  height: calc(100% + 64px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cg fill='none' stroke='%232a2420' stroke-width='1' stroke-linecap='square'%3E%3Cpath d='M16 10v12'/%3E%3Cpath d='M38 44h9l6-6M47 44l6 6'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 64px 64px;
+  animation: drift 18s linear infinite;
 }
 .hero.paused .field { animation-play-state: paused; }
 /* The 3D stage fills the hero behind the copy; the object sits in the right
@@ -231,17 +234,20 @@ h1 .l { display: block; }
 }
 .cta:hover { color: var(--ink); translate: 0 -2px; }
 
-/* entrance: the name and copy rise once, 90 ms apart */
+/* entrance: the name and copy rise once, 90 ms apart. The name and the intro
+   only move; they are the largest text on the page and stay visible from the
+   first paint so the largest contentful paint is the first paint. The
+   smaller pieces fade in as they rise. */
 h1 .l, .hero .role, .hero .intro, .hero .acts, .hud > * {
-  opacity: 0;
   translate: 0 0.5rem;
-  animation: rise 0.7s var(--d, 0s) var(--ease) forwards;
+  animation: rise 0.6s var(--d, 0s) var(--ease) both;
 }
+.hero .role, .hero .acts, .hud > * { opacity: 0; }
 h1 .l:nth-child(2) { --d: 0.09s; }
-.hero .role { --d: 0.2s; }
-.hero .intro { --d: 0.3s; }
-.hero .acts { --d: 0.4s; }
-.hud > * { --d: 0.5s; }
+.hero .role { --d: 0.18s; }
+.hero .intro { --d: 0.27s; }
+.hero .acts { --d: 0.36s; }
+.hud > * { --d: 0.45s; }
 
 /* HUD: four corner readouts in mono on solid Ink, so the text keeps its
    contrast whatever the scene is doing behind it. Only receipted numbers. */
@@ -272,7 +278,8 @@ h1 .l:nth-child(2) { --d: 0.09s; }
 }
 .hud .v small { font-size: 0.55em; margin-left: 0.15em; }
 .hud dd + .v { margin-top: 0.3rem; }
-.hud a { color: var(--sage); text-decoration-color: var(--sage); }
+/* inline links and the fork control keep a 24px tall hit area */
+.hud a { color: var(--sage); text-decoration-color: var(--sage); padding-block: 0.25rem; }
 .hud a:hover { color: var(--bone); }
 .fork-btn {
   all: unset;
@@ -280,7 +287,7 @@ h1 .l:nth-child(2) { --d: 0.09s; }
   font-family: var(--mono);
   font-size: 0.76rem;
   color: var(--bone);
-  padding: 0.1rem 0;
+  padding: 0.35rem 0;
   border-bottom: 1px solid var(--ember);
   transition: color 0.2s;
 }
@@ -343,18 +350,26 @@ body.on #sleeve { grid-template-rows: 1fr; }
 #sleeve p { font-size: 0.9rem; color: var(--bone-2); margin-bottom: 0.6rem; }
 #sleeve iframe { border: 0; display: block; width: 100%; }
 
-@media (pointer: coarse) {
-  /* Touch devices get a plain, large play button. */
-  .snd {
+/* The touch play button sits beside "Contact me" in the first screen. It is
+   hidden on wide screens with a fine pointer, where the HUD control is
+   used; on coarse pointers, and on narrow screens where the HUD stacks
+   below the stage, it takes over and the HUD button goes. */
+.snd-touch { display: none; }
+@media (pointer: coarse), (max-width: 820px) {
+  .snd-touch {
+    display: inline-flex;
     justify-content: center;
+    gap: 0.6rem;
     min-height: 4rem;
-    padding: 0.9rem 1.3rem;
-    font-size: 1.2rem;
+    padding: 0.9rem 1rem;
+    font-size: 1.15rem;
     background: var(--ink-2);
     border-color: var(--bone);
   }
-  .snd[aria-pressed="true"] { background: var(--ink); }
-  .snd .ico { width: 1.5em; height: 1.5em; }
+  .snd-touch[aria-pressed="true"] { background: var(--ink); }
+  .snd-touch .ico { width: 1.4em; height: 1.4em; }
+  .hud-bl .snd { display: none; }
+  .acts .cta { min-height: 4rem; justify-content: center; }
 }
 
 /* sections */
@@ -451,7 +466,7 @@ body.on #sleeve { grid-template-rows: 1fr; }
 .rcpt .val.word { font-size: clamp(1.1rem, 2vw, 1.5rem); color: var(--sage); }
 .rcpt .val small { font-size: 0.55em; margin-left: 0.15em; }
 .rcpt .set { font-size: 0.92rem; color: var(--bone-2); }
-.rcpt .set a { color: var(--sage); text-decoration-color: var(--sage); }
+.rcpt .set a { color: var(--sage); text-decoration-color: var(--sage); padding-block: 0.2rem; }
 .feat .hw { margin-top: 1rem; color: var(--mute); }
 
 /* projects: cards floating in perspective */
@@ -581,7 +596,7 @@ footer .wrap {
 
 /* motion */
 @keyframes rise { to { opacity: 1; translate: 0 0; } }
-@keyframes drift { to { translate: 48px 48px; } }
+@keyframes drift { to { translate: 64px 64px; } }
 @keyframes bar { from { scale: 1 0.25; } to { scale: 1 1; } }
 @keyframes up { from { opacity: 0; translate: 0 1.5rem; } }
 @keyframes mark { from { scale: 0; } }
@@ -628,6 +643,11 @@ footer .wrap {
   :root { --head: 5.6rem; }
   header.top .bar { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
   header.top nav { gap: 1rem; }
+  /* the first screen on a phone: name, tagline, intro, then the two buttons
+     side by side on one row, each at least 4rem tall */
+  .hero .grid { padding-top: 1.75rem; }
+  .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 1.4rem; }
+  .acts .cta, .acts .snd-touch { padding-inline: 0.75rem; }
   .hud { grid-template-columns: 1fr; }
   .rcpt .row { grid-template-columns: 1fr; }
   .rcpt .val { grid-row: auto; }

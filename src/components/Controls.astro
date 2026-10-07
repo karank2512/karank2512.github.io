@@ -1,24 +1,32 @@
 ---
 /**
- * The sound control, which lives in the bottom-left HUD corner of the hero.
- * Sound is off by default. The Spotify iframe is not in the DOM until the
- * button is pressed, so no third-party request happens on load; it opens in
- * the #sleeve strip under the hero scene. On touch devices (pointer: coarse)
- * the CSS renders the same button as a plain large play button.
+ * The sound control. Sound is off by default. The Spotify iframe is not in
+ * the DOM until a button is pressed, so no third-party request happens on
+ * load; it opens in the #sleeve strip under the hero scene.
+ *
+ * Two variants share one state (the page script keeps them in step):
+ * - "hud": the hairline button with its caption and the playlist hint, in
+ *   the bottom-left HUD corner. Shown on wide screens with a fine pointer.
+ * - "touch": a plain large play button that sits beside "Contact me" in the
+ *   first screen. Shown on coarse pointers and on narrow screens, where the
+ *   HUD stacks below the stage and would push the control off the first
+ *   screen.
  */
 interface Props {
+  id: string;
+  variant: 'hud' | 'touch';
   playlistId: string;
   playlistTitle: string;
   openingTrack: string;
   openingArtist: string;
 }
-const { playlistId, playlistTitle, openingTrack, openingArtist } = Astro.props;
+const { id, variant, playlistId, playlistTitle, openingTrack, openingArtist } = Astro.props;
 const embedSrc = `https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator`;
 ---
 
 <button
-  class="snd"
-  id="snd"
+  class:list={['snd', { 'snd-touch': variant === 'touch' }]}
+  id={id}
   type="button"
   aria-pressed="false"
   aria-controls="sleeve"
@@ -31,39 +39,17 @@ const embedSrc = `https://open.spotify.com/embed/playlist/${playlistId}?utm_sour
   </svg>
   <span class="off">Press play</span>
   <span class="on">Stop</span>
-  <span class="k">
-    <span class="off">Sound off</span>
-    <span class="on">Playing</span>
-    <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
-  </span>
+  {variant === 'hud' && (
+    <span class="k">
+      <span class="off">Sound off</span>
+      <span class="on">Playing</span>
+      <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
+    </span>
+  )}
 </button>
-<p class="hint mono">
-  Opens <strong>{playlistTitle}</strong>, the playlist I practice to, starting with {openingTrack} by {openingArtist}.
-  Nothing plays until you press.
-</p>
-
-<script>
-  const button = document.getElementById('snd') as HTMLButtonElement | null;
-  const slot = document.getElementById('emb');
-  if (button && slot) {
-    let on = false;
-    button.addEventListener('click', () => {
-      on = !on;
-      button.setAttribute('aria-pressed', String(on));
-      document.body.classList.toggle('on', on);
-      if (on) {
-        const frame = document.createElement('iframe');
-        frame.src = button.dataset.embedSrc ?? '';
-        frame.title = button.dataset.embedTitle ?? 'Spotify playlist';
-        frame.width = '100%';
-        frame.height = '352';
-        frame.loading = 'lazy';
-        frame.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
-        slot.replaceChildren(frame);
-      } else {
-        // Removing the iframe is the only reliable way to stop the audio.
-        slot.replaceChildren();
-      }
-    });
-  }
-</script>
+{variant === 'hud' && (
+  <p class="hint mono">
+    Opens <strong>{playlistTitle}</strong>, the playlist I practice to, starting with {openingTrack} by {openingArtist}.
+    Nothing plays until you press.
+  </p>
+)}

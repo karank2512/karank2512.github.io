@@ -15,5 +15,12 @@ export default defineConfig({
       // left over from the v1 Tailwind build.
       postcss: { plugins: [] },
     },
+    build: {
+      // No preload helper in the page script. The scene chunks are imported
+      // lazily on idle or on approach, so the one extra round trip for their
+      // shared three.js chunk costs nothing visible and the page script stays
+      // a single small module.
+      modulePreload: false,
+    },
   },
 });

@@ -55,35 +55,3 @@ function blurb(p: CollectionEntry<'projects'>): string {
     </div>
   </div>
 </section>
-
-<script>
-  import { hasWebGL, near, reducedMotion } from '../scenes/boot';
-
-  // The cards are HTML and already laid out by CSS. Near the viewport, the
-  // small motion module takes over (drift, tilt, lift); if WebGL is there,
-  // the backdrop chunk draws the floor and a wire frame around each card.
-  const deck = document.getElementById('deck');
-  const canvas = document.getElementById('deck-gl') as HTMLCanvasElement | null;
-  if (deck) {
-    const slots = Array.from(deck.querySelectorAll<HTMLElement>('.slot'));
-    near(deck, async () => {
-      const { mountCards } = await import('../scenes/cards');
-      const state = mountCards(deck, slots, reducedMotion());
-      deck.classList.add('live');
-      let gl: { dispose(): void } | null = null;
-      if (canvas && hasWebGL()) {
-        const { mountCardsGl } = await import('../scenes/cardsGl');
-        gl = mountCardsGl(canvas, state);
-        canvas.classList.add('on');
-      }
-      window.addEventListener(
-        'pagehide',
-        () => {
-          gl?.dispose();
-          state.dispose();
-        },
-        { once: true },
-      );
-    });
-  }
-</script>

@@ -57,6 +57,7 @@ function linkify(text: string): string {
         </ul>
         <div class="acts">
           <a class="cta" href={`mailto:${email}`}>Contact me</a>
+          <Controls id="snd-touch" variant="touch" {...music} />
         </div>
       </div>
       <div class="room" aria-hidden="true"></div>
@@ -92,7 +93,7 @@ function linkify(text: string): string {
       )}
 
       <div class="hud-bl">
-        <Controls {...music} />
+        <Controls id="snd" variant="hud" {...music} />
       </div>
     </div>
   </div>
@@ -108,52 +109,3 @@ function linkify(text: string): string {
     </div>
   </div>
 </section>
-
-<script>
-  import { hasWebGL, near, reducedMotion, whenIdle } from '../scenes/boot';
-
-  // Pause every looping CSS animation in the hero (background field, sound
-  // bars) when the hero is off screen or the tab is hidden.
-  const hero = document.getElementById('hero');
-  if (hero) {
-    let offscreen = false;
-    const sync = () => hero.classList.toggle('paused', offscreen || document.hidden);
-    new IntersectionObserver((entries) => {
-      offscreen = !entries.some((e) => e.isIntersecting);
-      sync();
-    }).observe(hero);
-    document.addEventListener('visibilitychange', sync);
-  }
-
-  // The fork control works with or without the scene: pressed holds the
-  // lattice forked; the scene reads aria-pressed each frame.
-  const forkButton = document.getElementById('fork-btn') as HTMLButtonElement | null;
-  if (forkButton) {
-    forkButton.addEventListener('click', () => {
-      const on = forkButton.getAttribute('aria-pressed') !== 'true';
-      forkButton.setAttribute('aria-pressed', String(on));
-      forkButton.textContent = on ? 'Reset' : 'Fork it';
-    });
-  }
-
-  // The 3D hero: three.js is imported only once the stage is near the
-  // viewport and the browser is idle. The static SVG stays until the first
-  // frame, and for good when WebGL is unavailable.
-  const stage = document.getElementById('stage');
-  const canvas = document.getElementById('hero-gl') as HTMLCanvasElement | null;
-  if (stage && canvas && hasWebGL()) {
-    near(stage, () =>
-      whenIdle(async () => {
-        const { mountHero } = await import('../scenes/hero');
-        const scene = mountHero({
-          canvas,
-          stage,
-          forkButton,
-          reduced: reducedMotion(),
-          onFirstFrame: () => stage.classList.add('is-3d'),
-        });
-        window.addEventListener('pagehide', () => scene.dispose(), { once: true });
-      }),
-    );
-  }
-</script>

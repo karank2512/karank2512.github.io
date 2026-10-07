@@ -1,6 +1,6 @@
 # karankapur.com
 
-Personal site for Karan Kapur. Static Astro 5, zero framework JavaScript, a small page script (sound control, fork control, offscreen pause, lazy scene loading) and three WebGL scenes in three.js that load only when their canvas nears the viewport. This branch is v3, "Fork": minimalist and dark, warm near-black with one ember accent, built around a session that forks into branches. The hero is a draggable 3D KV cache lattice that forks, the thaw section is a scroll-driven engineering tour, and the projects are tilted cards floating in perspective. All geometry is procedural, in `src/scenes`. The contract is in `DESIGN.md`. The v2 branch holds the "Crate" design.
+Personal site for Karan Kapur. Static Astro 5, zero framework JavaScript, one small page script (`src/scripts/page.ts`: sound control, fork control, offscreen pause, tour scroll, lazy scene loading) and three WebGL scenes in three.js that load only when their canvas nears the viewport and the device has hardware WebGL. This branch is v3, "Fork": minimalist and dark, warm near-black with one ember accent, built around a session that forks into branches. The hero is a draggable 3D KV cache lattice that forks, the thaw section is a scroll-driven engineering tour, and the projects are tilted cards floating in perspective. All geometry is procedural, in `src/scenes`. The contract is in `DESIGN.md`. The v2 branch holds the "Crate" design.
 
 ## Quick start
 
@@ -42,6 +42,8 @@ Metric numbers must come from `_brief/RECEIPTS.md`. Rationale for every directio
 
 | File | What |
 |---|---|
+| `src/scripts/page.ts` | The only script in the first load: controls, offscreen pause, the tour scroll, and the dynamic imports below |
+| `src/scenes/boot.ts` | Helpers for the page script: the one WebGL probe (software rasterizers count as none), near-viewport and idle callbacks |
 | `src/scenes/lattice.ts` | Pure geometry of the forking KV cache lattice, shared by the SVG fallback and the hero |
 | `src/scenes/iso.ts` | Build-time isometric SVG of the lattice (the hero fallback) |
 | `src/scenes/gl.ts` | Shared three.js helpers: renderer with capped pixel ratio, instanced boxes with hairline edges, the pausing render loop, disposal |

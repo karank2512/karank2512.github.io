@@ -1,5 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+
+/** The visible sound control: the HUD button on wide fine-pointer screens, the touch button otherwise. */
+const playButton = (page: Page) => page.locator('button.snd:visible');
 
 test.describe('home page', () => {
   test('has no serious or critical axe violations', async ({ page }, testInfo) => {
@@ -21,6 +24,55 @@ test.describe('home page', () => {
     await expect(contact).toHaveAttribute('href', 'mailto:kkapur5@wisc.edu');
   });
 
+  test('contact links are real', async ({ page }) => {
+    await page.goto('/');
+    const say = page.locator('#contact');
+    await expect(say.getByRole('link', { name: 'kkapur5@wisc.edu' })).toHaveAttribute('href', 'mailto:kkapur5@wisc.edu');
+    await expect(say.getByRole('link', { name: 'GitHub' })).toHaveAttribute('href', 'https://github.com/karank2512');
+    await expect(say.getByRole('link', { name: 'LinkedIn' })).toHaveAttribute('href', 'https://www.linkedin.com/in/karankapur5');
+    await expect(say.getByRole('link', { name: /Resume/ })).toHaveAttribute('href', '/resume.pdf');
+    const resume = await page.request.get('/resume.pdf');
+    expect(resume.status()).toBe(200);
+    expect(resume.headers()['content-type']).toContain('pdf');
+  });
+
+  test('phone: Press play and Contact me share the first screen', async ({ page }, testInfo) => {
+    test.skip(testInfo.project.name !== 'mobile-390', 'phone layout only');
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    // The phone project emulates touch, so the touch button is the one shown.
+    expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
+    // Let the hero entrance finish so the boxes are at rest.
+    await page.evaluate(() =>
+      Promise.all(
+        (document.querySelector('.acts')?.getAnimations({ subtree: true }) ?? []).map((a) => a.finished),
+      ),
+    );
+    const viewport = page.viewportSize();
+    expect(viewport).toEqual({ width: 390, height: 844 });
+    const play = playButton(page);
+    await expect(play).toHaveCount(1);
+    await expect(play).toHaveId('snd-touch');
+    await expect(play).toHaveAccessibleName(/Press play/);
+    const contact = page.getByRole('link', { name: 'Contact me' });
+    const [pb, cb] = await Promise.all([play.boundingBox(), contact.boundingBox()]);
+    expect(pb).not.toBeNull();
+    expect(cb).not.toBeNull();
+    for (const box of [pb!, cb!]) {
+      expect(box.x).toBeGreaterThanOrEqual(0);
+      expect(box.y).toBeGreaterThanOrEqual(0);
+      expect(box.x + box.width).toBeLessThanOrEqual(390);
+      expect(box.y + box.height).toBeLessThanOrEqual(844);
+      expect(box.width).toBeGreaterThanOrEqual(48);
+      expect(box.height).toBeGreaterThanOrEqual(48);
+    }
+    // Beside each other: same row, play to the right of contact.
+    expect(Math.abs(pb!.y - cb!.y)).toBeLessThan(4);
+    expect(pb!.x).toBeGreaterThanOrEqual(cb!.x + cb!.width);
+    // The boxes are viewport coordinates, so the page must not have scrolled.
+    expect(await page.evaluate(() => window.scrollY)).toBe(0);
+  });
+
   test('the HUD shows only receipted numbers with receipt links', async ({ page }) => {
     await page.goto('/');
     const hud = page.locator('.hud');
@@ -37,11 +89,14 @@ test.describe('home page', () => {
   test('loads no third-party iframe until the play control is pressed', async ({ page }) => {
     await page.goto('/');
     await expect(page.locator('iframe')).toHaveCount(0);
-    const button = page.locator('#snd');
+    const button = playButton(page);
+    await expect(button).toHaveCount(1);
     await expect(button).toHaveAccessibleName(/Press play/);
     await expect(button).toHaveAttribute('aria-pressed', 'false');
     await button.click();
     await expect(button).toHaveAttribute('aria-pressed', 'true');
+    // Both controls report the same state, whichever one is shown.
+    await expect(page.locator('button.snd[aria-pressed="true"]')).toHaveCount(2);
     const frame = page.locator('iframe');
     await expect(frame).toHaveCount(1);
     await expect(frame).toHaveAttribute('src', /open\.spotify\.com\/embed\/playlist\/3RQb1MUtERqcwUlZdncPRN/);
@@ -57,6 +112,14 @@ test.describe('home page', () => {
     expect(missing).toEqual([]);
   });
 
+  test('the name and intro are visible from the first paint', async ({ page }) => {
+    await page.goto('/');
+    // The entrance only moves the largest text; it never starts transparent,
+    // so the largest contentful paint is not delayed by a fade.
+    const opacities = await page.$$eval('h1 .l, .hero .intro', (els) => els.map((el) => getComputedStyle(el).opacity));
+    for (const o of opacities) expect(parseFloat(o)).toBe(1);
+  });
+
   test('respects prefers-reduced-motion', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
@@ -68,9 +131,24 @@ test.describe('home page', () => {
     expect(parseFloat(h1)).toBe(1);
     const stick = await page.locator('#tour-stick').evaluate((el) => getComputedStyle(el).position);
     expect(stick).toBe('static');
-    await page.locator('#snd').click();
+    await playButton(page).click();
     const bar = await page.locator('.bars i').first().evaluate((el) => getComputedStyle(el).animationName);
     expect(bar).toBe('none');
+  });
+
+  test('the background field is one translate animation that pauses off screen', async ({ page }) => {
+    await page.goto('/');
+    const field = page.locator('.field');
+    const anim = await field.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return { name: s.animationName, state: s.animationPlayState, image: s.backgroundImage };
+    });
+    expect(anim.name).toBe('drift');
+    expect(anim.state).toBe('running');
+    expect(anim.image).not.toContain('gradient');
+    await page.locator('#contact').scrollIntoViewIfNeeded();
+    await expect(page.locator('#hero')).toHaveClass(/paused/);
+    expect(await field.evaluate((el) => getComputedStyle(el).animationPlayState)).toBe('paused');
   });
 
   test('the fork control toggles without the canvas', async ({ page }) => {
@@ -90,6 +168,27 @@ test.describe('home page', () => {
     await page.goto('/');
     await expect(page.locator('#stage svg.fb')).toHaveCount(1);
     await expect(page.locator('#tour-stage svg.fb')).toHaveCount(1);
+  });
+
+  test('three.js is not in the first load', async ({ page }) => {
+    const scripts: string[] = [];
+    let parsed = false;
+    const early: string[] = [];
+    page.on('request', (r) => {
+      if (r.resourceType() !== 'script') return;
+      scripts.push(r.url());
+      if (!parsed) early.push(r.url());
+    });
+    page.once('domcontentloaded', () => {
+      parsed = true;
+    });
+    await page.goto('/');
+    // One page script in the document. The scene chunks (and the three.js
+    // chunk they share) come later, on idle or on approach, and only with
+    // hardware WebGL, which headless Chrome does not have.
+    const atParse = early.filter((u) => /\/_astro\/.*\.js$/.test(u));
+    expect(atParse.length, atParse.join('\n')).toBe(1);
+    expect(scripts.some((u) => /\/_astro\/gl\./.test(u)), scripts.join('\n')).toBe(false);
   });
 
   test('project cards link to the public repos and tell has no link', async ({ page }) => {
