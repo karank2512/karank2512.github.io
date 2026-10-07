@@ -1,0 +1,102 @@
+---
+/**
+ * The hero graphic: one running session that forks into branches, drawn line
+ * by line on load. Every path has pathLength="1" so a single dash animation
+ * draws it. Each custom property is a delay (--d) or duration (--t) in
+ * seconds. The "Fork it" button adds live branches with the same animation.
+ */
+const Y = { trunk: 235, a: 120, b: 235, b1: 290, c: 400 };
+const END = 560;
+
+/** Short vertical ticks along a line, one per token. */
+function ticks(x0: number, x1: number, y: number, step = 20): string {
+  const d: string[] = [];
+  for (let x = x0; x <= x1; x += step) d.push(`M${x} ${y - 4}v8`);
+  return d.join('');
+}
+---
+
+<figure class="session" id="session" aria-labelledby="session-cap">
+  <svg viewBox="0 0 600 470" role="img" aria-label="A timeline of one running session that forks into branches a, b and c, and branch b forks again.">
+    <!-- the running session -->
+    <text x="28" y="218" class="fade" style="--d: 0.3s">one running session</text>
+    <path class="st draw" pathLength="1" style="--d: 0.1s; --t: 0.8s" d={`M28 ${Y.trunk} H200`}></path>
+    <g class="wipe" style="--d: 0.15s; --t: 0.8s"><path class="tk" d={ticks(48, 188, Y.trunk)}></path></g>
+
+    <!-- fork point -->
+    <circle class="ring" cx="200" cy={Y.trunk} r="5" style="--d: 0.9s"></circle>
+    <text x="200" y="262" class="fade em" style="--d: 1s" text-anchor="middle">fork</text>
+
+    <!-- branches a, b, c -->
+    <path class="st sg draw" pathLength="1" style="--d: 1s; --t: 1.2s" d={`M200 ${Y.trunk} C240 ${Y.trunk} 240 ${Y.a} 280 ${Y.a} H${END}`}></path>
+    <path class="st sg draw" pathLength="1" style="--d: 1s; --t: 1.1s" d={`M200 ${Y.trunk} H${END}`}></path>
+    <path class="st sg draw" pathLength="1" style="--d: 1s; --t: 1.2s" d={`M200 ${Y.trunk} C240 ${Y.trunk} 240 ${Y.c} 280 ${Y.c} H${END}`}></path>
+    <g class="wipe" style="--d: 1.35s; --t: 0.9s"><path class="tk sg" d={ticks(300, 540, Y.a)}></path></g>
+    <g class="wipe" style="--d: 1.1s; --t: 1s"><path class="tk sg" d={ticks(220, 540, Y.b)}></path></g>
+    <g class="wipe" style="--d: 1.35s; --t: 0.9s"><path class="tk sg" d={ticks(300, 540, Y.c)}></path></g>
+
+    <!-- branch b forks again -->
+    <circle class="ring" cx="380" cy={Y.b} r="5" style="--d: 2s"></circle>
+    <path class="st sg draw" pathLength="1" style="--d: 2.1s; --t: 0.8s" d={`M380 ${Y.b} C410 ${Y.b} 410 ${Y.b1} 440 ${Y.b1} H${END}`}></path>
+    <g class="wipe" style="--d: 2.5s; --t: 0.5s"><path class="tk sg" d={ticks(460, 540, Y.b1)}></path></g>
+
+    <!-- labels and carets at the branch tips -->
+    <text x="556" y={Y.a - 10} class="fade" style="--d: 2.3s" text-anchor="end">a</text>
+    <text x="556" y={Y.b - 10} class="fade" style="--d: 2.3s" text-anchor="end">b</text>
+    <text x="556" y={Y.b1 - 10} class="fade" style="--d: 3s" text-anchor="end">b, again</text>
+    <text x="556" y={Y.c - 10} class="fade" style="--d: 2.3s" text-anchor="end">c</text>
+    <rect class="caret" x="562" y={Y.a - 5} width="3" height="10" style="--d: 2.3s"></rect>
+    <rect class="caret" x="562" y={Y.b - 5} width="3" height="10" style="--d: 2.3s"></rect>
+    <rect class="caret" x="562" y={Y.b1 - 5} width="3" height="10" style="--d: 3s"></rect>
+    <rect class="caret" x="562" y={Y.c - 5} width="3" height="10" style="--d: 2.3s"></rect>
+
+    <!-- branches the visitor adds -->
+    <g id="extra"></g>
+  </svg>
+  <figcaption class="cap mono" id="session-cap">
+    <span>Every branch is a live session. That is what thaw does.</span>
+    <button class="fork-btn" id="fork-btn" type="button">Fork it</button>
+  </figcaption>
+</figure>
+
+<script>
+  const NS = 'http://www.w3.org/2000/svg';
+  const button = document.getElementById('fork-btn') as HTMLButtonElement | null;
+  const extra = document.getElementById('extra');
+  if (button && extra) {
+    // Free lanes between the drawn branches, top to bottom of the viewBox.
+    const lanes = [55, 175, 340, 445];
+    const trunkY = 235;
+    let count = 0;
+
+    const el = (tag: string, attrs: Record<string, string>) => {
+      const node = document.createElementNS(NS, tag);
+      for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+      return node;
+    };
+
+    button.addEventListener('click', () => {
+      if (count >= lanes.length) {
+        extra.replaceChildren();
+        count = 0;
+        button.textContent = 'Fork it';
+        return;
+      }
+      const y = lanes[count] ?? trunkY;
+      count += 1;
+      // Fork from a random point on the running session.
+      const x0 = 60 + Math.round(Math.random() * 120);
+      extra.append(
+        el('circle', { class: 'ring', cx: String(x0), cy: String(trunkY), r: '5', style: '--d: 0s' }),
+        el('path', {
+          class: 'st ember draw',
+          pathLength: '1',
+          style: '--d: 0.1s; --t: 1s',
+          d: `M${x0} ${trunkY} C${x0 + 40} ${trunkY} ${x0 + 40} ${y} ${x0 + 80} ${y} H560`,
+        }),
+        el('rect', { class: 'caret', x: '562', y: String(y - 5), width: '3', height: '10', style: '--d: 1s' }),
+      );
+      button.textContent = count >= lanes.length ? 'Reset the forks' : `Fork it again (${count})`;
+    });
+  }
+</script>

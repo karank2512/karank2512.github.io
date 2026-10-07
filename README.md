@@ -1,6 +1,6 @@
 # karankapur.com
 
-Personal site for Karan Kapur. Static Astro 5, zero framework JavaScript, one small script for the opt-in sound control. Design direction B, "Crate": a record sleeve in sunset colors with a CSS turntable. The contract is in `DESIGN.md`.
+Personal site for Karan Kapur. Static Astro 5, zero framework JavaScript, three small scripts (sound control, hero fork button, offscreen pause). This branch is v3, "Fork": minimalist and dark, warm near-black with one ember accent, built around a session that forks into branches. The contract is in `DESIGN.md`. The v2 branch holds the "Crate" design.
 
 ## Quick start
 
@@ -40,4 +40,4 @@ Metric numbers must come from `_brief/RECEIPTS.md`. Rationale for every directio
 
 ## Deploy
 
-`deploy.yml` builds `main` and publishes `dist/` to GitHub Pages. `public/CNAME` keeps the custom domain. The `v2` branch is not wired to deploy yet.
+`deploy.yml` builds `main` and publishes `dist/` to GitHub Pages. `public/CNAME` keeps the custom domain. The `v2` and `v3` branches are not wired to deploy yet.

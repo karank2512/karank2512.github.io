@@ -1,0 +1,36 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  roles: CollectionEntry<'experience'>[];
+  education: string;
+  photo: { src: string; alt: string; width: number; height: number };
+}
+const { roles, education, photo } = Astro.props;
+---
+
+<section class="sec exp" id="experience" aria-labelledby="h-exp">
+  <div class="wrap grid">
+    <div class="lab">
+      <p class="mono">Experience</p>
+      <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" />
+      <p class="edu">{education}</p>
+    </div>
+    <div>
+      <h2 id="h-exp" class="rv">Background<span class="dot">.</span></h2>
+      <ol class="roles">
+        {roles.map((r) => (
+          <li class="rv">
+            <span class="mk" aria-hidden="true"></span>
+            <span class="r">
+              {r.data.role}
+              <span class="o">{r.data.org}, {r.data.location}</span>
+            </span>
+            <span class="w mono">{r.data.start} to {r.data.end}</span>
+            <span class="ln">{r.data.line}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>

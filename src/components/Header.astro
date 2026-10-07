@@ -6,11 +6,13 @@ const { name } = Astro.props;
 ---
 
 <header class="top">
-  <span class="mono">{name}</span>
-  <nav class="mono" aria-label="Sections">
-    <a href="#thaw">thaw</a>
-    <a href="#crate">Work</a>
-    <a href="#background">Background</a>
-    <a href="#contact">Contact</a>
-  </nav>
+  <div class="wrap bar">
+    <a class="mono name" href="#main">{name}</a>
+    <nav class="mono" aria-label="Sections">
+      <a href="#thaw">thaw</a>
+      <a href="#projects">Projects</a>
+      <a href="#experience">Experience</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
 </header>

@@ -1,0 +1,41 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import Mark from './Mark.astro';
+
+interface Props {
+  projects: CollectionEntry<'projects'>[];
+}
+const { projects } = Astro.props;
+---
+
+<section class="sec proj" id="projects" aria-labelledby="h-proj">
+  <div class="wrap grid">
+    <p class="lab mono">Other projects</p>
+    <div>
+      <h2 id="h-proj" class="rv">Three more<span class="dot">.</span></h2>
+      <ul class="rows">
+        {projects.map((p) => {
+          const primary = p.data.links[0];
+          return (
+            <li class:list={['row', 'rv', { linked: Boolean(primary) }]}>
+              <Mark id={p.id} />
+              <div>
+                <h3>{primary ? <a href={primary.href}>{p.data.title}</a> : p.data.title}</h3>
+                <span class="sp mono">{p.data.tagline}</span>
+              </div>
+              <p>
+                {p.data.summary}
+                {p.data.note && <span class="note">{p.data.note}</span>}
+              </p>
+              {primary && (
+                <svg class="go" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M6 18L18 6M9 6h9v9"></path>
+                </svg>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </div>
+</section>

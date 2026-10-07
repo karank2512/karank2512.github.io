@@ -1,0 +1,37 @@
+---
+/**
+ * A small line drawing per project. Each one moves on row hover and focus,
+ * with transforms only (see .mark rules in global.css).
+ */
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+---
+
+{id === 'relayiq' ? (
+  <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <path d="M6 14h14M6 24h14M6 34h14"></path>
+    <path class="gate" d="M26 8v32"></path>
+    <path d="M30 14h12M30 24h12"></path>
+    <path class="pass" d="M30 34h12"></path>
+  </svg>
+) : id === 'foreman' ? (
+  <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <rect class="w1" x="6" y="6" width="10" height="10"></rect>
+    <rect class="w2" x="24" y="16" width="10" height="10"></rect>
+    <rect class="w3" x="12" y="30" width="10" height="10"></rect>
+    <path d="M6 44h36"></path>
+  </svg>
+) : id === 'tell' ? (
+  <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <circle cx="12" cy="36" r="2.5"></circle>
+    <path class="arc a1" d="M12 26a10 10 0 0 1 10 10"></path>
+    <path class="arc a2" d="M12 18a18 18 0 0 1 18 18"></path>
+    <path class="arc a3" d="M12 10a26 26 0 0 1 26 26"></path>
+  </svg>
+) : (
+  <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <path d="M6 24h36"></path>
+  </svg>
+)}

@@ -1,0 +1,84 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+const { project } = Astro.props;
+const { title, tagline, summary, credit, links, metrics, hardware } = project.data;
+
+/** The four things the storage layer saves, drawn as one snapshot. */
+const layers = ['weights', 'KV cache', 'prefix-cache metadata', 'scheduler state'];
+const forks = [
+  { y: 90, label: 'fork a' },
+  { y: 150, label: 'fork b' },
+  { y: 210, label: 'fork c' },
+];
+const stagger = ['s2', 's2b', 's2c', 's2d'];
+---
+
+<section class="sec feat" id="thaw" aria-labelledby="h-thaw">
+  <div class="wrap grid">
+    <p class="lab mono">Featured work</p>
+    <div>
+      <h2 id="h-thaw" class="rv">{title}<span class="dot">.</span></h2>
+      <p class="tag mono rv">{tagline}</p>
+      <p class="sum rv">{summary}</p>
+      {credit && <p class="credit rv">{credit}.</p>}
+      {links.length > 0 && (
+        <ul class="links rv">
+          {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      )}
+
+      <figure class="forkd rv" aria-labelledby="fd-cap">
+        <svg viewBox="0 0 720 300" role="img" aria-label="A running session is saved as one snapshot of weights, KV cache, prefix-cache metadata and scheduler state, then restored as three forked sessions.">
+          <!-- the running session enters the snapshot -->
+          <text x="0" y="134">a running session</text>
+          <path class="ln sx s1" d="M0 150 H200"></path>
+
+          <!-- the snapshot: four layers saved together -->
+          <text x="200" y="74" class="lt">saved as one snapshot</text>
+          {layers.map((name, i) => (
+            <g class:list={['sx', stagger[i]]}>
+              <rect class="box" x="200" y={89 + i * 32} width="150" height="26"></rect>
+              <text x="210" y={106 + i * 32}>{name}</text>
+            </g>
+          ))}
+
+          <!-- the snapshot fans out into forks -->
+          <g class="wp s3">
+            {forks.map((f) =>
+              f.y === 150
+                ? <path class="ln sg" d="M350 150 H430"></path>
+                : <path class="ln sg" d={`M350 150 C390 150 390 ${f.y} 430 ${f.y}`}></path>
+            )}
+          </g>
+          {forks.map((f) => (
+            <>
+              <text x="430" y={f.y - 10}>{f.label}</text>
+              <path class="ln sg sx s4" d={`M430 ${f.y} H700`}></path>
+              <rect class="cr" x="702" y={f.y - 5} width="3" height="10"></rect>
+            </>
+          ))}
+        </svg>
+        <figcaption id="fd-cap" class="mono">
+          What my layer saves, and what it gives back. Bit-identical, so a fork picks up exactly where the session was.
+        </figcaption>
+      </figure>
+
+      <ol class="rcpt">
+        {metrics.map((m) => (
+          <li class="row rv">
+            <span class="lbl">{m.label}</span>
+            <span class:list={['val', { word: !m.unit }]}>
+              {m.value}{m.unit && <small>{m.unit}</small>}
+            </span>
+            <span class="set">{m.setup} <a href={m.source}>Receipt</a>.</span>
+          </li>
+        ))}
+      </ol>
+      {hardware && <p class="hw mono">{hardware}</p>}
+    </div>
+  </div>
+</section>

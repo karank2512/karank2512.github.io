@@ -1,9 +1,9 @@
 {
   "name": "karankapur-com",
   "private": true,
-  "version": "2.0.0",
+  "version": "3.0.0",
   "type": "module",
-  "description": "karankapur.com, a static Astro 5 site. Direction B, Crate.",
+  "description": "karankapur.com, a static Astro 5 site. v3, Fork: minimalist dark.",
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",

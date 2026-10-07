@@ -3,9 +3,9 @@ import { getCollection, getEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
-import Liner from '../components/Liner.astro';
-import Crate from '../components/Crate.astro';
-import Background from '../components/Background.astro';
+import Featured from '../components/Featured.astro';
+import Projects from '../components/Projects.astro';
+import Experience from '../components/Experience.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
 
@@ -15,7 +15,7 @@ if (!profile) throw new Error('src/content/profile/main.json is missing');
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const featured = projects.find((p) => p.data.kind === 'featured');
 if (!featured) throw new Error('No featured project. Set "kind": "featured" on one project.');
-const crate = projects.filter((p) => p.data.kind === 'crate');
+const others = projects.filter((p) => p.data.kind === 'crate');
 
 const roles = (await getCollection('experience')).sort((a, b) => a.data.order - b.data.order);
 
@@ -29,9 +29,9 @@ const description =
   <Header name={name} />
   <main id="main">
     <Hero name={name} tagline={tagline} intro={intro} email={contact.email} music={music} />
-    <Liner project={featured} />
-    <Crate projects={crate} />
-    <Background roles={roles} education={education} photo={photo} />
+    <Featured project={featured} />
+    <Projects projects={others} />
+    <Experience roles={roles} education={education} photo={photo} />
     <Contact {...contact} />
   </main>
   <Footer />

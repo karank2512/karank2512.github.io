@@ -47,9 +47,28 @@ test.describe('home page', () => {
   test('respects prefers-reduced-motion', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
+    // The hero drawing, the background field and the sound bars are all off,
+    // and the drawing sits in its finished state.
+    const field = await page.locator('.field').evaluate((el) => getComputedStyle(el).animationName);
+    expect(field).toBe('none');
+    const stroke = await page
+      .locator('#session .draw')
+      .first()
+      .evaluate((el) => ({ name: getComputedStyle(el).animationName, offset: getComputedStyle(el).strokeDashoffset }));
+    expect(stroke.name).toBe('none');
+    expect(parseFloat(stroke.offset)).toBe(0);
     await page.locator('#snd').click();
-    const animation = await page.locator('.disc').evaluate((el) => getComputedStyle(el).animationName);
-    expect(animation).toBe('none');
+    const bar = await page.locator('.bars i').first().evaluate((el) => getComputedStyle(el).animationName);
+    expect(bar).toBe('none');
+  });
+
+  test('the fork button adds a branch to the hero graphic', async ({ page }) => {
+    await page.goto('/');
+    const extra = page.locator('#extra > *');
+    await expect(extra).toHaveCount(0);
+    await page.locator('#fork-btn').click();
+    await expect(extra).toHaveCount(3);
+    await expect(page.locator('#fork-btn')).toHaveText(/again/);
   });
 
   test('captures a reference screenshot', async ({ page }, testInfo) => {

@@ -3,7 +3,7 @@
   "kind": "featured",
   "order": 0,
   "tagline": "Open-source LLM inference infrastructure in Rust and CUDA",
-  "summary": "Open-source LLM inference infrastructure in Rust and CUDA. My part is the cloud storage layer: weights, KV cache, prefix-cache metadata and scheduler state, saved and brought back together so a running session can fork instead of cold booting. The numbers below are from the team's benchmark runs, with the hardware and model printed next to each. Read it like a tracklist, with the setup where the runtime goes.",
+  "summary": "Open-source LLM inference infrastructure in Rust and CUDA. My part is the cloud storage layer: weights, KV cache, prefix-cache metadata and scheduler state, saved and brought back together so a running session can fork instead of cold booting. The numbers below are from the team's benchmark runs, with the hardware and model printed next to each and a receipt link on every row.",
   "credit": "Co-founded thaw with N. Matteson and M. Yu",
   "links": [
     { "label": "github.com/thaw-ai/thaw", "href": "https://github.com/thaw-ai/thaw" },

@@ -1,5 +1,6 @@
 ---
-import Turntable from './Turntable.astro';
+import Controls from './Controls.astro';
+import Session from './Session.astro';
 
 interface Props {
   name: string;
@@ -21,19 +22,36 @@ const last = rest.join(' ');
 function linkify(text: string): string {
   return text
     .replace(/\bthaw\b/, '<a href="#thaw">thaw</a>')
-    .replace(/\bRelayIQ\b/, '<a href="#crate">RelayIQ</a>');
+    .replace(/\bRelayIQ\b/, '<a href="#projects">RelayIQ</a>');
 }
 ---
 
-<section class="hero" aria-labelledby="h1">
-  <div class="sun" aria-hidden="true"></div>
-  <div>
-    <h1 id="h1"><span class="l">{first}</span><span class="l">{last}</span></h1>
-    <div class="role-wrap"><p class="role">{tagline}</p></div>
-    <ul class="intro">
-      {intro.map((line) => <li set:html={linkify(line)} />)}
-    </ul>
-    <a class="cta" href={`mailto:${email}`}>Contact me</a>
+<section class="hero" id="hero" aria-labelledby="h1">
+  <div class="field" aria-hidden="true"></div>
+  <div class="wrap grid">
+    <div>
+      <h1 id="h1"><span class="l">{first}</span><span class="l">{last}</span></h1>
+      <p class="role">{tagline}</p>
+      <ul class="intro">
+        {intro.map((line) => <li set:html={linkify(line)} />)}
+      </ul>
+      <Controls email={email} {...music} />
+    </div>
+    <Session />
   </div>
-  <Turntable {...music} />
 </section>
+
+<script>
+  // Pause every looping animation in the hero (background field, carets,
+  // sound bars) when the hero is off screen or the tab is hidden.
+  const hero = document.getElementById('hero');
+  if (hero) {
+    let offscreen = false;
+    const sync = () => hero.classList.toggle('paused', offscreen || document.hidden);
+    new IntersectionObserver((entries) => {
+      offscreen = !entries.some((e) => e.isIntersecting);
+      sync();
+    }).observe(hero);
+    document.addEventListener('visibilitychange', sync);
+  }
+</script>
