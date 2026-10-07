@@ -1,6 +1,6 @@
 # karankapur.com
 
-Personal site for Karan Kapur. Static Astro 5, zero framework JavaScript, three small scripts (sound control, hero fork button, offscreen pause). This branch is v3, "Fork": minimalist and dark, warm near-black with one ember accent, built around a session that forks into branches. The contract is in `DESIGN.md`. The v2 branch holds the "Crate" design.
+Personal site for Karan Kapur. Static Astro 5, zero framework JavaScript, a small page script (sound control, fork control, offscreen pause, lazy scene loading) and three WebGL scenes in three.js that load only when their canvas nears the viewport. This branch is v3, "Fork": minimalist and dark, warm near-black with one ember accent, built around a session that forks into branches. The hero is a draggable 3D KV cache lattice that forks, the thaw section is a scroll-driven engineering tour, and the projects are tilted cards floating in perspective. All geometry is procedural, in `src/scenes`. The contract is in `DESIGN.md`. The v2 branch holds the "Crate" design.
 
 ## Quick start
 
@@ -37,6 +37,20 @@ Everything the page says lives in `src/content/`, validated by `src/content.conf
 | `experience/*.json` | One sentence per role |
 
 Metric numbers must come from `_brief/RECEIPTS.md`. Rationale for every direction change is in `_brief/DECISIONS.md`.
+
+## 3D scenes
+
+| File | What |
+|---|---|
+| `src/scenes/lattice.ts` | Pure geometry of the forking KV cache lattice, shared by the SVG fallback and the hero |
+| `src/scenes/iso.ts` | Build-time isometric SVG of the lattice (the hero fallback) |
+| `src/scenes/gl.ts` | Shared three.js helpers: renderer with capped pixel ratio, instanced boxes with hairline edges, the pausing render loop, disposal |
+| `src/scenes/hero.ts` | The hero: drag to orbit, drag or scroll to fork, parallax, inertia |
+| `src/scenes/tour.ts` | The thaw tour: five camera views, highlight, the fork flyout |
+| `src/scenes/cards.ts` | Card drift, tilt and lift in CSS 3D (no three.js) |
+| `src/scenes/cardsGl.ts` | The deck backdrop: floor hairlines and a wire frame per card, camera matched to the CSS perspective |
+
+Unused v2 components (`Crate.astro`, `Turntable.astro`, `Liner.astro`, `Background.astro`) and the v3 SVG `Session.astro` are not imported anywhere and should be deleted; the lane this was built in blocks `rm` and `git rm`.
 
 ## Deploy
 

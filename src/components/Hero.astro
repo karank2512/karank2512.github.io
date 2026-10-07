@@ -1,6 +1,14 @@
 ---
 import Controls from './Controls.astro';
-import Session from './Session.astro';
+import LatticeSvg from './LatticeSvg.astro';
+
+interface Metric {
+  label: string;
+  value: string;
+  unit?: string;
+  setup: string;
+  source: string;
+}
 
 interface Props {
   name: string;
@@ -13,10 +21,15 @@ interface Props {
     openingTrack: string;
     openingArtist: string;
   };
+  /** The median fork metric (A1 in thaw.json). */
+  fork: Metric | undefined;
+  /** The restore metrics (A2 and A3). */
+  restores: Metric[];
 }
-const { name, tagline, intro, email, music } = Astro.props;
+const { name, tagline, intro, email, music, fork, restores } = Astro.props;
 const [first, ...rest] = name.split(' ');
 const last = rest.join(' ');
+const receipt = restores[0]?.source;
 
 /** Link the first mention of thaw and RelayIQ without changing the approved words. */
 function linkify(text: string): string {
@@ -27,23 +40,80 @@ function linkify(text: string): string {
 ---
 
 <section class="hero" id="hero" aria-labelledby="h1">
-  <div class="field" aria-hidden="true"></div>
-  <div class="wrap grid">
-    <div>
-      <h1 id="h1"><span class="l">{first}</span><span class="l">{last}</span></h1>
-      <p class="role">{tagline}</p>
-      <ul class="intro">
-        {intro.map((line) => <li set:html={linkify(line)} />)}
-      </ul>
-      <Controls email={email} {...music} />
+  <div class="scene">
+    <div class="field" aria-hidden="true"></div>
+
+    <div class="stage" id="stage">
+      <LatticeSvg />
+      <canvas id="hero-gl" aria-hidden="true"></canvas>
     </div>
-    <Session />
+
+    <div class="wrap grid">
+      <div class="copy">
+        <h1 id="h1"><span class="l">{first}</span><span class="l">{last}</span></h1>
+        <p class="role">{tagline}</p>
+        <ul class="intro">
+          {intro.map((line) => <li set:html={linkify(line)} />)}
+        </ul>
+        <div class="acts">
+          <a class="cta" href={`mailto:${email}`}>Contact me</a>
+        </div>
+      </div>
+      <div class="room" aria-hidden="true"></div>
+    </div>
+
+    <div class="hud">
+      <div class="hud-tl mono">
+        <span>One running session. Drag to orbit, scroll to fork.</span>
+        <button class="fork-btn" id="fork-btn" type="button" aria-pressed="false">Fork it</button>
+      </div>
+
+      {fork && (
+        <dl class="hud-tr mono">
+          <dt>{fork.label}</dt>
+          <dd class="v">{fork.value}{fork.unit && <small>{fork.unit}</small>}</dd>
+          <dd>vs about 340 s cold boot</dd>
+          <dd>{fork.setup}</dd>
+          <dd><a href={fork.source}>Receipt</a></dd>
+        </dl>
+      )}
+
+      {restores.length > 0 && (
+        <dl class="hud-br mono">
+          <dt>Weight restore</dt>
+          {restores.map((r) => (
+            <>
+              <dd class="v">{r.value}{r.unit && <small>{r.unit}</small>}</dd>
+              <dd>{r.setup}</dd>
+            </>
+          ))}
+          {receipt && <dd><a href={receipt}>Receipt</a></dd>}
+        </dl>
+      )}
+
+      <div class="hud-bl">
+        <Controls {...music} />
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div id="sleeve" aria-live="polite">
+      <div>
+        <div class="in">
+          <p>If it does not start on its own, tap play once inside the player. Logged-out listeners get 30 second previews.</p>
+          <div id="emb"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
 <script>
-  // Pause every looping animation in the hero (background field, carets,
-  // sound bars) when the hero is off screen or the tab is hidden.
+  import { hasWebGL, near, reducedMotion, whenIdle } from '../scenes/boot';
+
+  // Pause every looping CSS animation in the hero (background field, sound
+  // bars) when the hero is off screen or the tab is hidden.
   const hero = document.getElementById('hero');
   if (hero) {
     let offscreen = false;
@@ -53,5 +123,37 @@ function linkify(text: string): string {
       sync();
     }).observe(hero);
     document.addEventListener('visibilitychange', sync);
+  }
+
+  // The fork control works with or without the scene: pressed holds the
+  // lattice forked; the scene reads aria-pressed each frame.
+  const forkButton = document.getElementById('fork-btn') as HTMLButtonElement | null;
+  if (forkButton) {
+    forkButton.addEventListener('click', () => {
+      const on = forkButton.getAttribute('aria-pressed') !== 'true';
+      forkButton.setAttribute('aria-pressed', String(on));
+      forkButton.textContent = on ? 'Reset' : 'Fork it';
+    });
+  }
+
+  // The 3D hero: three.js is imported only once the stage is near the
+  // viewport and the browser is idle. The static SVG stays until the first
+  // frame, and for good when WebGL is unavailable.
+  const stage = document.getElementById('stage');
+  const canvas = document.getElementById('hero-gl') as HTMLCanvasElement | null;
+  if (stage && canvas && hasWebGL()) {
+    near(stage, () =>
+      whenIdle(async () => {
+        const { mountHero } = await import('../scenes/hero');
+        const scene = mountHero({
+          canvas,
+          stage,
+          forkButton,
+          reduced: reducedMotion(),
+          onFirstFrame: () => stage.classList.add('is-3d'),
+        });
+        window.addEventListener('pagehide', () => scene.dispose(), { once: true });
+      }),
+    );
   }
 </script>

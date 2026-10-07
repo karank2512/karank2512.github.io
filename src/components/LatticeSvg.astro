@@ -1,0 +1,22 @@
+---
+/**
+ * Static isometric drawing of the forked lattice, generated at build time
+ * from the same geometry the WebGL hero uses. Shown until the scene renders
+ * its first frame, kept when WebGL is unavailable.
+ */
+import { latticeSvg } from '../scenes/iso';
+
+const art = latticeSvg();
+const cls: Record<string, string> = { trunk: 'b2', copy: 'sg', new: 'sg', tip: 'em' };
+---
+
+<svg
+  class="fb"
+  viewBox={art.viewBox}
+  preserveAspectRatio="xMidYMid meet"
+  role="img"
+  aria-label="A lattice of KV cache blocks for one running session, forked into four branches that fan out from an ember ring."
+>
+  {art.paths.map((p) => <path class={cls[p.kind] ?? 'b2'} d={p.d} />)}
+  <path class="em" d={art.ring} />
+</svg>

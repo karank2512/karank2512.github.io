@@ -1,7 +1,7 @@
 ---
 /**
- * A small line drawing per project. Each one moves on row hover and focus,
- * with transforms only (see .mark rules in global.css).
+ * A small line drawing per project, drawn with hairlines only. Colors come
+ * from the .mark rules in global.css.
  */
 interface Props {
   id: string;
@@ -9,7 +9,15 @@ interface Props {
 const { id } = Astro.props;
 ---
 
-{id === 'relayiq' ? (
+{id === 'thaw' ? (
+  <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+    <path d="M4 24h14"></path>
+    <circle class="em" cx="20" cy="24" r="3"></circle>
+    <path d="M22 24c8 0 8-10 16-10h6"></path>
+    <path d="M22 24h22"></path>
+    <path d="M22 24c8 0 8 10 16 10h6"></path>
+  </svg>
+) : id === 'relayiq' ? (
   <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
     <path d="M6 14h14M6 24h14M6 34h14"></path>
     <path class="gate" d="M26 8v32"></path>
