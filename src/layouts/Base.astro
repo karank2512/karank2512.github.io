@@ -3,6 +3,13 @@ import '../styles/fonts.css';
 import '@fontsource/dm-mono/400.css';
 import '@fontsource/dm-mono/500.css';
 import '../styles/global.css';
+// The display face, preloaded: the stylesheet is inlined into the page, so
+// without this hint the browser would only find the font once it has run
+// style resolution and laid out the first text. The preload starts the one
+// large font while the HTML is still being parsed, so the swap from the
+// size-adjusted fallback happens close to the first paint. DM Mono is small
+// and secondary, so it is left to normal discovery.
+import bricolage from '../assets/fonts/bricolage-grotesque-latin-full.woff2?url';
 
 interface Props {
   title: string;
@@ -22,6 +29,7 @@ const og = new URL('/og-image.png', Astro.site);
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
+    <link rel="preload" href={bricolage} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="theme-color" content="#17130f" />
     <meta name="color-scheme" content="dark" />

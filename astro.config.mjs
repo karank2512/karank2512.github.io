@@ -7,7 +7,12 @@ export default defineConfig({
   output: 'static',
   trailingSlash: 'ignore',
   build: {
-    inlineStylesheets: 'auto',
+    // The one stylesheet (about 25 KB, 6.6 KB over the wire) goes into the
+    // page as a style element instead of a render-blocking request: the
+    // first paint no longer waits for a second round trip, and the fonts it
+    // declares are discovered from the HTML itself. A single-page site gets
+    // nothing from caching the sheet separately.
+    inlineStylesheets: 'always',
   },
   vite: {
     css: {

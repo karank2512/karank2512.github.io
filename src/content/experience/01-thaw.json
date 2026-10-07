@@ -5,6 +5,6 @@
   "location": "Madison, WI",
   "start": "Apr 2026",
   "end": "Present",
-  "line": "Own the cloud storage layer that persists and restores live LLM state: weights, KV cache, prefix-cache metadata and scheduler state. Contributed to the restore throughput results in the receipts below.",
+  "line": "Own the cloud storage layer that persists and restores live LLM state: weights, KV cache, prefix-cache metadata and scheduler state. Contributed to the restore throughput results.",
   "project": "thaw"
 }

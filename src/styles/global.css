@@ -497,10 +497,10 @@ body.on #sleeve { grid-template-rows: 1fr; }
 .roles .feat .mk { width: 9px; height: 9px; left: -5px; top: 0.6em; }
 .roles .feat .ln { max-width: 64ch; }
 .roles .feat .tile { height: calc(var(--th) + 1.75rem); }
-/* The folded-in project starts under the tile row, indented to the text
-   column; the tour pulls back to the full column width for its stage. */
-.feat .more { grid-column: 1 / -1; margin-top: 0.8rem; padding-left: calc(var(--tw) + var(--tg)); }
-.feat .tour { margin-left: calc(-1 * (var(--tw) + var(--tg))); }
+/* The folded-in project starts under the tile row, flush with the tile's
+   left edge, so no empty column is left under the tile beside the copy; the
+   tour stage is the full column width too. */
+.feat .more { grid-column: 1 / -1; margin-top: 0.8rem; }
 .feat .tag { color: var(--sage); margin-bottom: 0.9rem; }
 .feat .sum { max-width: 58ch; font-size: clamp(1.02rem, 1.3vw, 1.15rem); color: var(--bone-2); text-wrap: pretty; }
 .feat .credit { margin-top: 0.7rem; color: var(--bone); }
@@ -623,15 +623,16 @@ body.on #sleeve { grid-template-rows: 1fr; }
 .proj .grid { padding-bottom: 0; }
 .proj .lead { max-width: 48ch; color: var(--bone-2); }
 /* --ch is the card height before the motion module measures the tallest
-   card: the stage, a two or three line caption, the title, the tagline and
-   up to eleven lines of copy come to about 545px at the 320px card width,
-   so 580 leaves room. The deck heights below are --ch plus the module's
-   margins (120; two rows plus 148; three rows plus 144). */
+   card: the stage, a two or three line caption, the title, a one or two
+   line tagline and up to eleven lines of copy come to about 580px at the
+   320px card width (Foreman, with its two-line tagline and its note, is
+   the tallest), so 600 leaves room. The deck heights below are --ch plus
+   the module's margins (120; two rows plus 148; three rows plus 144). */
 .deck {
   --cw: 300px;
-  --ch: 580px;
+  --ch: 600px;
   position: relative;
-  height: 700px;
+  height: 720px;
   margin-block: 1rem clamp(3rem, 7vw, 6rem);
   perspective: 1200px;
   perspective-origin: 50% 50%;
@@ -662,10 +663,12 @@ body.on #sleeve { grid-template-rows: 1fr; }
   transform-style: preserve-3d;
   will-change: transform;
 }
-/* resting layout before the motion script runs, and without it: one row */
-.s0 { left: calc(var(--cw) / 2); transform: translate3d(0, -20px, -40px) rotateX(4deg) rotateY(-9deg); }
-.s1 { transform: translate3d(0, 24px, 20px) rotateX(-5deg) rotateY(7deg); }
-.s2 { left: calc(100% - var(--cw) / 2); transform: translate3d(0, -12px, -60px) rotateX(6deg) rotateY(-6deg); }
+/* resting layout before the motion script runs, and without it: one row.
+   The three cards share one baseline (no vertical stagger); depth and tilt
+   alone make them float. The module's slots use the same offsets. */
+.s0 { left: calc(var(--cw) / 2); transform: translate3d(0, 0, -40px) rotateX(4deg) rotateY(-9deg); }
+.s1 { transform: translate3d(0, 0, 20px) rotateX(-5deg) rotateY(7deg); }
+.s2 { left: calc(100% - var(--cw) / 2); transform: translate3d(0, 0, -60px) rotateX(6deg) rotateY(-6deg); }
 .card {
   position: relative;
   display: flex;
@@ -755,10 +758,10 @@ footer .wrap {
 
 @media (max-width: 899px) {
   /* two columns, the third card centred below */
-  .deck { --cw: min(320px, calc(50vw - 3rem)); height: 1308px; }
-  .s0 { left: calc(50% - var(--cw) / 2 - 20px); top: calc(50% - var(--ch) / 2 - 24px); transform: translate3d(0, -8px, -40px) rotateX(4deg) rotateY(-9deg); }
-  .s1 { left: calc(50% + var(--cw) / 2 + 20px); top: calc(50% - var(--ch) / 2 - 24px); transform: translate3d(0, 10px, 20px) rotateX(-5deg) rotateY(7deg); }
-  .s2 { left: 50%; top: calc(50% + var(--ch) / 2 + 24px); transform: translate3d(0, -5px, -60px) rotateX(6deg) rotateY(-6deg); }
+  .deck { --cw: min(320px, calc(50vw - 3rem)); height: 1348px; }
+  .s0 { left: calc(50% - var(--cw) / 2 - 20px); top: calc(50% - var(--ch) / 2 - 24px); transform: translate3d(0, 0, -40px) rotateX(4deg) rotateY(-9deg); }
+  .s1 { left: calc(50% + var(--cw) / 2 + 20px); top: calc(50% - var(--ch) / 2 - 24px); transform: translate3d(0, 0, 20px) rotateX(-5deg) rotateY(7deg); }
+  .s2 { left: 50%; top: calc(50% + var(--ch) / 2 + 24px); transform: translate3d(0, 0, -60px) rotateX(6deg) rotateY(-6deg); }
 }
 @media (max-width: 820px) {
   /* hero stacks: copy, then the stage, then the HUD as a grid */
@@ -780,15 +783,13 @@ footer .wrap {
 }
 @media (max-width: 599px) {
   /* one column */
-  .deck { --cw: min(320px, calc(100vw - 2 * var(--gut) - 24px)); height: 1884px; }
+  .deck { --cw: min(320px, calc(100vw - 2 * var(--gut) - 24px)); height: 1944px; }
   /* role rows: the tile is a full-width banner above the text, at least
      200px tall; the dates sit under the role on the left */
   .roles { --th: 13.5rem; }
   .roles li { grid-template-columns: minmax(0, 1fr); grid-template-areas: "tile" "r" "w" "ln"; }
   .roles .w { text-align: left; padding-top: 0; }
   .tile, .roles .feat .tile { width: 100%; height: var(--th); margin-bottom: 0.5rem; }
-  .feat .more { padding-left: 0; }
-  .feat .tour { margin-left: 0; }
   .s0 { left: 50%; top: calc(50% - var(--ch) - 32px); transform: translate3d(-8px, 0, -40px) rotateX(2deg) rotateY(-5deg); }
   .s1 { left: 50%; top: 50%; transform: translate3d(8px, 0, 20px) rotateX(-3deg) rotateY(4deg); }
   .s2 { left: 50%; top: calc(50% + var(--ch) + 32px); transform: translate3d(-8px, 0, -60px) rotateX(4deg) rotateY(-4deg); }

@@ -50,10 +50,11 @@ export interface DeckState {
 export const PERSPECTIVE = 1200;
 const RX = [4, -5, 6, -4];
 const RY = [-9, 7, -6, 10];
-const DY = [-20, 24, -12, 20];
+/** No vertical stagger: the three cards share one baseline, and depth (DZ) and tilt alone make them float. Matches the CSS resting slots. */
+const DY = [0, 0, 0, 0];
 const DZ = [-40, 20, -60, 30];
-/** Card height before the cards are measured; the CSS default for --ch (the tallest card's copy runs to about 545px at 320px wide). */
-export const CH_DEFAULT = 580;
+/** Card height before the cards are measured; the CSS default for --ch (the tallest card's copy, Foreman, runs to about 580px at 320px wide). */
+export const CH_DEFAULT = 600;
 
 /**
  * Resting slots for n cards of height ch in a deck w wide (the deck is the

@@ -114,16 +114,25 @@ if (tour && stick && caps.length > 0 && !reduced) {
   tourUpdate();
 }
 
-// 5. The scenes. One WebGL probe for the page; software rasterizers count as
-//    no WebGL and keep the static drawings. Every scene chunk is imported
-//    only when its stage is near the viewport. The hero and the turntable
-//    also wait for an idle moment so three.js never competes with first paint.
-const gl = hasWebGL();
+// 5. The scenes. One WebGL probe for the page, taken lazily: creating a
+//    WebGL context costs tens of milliseconds of main thread (the GPU process
+//    has to answer), and this script runs before the first paint, so the
+//    probe waits until the first stage asks for a scene, which is the hero
+//    after an idle callback. Software rasterizers count as no WebGL and keep
+//    the static drawings. Every scene chunk is imported only when its stage
+//    is near the viewport. The hero and the turntable also wait for an idle
+//    moment so three.js never competes with first paint.
+let glProbe: boolean | null = null;
+const gl = (): boolean => {
+  if (glProbe === null) glProbe = hasWebGL();
+  return glProbe;
+};
 const stage = byId('stage');
 const heroCanvas = byId<HTMLCanvasElement>('hero-gl');
-if (gl && stage && heroCanvas) {
+if (stage && heroCanvas) {
   near(stage, () =>
     whenIdle(async () => {
+      if (!gl()) return;
       const { mountHero } = await import('../scenes/hero');
       const scene = mountHero({
         canvas: heroCanvas,
@@ -141,9 +150,10 @@ if (gl && stage && heroCanvas) {
 // narrow screens that button is display: none and never nears the viewport.
 const vinylStage = byId('vinyl-stage');
 const vinylCanvas = byId<HTMLCanvasElement>('vinyl-gl');
-if (gl && vinylStage && vinylCanvas) {
+if (vinylStage && vinylCanvas) {
   near(vinylStage, () =>
     whenIdle(async () => {
+      if (!gl()) return;
       const { mountVinyl } = await import('../scenes/vinyl');
       const scene = mountVinyl({
         canvas: vinylCanvas,
@@ -158,8 +168,9 @@ if (gl && vinylStage && vinylCanvas) {
   );
 }
 
-if (gl && tour && tourStage && tourCanvas) {
+if (tour && tourStage && tourCanvas) {
   near(tour, async () => {
+    if (!gl()) return;
     const { mountTour } = await import('../scenes/tour');
     const handle = mountTour({
       canvas: tourCanvas,
@@ -186,7 +197,7 @@ if (deck) {
     const state = mountCards(deck, slots, reduced);
     deck.classList.add('live');
     let backdrop: { dispose(): void } | null = null;
-    if (gl && deckCanvas) {
+    if (deckCanvas && gl()) {
       const { mountCardsGl } = await import('../scenes/cardsGl');
       backdrop = mountCardsGl(deckCanvas, state);
       deckCanvas.classList.add('on');
@@ -212,17 +223,16 @@ interface SceneOpts {
   reduced: boolean;
   onFirstFrame: () => void;
 }
-if (gl) {
-  for (const sceneStage of Array.from(document.querySelectorAll<HTMLElement>('.stage[data-scene]'))) {
-    const load = sceneLoaders[sceneStage.dataset.scene ?? ''];
-    const canvas = sceneStage.querySelector('canvas');
-    if (!load || !canvas) continue;
-    near(sceneStage, async () => {
-      const { mount } = await load();
-      const scene = mount({ canvas, stage: sceneStage, reduced, onFirstFrame: () => sceneStage.classList.add('is-3d') });
-      onHide(() => scene.dispose());
-    });
-  }
+for (const sceneStage of Array.from(document.querySelectorAll<HTMLElement>('.stage[data-scene]'))) {
+  const load = sceneLoaders[sceneStage.dataset.scene ?? ''];
+  const canvas = sceneStage.querySelector('canvas');
+  if (!load || !canvas) continue;
+  near(sceneStage, async () => {
+    if (!gl()) return;
+    const { mount } = await load();
+    const scene = mount({ canvas, stage: sceneStage, reduced, onFirstFrame: () => sceneStage.classList.add('is-3d') });
+    onHide(() => scene.dispose());
+  });
 }
 
 // The role tiles are HTML windows beside each entry. Near the viewport the

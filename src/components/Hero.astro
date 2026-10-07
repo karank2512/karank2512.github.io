@@ -48,11 +48,10 @@ function linkify(text: string): string {
   <div class="scene">
     <div class="field" aria-hidden="true"></div>
 
-    <div class="stage" id="stage">
-      <LatticeSvg />
-      <canvas id="hero-gl" aria-hidden="true"></canvas>
-    </div>
-
+    <!-- The copy comes first in the markup so the name and the intro, the
+         largest text on the page, are parsed and painted before the 16 KB
+         of lattice drawing that follows; the stage is positioned absolutely
+         behind the copy, so the order changes nothing on screen. -->
     <div class="wrap grid">
       <div class="copy">
         <!-- The name and the tagline with the headshot beside them, in the
@@ -89,6 +88,11 @@ function linkify(text: string): string {
         </div>
       </div>
       <div class="room" aria-hidden="true"></div>
+    </div>
+
+    <div class="stage" id="stage">
+      <LatticeSvg />
+      <canvas id="hero-gl" aria-hidden="true"></canvas>
     </div>
 
     <div class="hud">
