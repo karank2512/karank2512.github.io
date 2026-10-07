@@ -61,6 +61,7 @@ const labels: Record<string, string> = {
   'ai-lab': 'AI lab: a query over an index of documents; the nearest three travel into the app.',
   hcl: 'HCLSoftware: a test plane sweeps a platform of modules; a compliance report stands beside it.',
   'kek-vp': 'Kappa Eta Kappa: campus nodes around a national hub; chapters light up and link to it.',
+  'kek-delta-president': 'Kappa Eta Kappa, Delta chapter: member blocks around a table light one by one into a closed ring.',
 };
 const label = labels[id] ?? '';
 
@@ -69,6 +70,15 @@ const CAMPUSES: Array<[number, number]> = [
   [-2.2, -0.6], [-1.6, 0.8], [-0.9, -0.95], [0.4, 0.95], [1.3, -0.8],
   [2.3, 0.2], [-0.5, 0.55], [1.1, 0.85], [-2.4, 0.3], [0.9, -0.2],
 ];
+/** Seats around the chapter table, the same ring as src/scenes/roles.ts. */
+const SEAT_N = 12;
+const SEAT_RX = 1.9;
+const SEAT_RZ = 0.8;
+const seatAngle = (k: number): number => (k / SEAT_N) * Math.PI * 2;
+const SEATS: Array<[number, number]> = Array.from({ length: SEAT_N }, (_, k): [number, number] => [
+  Math.cos(seatAngle(k)) * SEAT_RX,
+  Math.sin(seatAngle(k)) * SEAT_RZ,
+]);
 
 if (id === 'relayiq') {
   // lane, leads, the plane, the stack, one dropped lead
@@ -202,6 +212,24 @@ if (id === 'relayiq') {
     if (lit.has(i)) sage += b + seg([0, HY, 0], [x, HY, z]);
     else base += b;
   });
+} else if (id === 'kek-delta-president') {
+  // the floor, the table, twelve seats: seven seated in sage with the ring drawn between them,
+  // the roll call pulse on its way to the eighth (the scene at its reduced-motion instant)
+  const FLOOR = -0.3;
+  const HY = FLOOR + 0.08;
+  const SEATED = 7;
+  base += rect(-2.7, -1.3, 2.7, 1.3, FLOOR);
+  ember += box(0, FLOOR + 0.07, 0, 0.6, 0.07, 0.25);
+  SEATS.forEach(([x, z], k) => {
+    const b = box(x, HY, z, 0.08, 0.08, 0.08);
+    if (k < SEATED) {
+      sage += b;
+      const [px, pz] = SEATS[k - 1] ?? [x, z];
+      if (k > 0) sage += seg([px, HY, pz], [x, HY, z]);
+    } else base += b;
+  });
+  const a = seatAngle(SEATED - 0.5);
+  ember += box(Math.cos(a) * SEAT_RX, HY + 0.2, Math.sin(a) * SEAT_RZ, 0.04, 0.04, 0.04);
 }
 ---
 

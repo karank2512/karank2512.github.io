@@ -11,7 +11,7 @@ interface Props {
   entries: CollectionEntry<'leadership'>[];
 }
 const { entries } = Astro.props;
-/** The entry id without its order prefix (01-kek-vp becomes kek-vp) picks the scene and the drawing. */
+/** The entry id without its order prefix (01-kek-vp becomes kek-vp, 02-kek-delta-president becomes kek-delta-president) picks the scene and the drawing. */
 const key = (id: string): string => id.replace(/^\d+-/, '');
 ---
 

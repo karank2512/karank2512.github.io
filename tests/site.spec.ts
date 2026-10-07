@@ -77,6 +77,9 @@ test.describe('home page', () => {
     await expect(page.locator('#thaw .tile .stage[data-role="thaw"]')).toBeVisible();
     await expect(page.locator('#tour-more')).toHaveJSProperty('open', false);
     await expect(page.locator('#leadership .tile .stage[data-role="kek-vp"]')).toHaveCount(1);
+    await expect(page.locator('#leadership .tile .stage[data-role="kek-delta-president"]')).toHaveCount(1);
+    // the static drawing is not empty: every tile's mark has at least one path
+    await expect(page.locator('#leadership .tile .stage[data-role="kek-delta-president"] svg.fb.mark path')).not.toHaveCount(0);
   });
 
   test('thaw is the first experience entry with its credit line and links', async ({ page }) => {

@@ -2,7 +2,7 @@
  * The role scenes: one small procedural drawing per Experience and
  * Leadership entry, in the style of the project cards (flat shaded blocks
  * with Ink hairline edges, Bone 2 at rest, Ember for the one accent and Sage
- * for the second). All six share this chunk and the Stage shell in gl.ts,
+ * for the second). All seven share this chunk and the Stage shell in gl.ts,
  * so a tile costs one dynamic import and one renderer. Every position is a
  * pure function of time: a scene can start at any instant, nothing
  * accumulates, and the reduced-motion still is one instant of the same
@@ -471,6 +471,102 @@ const kekVp: RoleScene = {
   },
 };
 
+/**
+ * Kappa Eta Kappa, Delta chapter: the chapter. One local chapter on a
+ * hairline floor: a table slab at the centre, Ink 2 with Ember edges, and a
+ * ring of member blocks around it, Bone 2 at rest. A roll call goes round
+ * the table: an Ember pulse travels along the ring from the last seated
+ * member to the next, and when it lands that member lights Sage with a small
+ * bounce and a Sage hairline draws back to the member before. When the pulse
+ * returns to the first seat the ring closes and the chapter is assembled.
+ * It holds, goes quiet, and the roll call starts again.
+ */
+/** Seats around the table on the floor, x and z; the same list draws the static mark. */
+const SEAT_N = 12;
+const SEAT_RX = 1.9;
+const SEAT_RZ = 0.8;
+const seatAngle = (k: number): number => (k / SEAT_N) * Math.PI * 2;
+const SEATS: Array<[number, number]> = Array.from({ length: SEAT_N }, (_, k): [number, number] => [
+  Math.cos(seatAngle(k)) * SEAT_RX,
+  Math.sin(seatAngle(k)) * SEAT_RZ,
+]);
+
+const kekDeltaPresident: RoleScene = {
+  view: { rh: 2.7, rv: 1.0, yaw: 0.4, pitch: 0.5, target: v(0, 0, 0) },
+  still: 6.7,
+  build(root) {
+    const FLOOR = -0.3;
+    const P = 15;
+    const HY = FLOOR + 0.08;
+    const TY = FLOOR + 0.07;
+    root.add(floorRect(-2.7, -1.3, 2.7, 1.3, FLOOR, PALETTE.line));
+    const table = new Blocks(1, v(1.2, 0.14, 0.5), PALETTE.ember);
+    put(table, 0, 0, TY, 0, C.ink2);
+    table.commit();
+    const seats = new Blocks(SEAT_N, 0.16, PALETTE.ink);
+    const pulse = new Blocks(1, 0.08, PALETTE.ink);
+    root.add(table.group, seats.group, pulse.group);
+    const ringPos = new THREE.BufferAttribute(new Float32Array(SEAT_N * 6), 3);
+    ringPos.setUsage(THREE.DynamicDrawUsage);
+    const ringGeo = new THREE.BufferGeometry();
+    ringGeo.setAttribute('position', ringPos);
+    const chords = new THREE.LineSegments(ringGeo, new THREE.LineBasicMaterial({ color: PALETTE.sage }));
+    chords.frustumCulled = false;
+    root.add(chords);
+    const arr = ringPos.array as Float32Array;
+    /** The pulse for seat k leaves at start(k) and lands 0.6 s later; k = SEAT_N is the closing leg back to seat 0. */
+    const start = (k: number): number => 0.8 + k * 0.8;
+    const land = (k: number): number => start(k) + 0.6;
+    return {
+      blocks: [table, seats, pulse],
+      tick(t) {
+        const c = cyc(t, P);
+        const reset = c >= 13.6 ? smoothstep((c - 13.6) / 0.8) : 0;
+        const closing = smoothstep((c - land(SEAT_N)) / 0.5) * (1 - reset);
+        SEATS.forEach(([x, z], k) => {
+          const ta = land(k);
+          const lit = smoothstep((c - ta) / 0.5) * (1 - reset);
+          const bounce = c > ta && c < ta + 0.6 ? Math.sin(((c - ta) / 0.6) * Math.PI) * 0.12 : 0;
+          put(seats, k, x, HY + bounce, z, lit > 0.5 ? C.sage : C.bone2);
+          // chord k joins seat k - 1 to seat k as seat k lights; chord 0 is the closing leg from the last seat
+          const [px, pz] = SEATS[(k + SEAT_N - 1) % SEAT_N] ?? [0, 0];
+          const draw = k === 0 ? closing : lit;
+          const o = k * 6;
+          arr[o] = px;
+          arr[o + 1] = HY;
+          arr[o + 2] = pz;
+          arr[o + 3] = px + (x - px) * draw;
+          arr[o + 4] = HY;
+          arr[o + 5] = pz + (z - pz) * draw;
+        });
+        seats.commit();
+        ringPos.needsUpdate = true;
+
+        let shown = false;
+        for (let k = 0; k <= SEAT_N; k++) {
+          const u = (c - start(k)) / 0.6;
+          if (u < 0 || u >= 1) continue;
+          const q = smoothstep(u);
+          const lift = HY + Math.sin(u * Math.PI) * 0.2;
+          if (k === 0) {
+            // the first call leaves the table for the first seat
+            const [x, z] = SEATS[0] ?? [0, 0];
+            put(pulse, 0, x * q, lift + (1 - q) * 0.12, z * q, C.ember);
+          } else {
+            // the rest travel along the ring from the seat before
+            const a = seatAngle(k - 1) + (seatAngle(k) - seatAngle(k - 1)) * q;
+            put(pulse, 0, Math.cos(a) * SEAT_RX, lift, Math.sin(a) * SEAT_RZ, C.ember);
+          }
+          shown = true;
+          break;
+        }
+        if (!shown) put(pulse, 0, 0, HY, 0, C.ember, 0.0001);
+        pulse.commit();
+      },
+    };
+  },
+};
+
 const scenes: Record<string, RoleScene> = {
   thaw,
   eurofins,
@@ -478,6 +574,7 @@ const scenes: Record<string, RoleScene> = {
   'ai-lab': aiLab,
   hcl,
   'kek-vp': kekVp,
+  'kek-delta-president': kekDeltaPresident,
 };
 
 export function mount(o: SceneOptions): Handle {
