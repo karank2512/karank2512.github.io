@@ -3,25 +3,28 @@
  * Experience. The first entry is thaw, featured: it carries the project's
  * tagline, summary, credit line and links, and holds the engineering tour
  * and the receipts list behind a disclosure (see Featured.astro). The other
- * roles follow as compact rows on the same rail.
+ * roles follow as rows on the same rail. Every entry has its own graphic
+ * (Tile.astro) beside its text. The rail holds the label and the degree
+ * line; the headshot lives in the hero.
  */
 import type { CollectionEntry } from 'astro:content';
 import Featured from './Featured.astro';
+import Tile from './Tile.astro';
 
 interface Props {
   roles: CollectionEntry<'experience'>[];
   featured: CollectionEntry<'projects'>;
   education: string;
-  photo: { src: string; alt: string; width: number; height: number };
 }
-const { roles, featured, education, photo } = Astro.props;
+const { roles, featured, education } = Astro.props;
+/** The entry id without its order prefix (01-thaw becomes thaw) picks the scene and the drawing. */
+const key = (id: string): string => id.replace(/^\d+-/, '');
 ---
 
 <section class="sec exp" id="experience" aria-labelledby="h-exp">
   <div class="wrap grid">
     <div class="lab">
       <p class="mono">Experience</p>
-      <img src={photo.src} alt={photo.alt} width={photo.width} height={photo.height} loading="lazy" decoding="async" />
       <p class="edu">{education}</p>
     </div>
     <div>
@@ -33,6 +36,7 @@ const { roles, featured, education, photo } = Astro.props;
           ) : (
             <li class="rv">
               <span class="mk" aria-hidden="true"></span>
+              <Tile id={key(r.id)} />
               <span class="r">
                 {r.data.role}
                 <span class="o">{r.data.org}, {r.data.location}</span>

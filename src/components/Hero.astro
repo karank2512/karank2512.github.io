@@ -1,6 +1,10 @@
 ---
+import { Image } from 'astro:assets';
 import Controls from './Controls.astro';
 import LatticeSvg from './LatticeSvg.astro';
+// The headshot. A 300 x 400 JPEG; the image pipeline resizes it to the
+// displayed size at 1x and 2x and writes webp files with their own name.
+import headshot from '../assets/pro-headshot.jpg';
 
 interface Metric {
   label: string;
@@ -15,6 +19,7 @@ interface Props {
   tagline: string;
   intro: string[];
   email: string;
+  photo: { alt: string };
   music: {
     playlistId: string;
     playlistTitle: string;
@@ -26,7 +31,7 @@ interface Props {
   /** The restore metrics (A2 and A3). */
   restores: Metric[];
 }
-const { name, tagline, intro, email, music, fork, restores } = Astro.props;
+const { name, tagline, intro, email, photo, music, fork, restores } = Astro.props;
 const [first, ...rest] = name.split(' ');
 const last = rest.join(' ');
 const receipt = restores[0]?.source;
@@ -50,8 +55,26 @@ function linkify(text: string): string {
 
     <div class="wrap grid">
       <div class="copy">
-        <h1 id="h1"><span class="l">{first}</span><span class="l">{last}</span></h1>
-        <p class="role">{tagline}</p>
+        <!-- The name and the tagline with the headshot beside them, in the
+             first screen on every width. The photo is uncropped at its own
+             3:4 ratio and declares its size, so nothing shifts. -->
+        <div class="id">
+          <h1 id="h1"><span class="l">{first}</span><span class="l">{last}</span></h1>
+          <p class="role">{tagline}</p>
+          <Image
+            class="pic"
+            src={headshot}
+            alt={photo.alt}
+            width={150}
+            height={200}
+            densities={[1, 2]}
+            format="webp"
+            quality={82}
+            loading="eager"
+            decoding="async"
+            fetchpriority="high"
+          />
+        </div>
         <ul class="intro">
           {intro.map((line) => <li set:html={linkify(line)} />)}
         </ul>

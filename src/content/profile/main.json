@@ -21,9 +21,6 @@
     "openingArtist": "Silva Bumpa"
   },
   "photo": {
-    "src": "/photos/pro-headshot.png",
-    "alt": "Karan Kapur, head and shoulders, in a black suit.",
-    "width": 300,
-    "height": 400
+    "alt": "Karan Kapur, head and shoulders, in a black suit."
   }
 }

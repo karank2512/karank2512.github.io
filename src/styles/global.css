@@ -190,6 +190,26 @@ header.top nav a:hover::after, header.top nav a:focus-visible::after { scale: 1 
   min-height: calc(100vh - var(--head));
 }
 .hero .copy { pointer-events: auto; }
+/* The name and the tagline with the headshot beside them. The photo keeps
+   its own 3:4 ratio, uncropped, with a hairline border; it never pushes the
+   intro or the buttons down because it sits in the column the name leaves
+   free. */
+.hero .id {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "h1 pic" "role pic";
+  column-gap: clamp(1rem, 2.5vw, 2rem);
+  align-items: start;
+}
+.hero .id h1 { grid-area: h1; }
+.hero .id .role { grid-area: role; }
+.hero .pic {
+  grid-area: pic;
+  width: clamp(6.5rem, 12vw, 9.4rem);
+  height: auto;
+  margin-top: 0.4rem;
+  border: 1px solid var(--line);
+}
 h1 {
   font-size: clamp(3.6rem, 11vw, 9rem);
   line-height: 0.88;
@@ -242,13 +262,13 @@ h1 .l { display: block; }
    only move; they are the largest text on the page and stay visible from the
    first paint so the largest contentful paint is the first paint. The
    smaller pieces fade in as they rise. */
-h1 .l, .hero .role, .hero .intro, .hero .acts, .hero .hint, .hud > * {
+h1 .l, .hero .role, .hero .pic, .hero .intro, .hero .acts, .hero .hint, .hud > * {
   translate: 0 0.5rem;
   animation: rise 0.6s var(--d, 0s) var(--ease) both;
 }
-.hero .role, .hero .acts, .hero .hint, .hud > * { opacity: 0; }
+.hero .role, .hero .pic, .hero .acts, .hero .hint, .hud > * { opacity: 0; }
 h1 .l:nth-child(2) { --d: 0.09s; }
-.hero .role { --d: 0.18s; }
+.hero .role, .hero .pic { --d: 0.18s; }
 .hero .intro { --d: 0.27s; }
 .hero .acts { --d: 0.36s; }
 .hero .hint, .hud > * { --d: 0.45s; }
@@ -407,18 +427,41 @@ body.on #sleeve { grid-template-rows: 1fr; }
 .lab .mono { color: var(--mute); }
 .sec h2 { margin-bottom: 1.2rem; }
 
-/* experience: the rail of roles. The first entry is thaw, featured. */
-.lab img { width: 7.5rem; margin-top: 1.2rem; border: 1px solid var(--line); }
-.lab .edu { margin-top: 0.9rem; font-size: 0.85rem; line-height: 1.5; color: var(--bone-2); max-width: 22ch; }
-.roles { list-style: none; border-left: 1px solid var(--line); }
+/* experience: the rail of roles. The first entry is thaw, featured. Every
+   entry (and every Leadership row) has its graphic, the tile, in a column
+   on the left of its text. */
+.lab .edu { margin-top: 1rem; font-size: 0.85rem; line-height: 1.5; color: var(--bone-2); max-width: 22ch; }
+.roles { --tw: 11rem; --tg: 1.4rem; list-style: none; border-left: 1px solid var(--line); }
 .roles li {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.25rem 1.5rem;
+  grid-template-columns: var(--tw) minmax(0, 1fr) auto;
+  grid-template-areas: "tile r w" "tile ln ln";
+  gap: 0.25rem var(--tg);
   padding: 0 0 2rem 1.6rem;
 }
 .roles li:last-child { padding-bottom: 0; }
+.roles .r { grid-area: r; }
+.roles .w { grid-area: w; }
+.roles .ln { grid-area: ln; }
+/* The tile: a window of the Ink sheet in a small perspective. The inner box
+   is what the tile module moves (translate and rotate only); the hairline
+   turns Ember while the tile is lifted. The stage inside holds the static
+   drawing and the canvas, as on the project cards. */
+.tile { grid-area: tile; width: var(--tw); height: 8.5rem; perspective: 700px; }
+.tile-in {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--ink);
+  border: 1px solid var(--line);
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: border-color 0.25s;
+}
+.tile.up .tile-in { border-color: var(--ember); }
+.tile .stage { position: absolute; inset: 0; display: block; overflow: hidden; }
+.tile .stage .fb { inset: 0; width: 100%; height: 100%; }
 .roles .mk {
   position: absolute;
   left: -4px;
@@ -436,7 +479,11 @@ body.on #sleeve { grid-template-rows: 1fr; }
 .roles .feat .r { font-size: clamp(1.4rem, 2.6vw, 2rem); letter-spacing: -0.02em; font-variation-settings: "opsz" 96, "wdth" 85; }
 .roles .feat .mk { width: 9px; height: 9px; left: -5px; top: 0.6em; }
 .roles .feat .ln { max-width: 64ch; }
-.feat .more { grid-column: 1 / -1; margin-top: 0.8rem; }
+.roles .feat .tile { height: 10rem; }
+/* The folded-in project starts under the tile row, indented to the text
+   column; the tour pulls back to the full column width for its stage. */
+.feat .more { grid-column: 1 / -1; margin-top: 0.8rem; padding-left: calc(var(--tw) + var(--tg)); }
+.feat .tour { margin-left: calc(-1 * (var(--tw) + var(--tg))); }
 .feat .tag { color: var(--sage); margin-bottom: 0.9rem; }
 .feat .sum { max-width: 58ch; font-size: clamp(1.02rem, 1.3vw, 1.15rem); color: var(--bone-2); text-wrap: pretty; }
 .feat .credit { margin-top: 0.7rem; color: var(--bone); }
@@ -697,7 +744,7 @@ footer .wrap {
   .tour .stage .fb { left: 4%; width: 92%; top: 8%; height: 60%; }
   .sec .grid { grid-template-columns: 1fr; gap: 1.5rem; }
   .lab { position: static; }
-  .lab img { margin-top: 0.8rem; }
+  .lab .edu { margin-top: 0.5rem; }
 }
 @media (max-width: 599px) {
   /* one column */
@@ -710,17 +757,24 @@ footer .wrap {
   :root { --head: 5.6rem; }
   header.top .bar { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
   header.top nav { gap: 1rem; }
-  /* the first screen on a phone: name, tagline, intro, then the two buttons
-     side by side on one row, each at least 4rem tall */
+  /* the first screen on a phone: name with the photo beside it, tagline,
+     intro, then the two buttons side by side on one row, each at least
+     4rem tall */
   .hero .grid { padding-top: 1.75rem; }
+  .hero .id { grid-template-areas: "h1 pic" "role role"; column-gap: 1rem; }
+  .hero .pic { width: 6.5rem; margin-top: 0; }
   .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin-top: 1.4rem; }
   .acts .cta, .acts .snd-touch { padding-inline: 0.75rem; }
   .acts .snd-desk { display: none; }
   .hud { grid-template-columns: 1fr; }
   .rcpt .row { grid-template-columns: 1fr; }
   .rcpt .val { grid-row: auto; }
-  .roles li { grid-template-columns: 1fr; }
+  /* role rows: the tile full width above the text */
+  .roles li { grid-template-columns: 1fr; grid-template-areas: "tile" "r" "w" "ln"; }
   .roles .w { text-align: left; padding-top: 0; }
+  .tile, .roles .feat .tile { width: 100%; height: 9rem; margin-bottom: 0.5rem; }
+  .feat .more { padding-left: 0; }
+  .feat .tour { margin-left: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -733,7 +787,8 @@ footer .wrap {
   }
   /* Finished states, so nothing is half drawn. The scenes render one frame. */
   .field { animation: none; }
-  h1 .l, .hero .role, .hero .intro, .hero .acts, .hero .hint, .hud > * { opacity: 1; translate: 0 0; animation: none; }
+  h1 .l, .hero .role, .hero .pic, .hero .intro, .hero .acts, .hero .hint, .hud > * { opacity: 1; translate: 0 0; animation: none; }
+  .tile-in { transition: none; }
   .snd[aria-pressed="true"] .bars i,
   .snd[aria-pressed="true"] .fb .disc,
   .snd[aria-pressed="true"] .fb .eq rect,

@@ -52,8 +52,8 @@ const sections = [
 <Base title={title} description={description}>
   <Header name={name} sections={sections} />
   <main id="main">
-    <Hero name={name} tagline={tagline} intro={intro} email={contact.email} music={music} fork={fork} restores={restores} />
-    <Experience roles={roles} featured={featured} education={education} photo={photo} />
+    <Hero name={name} tagline={tagline} intro={intro} email={contact.email} photo={photo} music={music} fork={fork} restores={restores} />
+    <Experience roles={roles} featured={featured} education={education} />
     <Projects projects={cards} />
     {leadership.length > 0 && <Leadership entries={leadership} />}
     <Contact {...contact} />

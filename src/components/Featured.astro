@@ -5,9 +5,11 @@
  * tagline, summary, credit line and links. Behind the disclosure: the
  * scroll-driven engineering tour (five stops) and the receipts list. The
  * entry keeps the id "thaw" so the hero's link and old anchors still land.
+ * Beside the text, visible by default, a compact fork scene (Tile.astro).
  */
 import type { CollectionEntry } from 'astro:content';
 import Tour from './Tour.astro';
+import Tile from './Tile.astro';
 
 interface Props {
   role: CollectionEntry<'experience'>;
@@ -20,6 +22,7 @@ const r = role.data;
 
 <li class="feat" id="thaw">
   <span class="mk" aria-hidden="true"></span>
+  <Tile id="thaw" />
   <span class="r">
     {r.role}
     <span class="o">{r.org}, {r.location}</span>

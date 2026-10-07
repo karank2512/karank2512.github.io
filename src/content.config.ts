@@ -111,11 +111,12 @@ const profile = defineCollection({
       openingTrack: z.string().min(1),
       openingArtist: z.string().min(1),
     }),
+    /**
+     * The headshot's alt text. The file itself is src/assets/pro-headshot.jpg,
+     * imported by Hero.astro so the image pipeline sizes and converts it.
+     */
     photo: z.object({
-      src: z.string().startsWith('/'),
       alt: z.string().min(1),
-      width: z.number().int().positive(),
-      height: z.number().int().positive(),
     }),
   }),
 });

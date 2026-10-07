@@ -35,6 +35,18 @@ function box(cx: number, cy: number, cz: number, hx: number, hy: number, hz: num
   return d;
 }
 const seg = (a: [number, number, number], b: [number, number, number]): string => `M${P(...a)}L${P(...b)}`;
+/** A hairline rectangle on the floor plane y. */
+const rect = (x0: number, z0: number, x1: number, z1: number, y: number): string =>
+  `M${P(x0, y, z0)}L${P(x1, y, z0)}L${P(x1, y, z1)}L${P(x0, y, z1)}Z`;
+/** A hairline circle of radius r around the x axis through (cx, 0, 0). */
+function ringX(cx: number, r: number): string {
+  let d = '';
+  for (let i = 0; i <= 24; i++) {
+    const a = (i / 24) * Math.PI * 2;
+    d += `${i === 0 ? 'M' : 'L'}${P(cx, Math.cos(a) * r, Math.sin(a) * r)}`;
+  }
+  return d;
+}
 
 let base = '';
 let ember = '';
@@ -43,8 +55,20 @@ const labels: Record<string, string> = {
   relayiq: 'RelayIQ: records approach a decision plane; some pass to a stack, one is dropped.',
   foreman: 'Foreman: a job spec, a worker figure built from blocks, and three approval gates.',
   tell: 'tell: scattered event particles converge into a ranked list of five bars.',
+  thaw: 'thaw: a running session of token columns forks at a ring into three branches.',
+  eurofins: 'Eurofins: lab records feed a model; forecast bars rise with a confidence cap on each.',
+  ece: 'ECE support: three machines send log ticks to a monitor; one failure is flagged and handled.',
+  'ai-lab': 'AI lab: a query over an index of documents; the nearest three travel into the app.',
+  hcl: 'HCLSoftware: a test plane sweeps a platform of modules; a compliance report stands beside it.',
+  'kek-vp': 'Kappa Eta Kappa: campus nodes around a national hub; chapters light up and link to it.',
 };
 const label = labels[id] ?? '';
+
+/** Campus positions for the network, the same list as src/scenes/roles.ts. */
+const CAMPUSES: Array<[number, number]> = [
+  [-2.2, -0.6], [-1.6, 0.8], [-0.9, -0.95], [0.4, 0.95], [1.3, -0.8],
+  [2.3, 0.2], [-0.5, 0.55], [1.1, 0.85], [-2.4, 0.3], [0.9, -0.2],
+];
 
 if (id === 'relayiq') {
   // lane, leads, the plane, the stack, one dropped lead
@@ -86,6 +110,98 @@ if (id === 'relayiq') {
     else base += d;
   });
   for (const [x, y, z] of [[-0.4, 0.1, 0.4], [0.7, -0.3, 0.2]]) sage += `M${P(x ?? 0, y ?? 0, z ?? 0)}Q${P(0.9, 1.2, 0)} ${P(1.5, 0.8, 0)}`;
+} else if (id === 'thaw') {
+  // the fork, settled: seven trunk columns, the ring, three branches with ember tips
+  const STEP = 0.34;
+  const X0 = -1.2;
+  const FORK = X0 + 6.5 * STEP;
+  for (let i = 0; i < 7; i++) {
+    const d = box(X0 + i * STEP, 0, 0, 0.11, 0.37, 0.11) + seg([X0 + i * STEP - 0.11, 0.13, 0.11], [X0 + i * STEP + 0.11, 0.13, 0.11]) + seg([X0 + i * STEP - 0.11, -0.13, 0.11], [X0 + i * STEP + 0.11, -0.13, 0.11]);
+    if (i === 3) ember += d;
+    else base += d;
+  }
+  ember += ringX(FORK, 0.55);
+  const dirs = [[0.72, 0.5, -0.42], [0.72, 0.05, 0.66], [0.72, -0.5, -0.3]].map(([x, y, z]) => {
+    const l = Math.hypot(x ?? 0, y ?? 0, z ?? 0);
+    return [(x ?? 0) / l, (y ?? 0) / l, (z ?? 0) / l];
+  });
+  for (const [dx, dy, dz] of dirs) {
+    for (let j = 0; j < 5; j++) {
+      const d = (j + 1) * STEP;
+      const b = box(FORK + (dx ?? 0) * d, (dy ?? 0) * d, (dz ?? 0) * d, 0.11, 0.37, 0.11);
+      if (j === 4) ember += b;
+      else sage += b;
+    }
+  }
+} else if (id === 'eurofins') {
+  // the ledger, the lane, the model, five forecast bars with caps
+  const FLOOR = -0.5;
+  for (let i = 1; i < 5; i++) base += box(-2.4, FLOOR + 0.03 + (4 - i) * 0.085, 0, 0.3, 0.03, 0.21);
+  base += seg([-2.4, FLOOR, 0], [-0.7, FLOOR, 0]);
+  ember += box(-0.7, FLOOR + 0.31, 0, 0.25, 0.31, 0.25);
+  base += rect(0.2, -0.35, 2.5, 0.35, FLOOR);
+  const hs = [0.7, 0.45, 0.85, 0.55, 0.65];
+  const cs = [0.9, 0.6, 0.75, 1.0, 0.5];
+  hs.forEach((h, i) => {
+    const x = 0.45 + i * 0.45;
+    sage += box(x, FLOOR + h / 2, 0, 0.12, h / 2, 0.12);
+    ember += box(x, FLOOR + h + 0.03, 0, 0.18 * (cs[i] ?? 1), 0.022, 0.15);
+  });
+} else if (id === 'ece') {
+  // three machines, the lane with log ticks, the monitor, one flag
+  const FLOOR = -0.45;
+  const MX = [-2.5, -1.75, -1.0];
+  for (const mx of MX) base += box(mx, FLOOR + 0.17, 0, 0.25, 0.17, 0.21) + seg([mx, FLOOR, 0.21], [mx, FLOOR, 0.5]);
+  base += seg([-2.5, FLOOR, 0.5], [1.65, FLOOR, 0.5]);
+  for (const x of [-2.1, -1.45, -0.6, 0.3, 1.1]) base += box(x, FLOOR + 0.07, 0.5, 0.025, 0.07, 0.025);
+  ember += box(-0.1, FLOOR + 0.07, 0.5, 0.025, 0.07, 0.025);
+  ember += box(1.9, FLOOR + 0.35, 0, 0.25, 0.35, 0.25);
+  sage += box(-1.75, FLOOR + 0.6, 0, 0.07, 0.07, 0.07);
+} else if (id === 'ai-lab') {
+  // the index of flat documents, the query, three raised, the app frame
+  const FLOOR = -0.45;
+  const GX = [-2.4, -1.9, -1.4, -0.9];
+  const GZ = [-0.55, 0, 0.55];
+  const up = new Set([1, 6, 8]);
+  for (let d = 0; d < 12; d++) {
+    const x = GX[d % 4] ?? 0;
+    const z = GZ[Math.floor(d / 4)] ?? 0;
+    if (up.has(d)) sage += box(x, FLOOR + 0.36, z, 0.17, 0.01, 0.22);
+    else base += box(x, FLOOR + 0.01, z, 0.17, 0.01, 0.22);
+  }
+  ember += box(-1.65, FLOOR + 0.6, 0, 0.08, 0.08, 0.08);
+  base += `M${P(1.0, FLOOR, 0.55)}L${P(2.3, FLOOR, 0.55)}L${P(2.3, FLOOR + 0.95, 0.55)}L${P(1.0, FLOOR + 0.95, 0.55)}Z`;
+  base += rect(1.0, -0.25, 2.3, 0.55, FLOOR);
+  sage += `M${P(-1.9, FLOOR + 0.36, 0)}Q${P(0, FLOOR + 1.1, 0.25)} ${P(1.65, FLOOR + 0.22, 0.5)}`;
+  sage += box(1.65, FLOOR + 0.22, 0.5, 0.17, 0.01, 0.22);
+} else if (id === 'hcl') {
+  // the platform, ten modules (the swept ones in sage), the test plane, the report
+  const FLOOR = -0.45;
+  base += box(-0.55, FLOOR + 0.05, 0, 1.4, 0.05, 0.55);
+  for (let col = 0; col < 5; col++) {
+    for (const z of [-0.3, 0.3]) {
+      const x = -1.6 + col * 0.45;
+      const b = box(x, FLOOR + 0.23, z, 0.13, 0.13, 0.13);
+      if (col < 3) sage += b;
+      else base += b;
+    }
+  }
+  ember += box(-0.25, FLOOR + 0.45, 0, 0.015, 0.35, 0.65);
+  base += box(1.9, FLOOR + 0.39, 0, 0.3, 0.39, 0.025);
+  for (let k = 0; k < 4; k++) base += seg([1.66, FLOOR + 0.62 - k * 0.13, 0.03], [2.06, FLOOR + 0.62 - k * 0.13, 0.03]);
+  ember += box(2.06, FLOOR + 0.18, 0.045, 0.05, 0.05, 0.05);
+} else if (id === 'kek-vp') {
+  // the floor, the hub, ten campus nodes; four linked chapters in sage
+  const FLOOR = -0.3;
+  const HY = FLOOR + 0.08;
+  base += rect(-2.7, -1.3, 2.7, 1.3, FLOOR);
+  ember += box(0, FLOOR + 0.15, 0, 0.15, 0.15, 0.15);
+  const lit = new Set([0, 4, 7, 1]);
+  CAMPUSES.forEach(([x, z], i) => {
+    const b = box(x, HY, z, 0.08, 0.08, 0.08);
+    if (lit.has(i)) sage += b + seg([0, HY, 0], [x, HY, z]);
+    else base += b;
+  });
 }
 ---
 

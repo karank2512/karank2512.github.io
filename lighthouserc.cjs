@@ -27,10 +27,13 @@ module.exports = {
         // Script: the one page script (controls, offscreen pause, tour
         // scroll, lazy scene imports). The three.js scene chunks (about
         // 540 KB shared three.js plus a few KB per scene: hero, tour,
-        // turntable, deck backdrop, gate, agency, field) load only on
-        // hardware WebGL, after idle or on approach; headless Chrome here
-        // has a software rasterizer, which the page treats as no WebGL, so
-        // they are outside this run on purpose.
+        // turntable, deck backdrop, gate, agency, field, and the role
+        // scenes under Experience and Leadership) load only on hardware
+        // WebGL, after idle or on approach; headless Chrome here has a
+        // software rasterizer, which the page treats as no WebGL, so they
+        // are outside this run on purpose. The two small motion modules
+        // (cards, tiles) hold no three.js and load on approach, after the
+        // first load this budget measures.
         'resource-summary:script:size': ['error', { maxNumericValue: 12288 }],
         'resource-summary:total:size': ['error', { maxNumericValue: 614400 }],
         'resource-summary:third-party:count': ['error', { maxNumericValue: 0 }],

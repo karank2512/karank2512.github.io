@@ -37,6 +37,48 @@ test.describe('home page', () => {
     }
   });
 
+  test('the headshot is in the hero, sized, prioritised and served as webp', async ({ page }) => {
+    await page.goto('/');
+    const pic = page.locator('#hero .id img.pic');
+    await expect(pic).toHaveCount(1);
+    await expect(pic).toHaveAttribute('alt', /Karan Kapur/);
+    await expect(pic).toHaveAttribute('width', '150');
+    await expect(pic).toHaveAttribute('height', '200');
+    await expect(pic).toHaveAttribute('fetchpriority', 'high');
+    await expect(pic).toHaveAttribute('loading', 'eager');
+    await expect(pic).toHaveAttribute('src', /\.webp$/);
+    await expect(pic).toHaveAttribute('srcset', /2x/);
+    // the photo is in the first screen on every width, and no longer under Experience
+    const box = await pic.boundingBox();
+    expect(box).not.toBeNull();
+    expect(box!.y).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(page.viewportSize()!.width);
+    expect(box!.y + box!.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+    await expect(page.locator('#experience img')).toHaveCount(0);
+    await expect(page.locator('#experience .lab .edu')).toContainText('University of Wisconsin-Madison');
+  });
+
+  test('every experience and leadership entry has its own graphic with a static drawing', async ({ page }) => {
+    await page.goto('/');
+    const rows = page.locator('#experience .roles > li, #leadership .roles > li');
+    const n = await rows.count();
+    expect(n).toBeGreaterThanOrEqual(5);
+    for (let i = 0; i < n; i++) {
+      const stage = rows.nth(i).locator('.tile .stage[data-scene="role"]');
+      await expect(stage).toHaveCount(1);
+      await expect(stage.locator('svg.fb.mark')).toHaveCount(1);
+      await expect(stage.locator('canvas')).toHaveCount(1);
+      expect(await stage.getAttribute('data-role')).toMatch(/^[a-z-]+$/);
+    }
+    // every role has a drawing of its own: no two tiles share one
+    const roles = await page.locator('.tile .stage').evaluateAll((els) => els.map((el) => el.getAttribute('data-role')));
+    expect(new Set(roles).size).toBe(roles.length);
+    // the thaw fork scene is visible without opening the disclosure
+    await expect(page.locator('#thaw .tile .stage[data-role="thaw"]')).toBeVisible();
+    await expect(page.locator('#tour-more')).toHaveJSProperty('open', false);
+    await expect(page.locator('#leadership .tile .stage[data-role="kek-vp"]')).toHaveCount(1);
+  });
+
   test('thaw is the first experience entry with its credit line and links', async ({ page }) => {
     await page.goto('/');
     const thaw = page.locator('#experience .roles > li').first();
@@ -227,6 +269,8 @@ test.describe('home page', () => {
     await expect(page.locator('#tour-stage svg.fb')).toHaveCount(1);
     await expect(page.locator('#vinyl-stage svg.fb')).toHaveCount(1);
     await expect(page.locator('#cards .stage svg.fb')).toHaveCount(3);
+    const tiles = await page.locator('.tile .stage').count();
+    await expect(page.locator('.tile .stage svg.fb')).toHaveCount(tiles);
     // no stage has drawn a frame: headless Chrome has no hardware WebGL
     await expect(page.locator('.stage.is-3d')).toHaveCount(0);
   });
@@ -280,6 +324,9 @@ test.describe('home page', () => {
     await expect(caps.nth(0)).toHaveClass(/on/);
     // the receipts list is inside the entry too
     await expect(page.locator('#thaw .rcpt .row')).not.toHaveCount(0);
+    // the tour stage spans the full content column, past the tile column
+    const [tourBox, roleBox] = await Promise.all([page.locator('#tour-stick').boundingBox(), page.locator('#thaw .r').boundingBox()]);
+    if (page.viewportSize()!.width > 520) expect(tourBox!.x).toBeLessThan(roleBox!.x);
     await page.locator('#projects').scrollIntoViewIfNeeded();
     await expect(caps.nth(4)).toHaveClass(/on/);
   });

@@ -198,10 +198,13 @@ if (deck) {
   });
 }
 
+// The card scenes, one chunk each, and the role scenes under Experience and
+// Leadership, which share one chunk and pick their drawing from data-role.
 const sceneLoaders: Record<string, () => Promise<{ mount: (o: SceneOpts) => { dispose(): void } }>> = {
   relayiq: () => import('../scenes/gate'),
   foreman: () => import('../scenes/agency'),
   tell: () => import('../scenes/field'),
+  role: () => import('../scenes/roles'),
 };
 interface SceneOpts {
   canvas: HTMLCanvasElement;
@@ -210,14 +213,27 @@ interface SceneOpts {
   onFirstFrame: () => void;
 }
 if (gl) {
-  for (const cardStage of Array.from(document.querySelectorAll<HTMLElement>('.card .stage[data-scene]'))) {
-    const load = sceneLoaders[cardStage.dataset.scene ?? ''];
-    const canvas = cardStage.querySelector('canvas');
+  for (const sceneStage of Array.from(document.querySelectorAll<HTMLElement>('.stage[data-scene]'))) {
+    const load = sceneLoaders[sceneStage.dataset.scene ?? ''];
+    const canvas = sceneStage.querySelector('canvas');
     if (!load || !canvas) continue;
-    near(cardStage, async () => {
+    near(sceneStage, async () => {
       const { mount } = await load();
-      const scene = mount({ canvas, stage: cardStage, reduced, onFirstFrame: () => cardStage.classList.add('is-3d') });
+      const scene = mount({ canvas, stage: sceneStage, reduced, onFirstFrame: () => sceneStage.classList.add('is-3d') });
       onHide(() => scene.dispose());
+    });
+  }
+}
+
+// The role tiles are HTML windows beside each entry. Near the viewport the
+// small tile module moves them (drift, tilt toward the pointer, lift on
+// hover), with or without WebGL; the scene inside rides along. Under
+// reduced motion they stay where CSS put them.
+if (!reduced) {
+  for (const tile of Array.from(document.querySelectorAll<HTMLElement>('.tile'))) {
+    near(tile, async () => {
+      const { mountTile } = await import('../scenes/tiles');
+      onHide(mountTile(tile).dispose);
     });
   }
 }
