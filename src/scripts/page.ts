@@ -1,10 +1,12 @@
 /**
  * The page script, the only JavaScript that loads with the page. It toggles
- * classes, creates the Spotify iframe on demand, drives the tour captions
- * from scroll, and imports a scene chunk when its canvas nears the viewport.
- * three.js is never imported here; it arrives with the scene chunks.
+ * classes, runs the sound control (the SoundCloud widget, created on the
+ * first press), drives the tour captions from scroll, and imports a scene
+ * chunk when its canvas nears the viewport. three.js is never imported here;
+ * it arrives with the scene chunks.
  */
 import { hasWebGL, near, reducedMotion, whenIdle } from '../scenes/boot';
+import { mountSound, type Track } from './sound';
 
 const reduced = reducedMotion();
 const byId = <T extends HTMLElement>(id: string): T | null => document.getElementById(id) as T | null;
@@ -36,39 +38,41 @@ if (forkButton) {
   });
 }
 
-// 3. Sound. Two buttons (turntable and touch) share one state. The iframe
-//    exists only while sound is on; removing it is the only reliable way to
-//    stop the audio. Once the strip has opened, bring the player into view.
-//    The turntable scene, if loaded, follows the same state.
+// 3. Sound. Two buttons (turntable and touch) share one state, kept by the
+//    sound module: the SoundCloud widget iframe is created on the first
+//    press, Previous and Next move through the tracks, and the turntable
+//    scene, if loaded, follows the widget's real play and pause events.
+//    Once the strip has opened, bring the player into view.
 const sndButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('button.snd'));
-const slot = byId('emb');
+const widgetMount = byId('widget');
+const npLine = byId('np');
 const sleeve = byId('sleeve');
-let soundOn = false;
+let soundPlaying = false;
 let vinyl: { setPlaying(on: boolean): void } | null = null;
-if (sndButtons.length > 0 && slot) {
-  const setSound = (next: boolean): void => {
-    soundOn = next;
-    for (const b of sndButtons) b.setAttribute('aria-pressed', String(soundOn));
-    document.body.classList.toggle('on', soundOn);
-    vinyl?.setPlaying(soundOn);
-    if (!soundOn) {
-      slot.replaceChildren();
-      return;
-    }
-    const src = sndButtons[0];
-    const frame = document.createElement('iframe');
-    frame.src = src?.dataset.embedSrc ?? '';
-    frame.title = src?.dataset.embedTitle ?? 'Spotify playlist';
-    frame.width = '100%';
-    frame.height = '352';
-    frame.loading = 'lazy';
-    frame.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
-    slot.replaceChildren(frame);
-  };
-  for (const b of sndButtons) b.addEventListener('click', () => setSound(!soundOn));
-  sleeve?.addEventListener('transitionend', (e) => {
-    if (soundOn && e.target === sleeve) sleeve.scrollIntoView({ block: 'nearest' });
-  });
+if (sndButtons.length > 0 && widgetMount && npLine) {
+  let tracks: Track[] = [];
+  try {
+    tracks = JSON.parse(byId('snd-tracks')?.textContent ?? '[]') as Track[];
+  } catch {
+    tracks = [];
+  }
+  if (tracks.length > 0) {
+    mountSound({
+      buttons: sndButtons,
+      prev: byId<HTMLButtonElement>('snd-prev'),
+      next: byId<HTMLButtonElement>('snd-next'),
+      mount: widgetMount,
+      line: npLine,
+      tracks,
+      onPlaying: (on) => {
+        soundPlaying = on;
+        vinyl?.setPlaying(on);
+      },
+    });
+    sleeve?.addEventListener('transitionend', (e) => {
+      if (document.body.classList.contains('on') && e.target === sleeve) sleeve.scrollIntoView({ block: 'nearest' });
+    });
+  }
 }
 
 // 4. The tour, inside the thaw entry's disclosure: scroll position picks the
@@ -159,7 +163,7 @@ if (vinylStage && vinylCanvas) {
         canvas: vinylCanvas,
         stage: vinylStage,
         reduced,
-        playing: soundOn,
+        playing: soundPlaying,
         onFirstFrame: () => vinylStage.classList.add('is-3d'),
       });
       vinyl = scene;

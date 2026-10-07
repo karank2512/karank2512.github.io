@@ -31,7 +31,7 @@ Everything the page says lives in `src/content/`, validated by `src/content.conf
 
 | File | What |
 |---|---|
-| `profile/main.json` | Name, approved tagline and intro bullets, contact links, playlist, photo |
+| `profile/main.json` | Name, approved tagline and intro bullets, contact links, the four SoundCloud tracks in play order and the Spotify playlist link, photo |
 | `projects/thaw.json` | The featured project, folded into the first experience entry. Each metric needs `setup` and a `source` URL or the build fails |
 | `projects/*.json` with `"kind": "crate"` | The project cards. `caption` is the line under the card's scene. Leave `links` empty to render a card with no link |
 | `experience/*.json` | One sentence per role. The entry with `"project": "thaw"` renders first and featured |
@@ -44,6 +44,7 @@ Metric numbers must come from `_brief/RECEIPTS.md`. Rationale for every directio
 | File | What |
 |---|---|
 | `src/scripts/page.ts` | The only script in the first load: controls, offscreen pause, the tour scroll, and the dynamic imports below |
+| `src/scripts/sound.ts` | The sound control, bundled into the page script: one SoundCloud widget iframe created on the first press, play and pause, Previous and Next, auto-advance and loop; the play state follows the widget's events |
 | `src/scenes/boot.ts` | Helpers for the page script: the one WebGL probe (software rasterizers count as none), near-viewport and idle callbacks |
 | `src/scenes/lattice.ts` | Pure geometry of the forking KV cache lattice, shared by the SVG fallback and the hero |
 | `src/scenes/iso.ts` | Build-time isometric SVG of the lattice (the hero fallback) |

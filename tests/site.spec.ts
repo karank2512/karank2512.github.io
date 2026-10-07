@@ -29,6 +29,77 @@ async function settleHero(page: Page): Promise<void> {
 const twoFrames = (page: Page) =>
   page.evaluate(() => new Promise<void>((r) => requestAnimationFrame(() => requestAnimationFrame(() => r()))));
 
+/** The four tracks in DECISIONS.md order ("Music, final"). */
+const TRACKS = [
+  { title: 'On 2nite', artist: 'Silva Bumpa', url: 'https://soundcloud.com/silvabumpa/on-2nite' },
+  { title: "Can't Slow Down", artist: 'Omar+', url: 'https://soundcloud.com/omarplus/slow-down' },
+  { title: 'Blackberries', artist: 'Fish Tales', url: 'https://soundcloud.com/fish-tales/blackberries' },
+  { title: 'Dreams', artist: 'Prospa feat. Rohan Pinnock-Hamilton', url: 'https://soundcloud.com/circolocorecords/prospa-feat-rohan-pinnock-hamilton-dreams-11' },
+];
+
+/**
+ * A stand-in for https://w.soundcloud.com/player/api.js with the same
+ * surface the page uses (SC.Widget, bind, play, pause, load, isPaused,
+ * getCurrentSound, the Events names). It fires READY on creation and PLAY
+ * when the iframe URL asks for auto_play, like the real widget, and keeps
+ * every instance on window.__sc so a test can end a track with finish().
+ * The player iframe URL is answered with an empty page, so the tests never
+ * reach SoundCloud and never depend on the network.
+ */
+const SC_STUB = `
+(function () {
+  var Events = { READY: 'ready', PLAY: 'play', PAUSE: 'pause', FINISH: 'finish', ERROR: 'error' };
+  function param(src, k) { try { return new URL(src).searchParams.get(k); } catch (e) { return null; } }
+  function Widget(el) {
+    if (!(this instanceof Widget)) return new Widget(el);
+    var w = this;
+    w.el = el; w.ls = {}; w.paused = true; w.url = param(el.src, 'url');
+    window.__sc.push(w);
+    setTimeout(function () { w.fire('ready'); if (param(el.src, 'auto_play') === 'true') w.play(); }, 0);
+  }
+  Widget.Events = Events;
+  Widget.prototype.bind = function (e, fn) { (this.ls[e] = this.ls[e] || []).push(fn); };
+  Widget.prototype.fire = function (e, d) { (this.ls[e] || []).slice().forEach(function (f) { f(d); }); };
+  Widget.prototype.play = function () { this.paused = false; this.fire('play'); };
+  Widget.prototype.pause = function () { this.paused = true; this.fire('pause'); };
+  Widget.prototype.finish = function () { this.paused = true; this.fire('finish'); };
+  Widget.prototype.isPaused = function (cb) { cb(this.paused); };
+  Widget.prototype.getCurrentSound = function (cb) { cb({ permalink_url: this.url }); };
+  Widget.prototype.load = function (url, o) {
+    var w = this;
+    w.url = url; w.paused = true;
+    w.el.src = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(url) + '&auto_play=' + String(!!(o && o.auto_play));
+    setTimeout(function () { w.fire('ready'); if (o && o.callback) o.callback(); if (o && o.auto_play) w.play(); }, 0);
+  };
+  window.__sc = window.__sc || [];
+  window.SC = { Widget: Widget };
+})();
+`;
+
+/** Route the SoundCloud widget API and player URL to the stub; returns the SoundCloud requests the page made. */
+async function stubSoundCloud(page: Page): Promise<string[]> {
+  const requests: string[] = [];
+  page.on('request', (r) => {
+    if (/soundcloud\.com/.test(r.url())) requests.push(r.url());
+  });
+  await page.route('https://w.soundcloud.com/player/api.js', (route) =>
+    route.fulfill({ status: 200, contentType: 'application/javascript', body: SC_STUB }),
+  );
+  await page.route(/^https:\/\/w\.soundcloud\.com\/player\/\?/, (route) =>
+    route.fulfill({ status: 200, contentType: 'text/html', body: '<!doctype html><title>player</title>' }),
+  );
+  return requests;
+}
+
+/** The now-playing line's current state, title, artist and link. */
+const nowPlaying = (page: Page) =>
+  page.locator('#np').evaluate((el) => ({
+    state: el.querySelector('.np-state')?.textContent ?? '',
+    title: el.querySelector('.np-title')?.textContent ?? '',
+    artist: el.querySelector('.np-artist')?.textContent ?? '',
+    href: el.querySelector<HTMLAnchorElement>('.np-link')?.href ?? '',
+  }));
+
 test.describe('home page', () => {
   test('has no serious or critical axe violations', async ({ page }, testInfo) => {
     await page.goto('/');
@@ -175,6 +246,7 @@ test.describe('home page', () => {
 
   test('desktop: the turntable control sits beside Contact me', async ({ page }, testInfo) => {
     test.skip(testInfo.project.name !== 'desktop-1440', 'wide fine-pointer layout only');
+    await stubSoundCloud(page);
     await page.goto('/');
     const play = playButton(page);
     await expect(play).toHaveId('snd');
@@ -186,13 +258,24 @@ test.describe('home page', () => {
     const [pb, cb] = await Promise.all([play.boundingBox(), contact.boundingBox()]);
     expect(Math.abs(pb!.y - cb!.y)).toBeLessThan(4);
     expect(pb!.x).toBeGreaterThanOrEqual(cb!.x + cb!.width);
-    // the disc in the drawing spins only while sound is on
+    // the disc in the drawing spins only while the widget reports playing
     const disc = play.locator('.fb .disc');
-    expect(await disc.evaluate((el) => getComputedStyle(el).animationName)).toBe('none');
+    const spinning = () => disc.evaluate((el) => getComputedStyle(el).animationName);
+    expect(await spinning()).toBe('none');
     await play.click();
-    expect(await disc.evaluate((el) => getComputedStyle(el).animationName)).toBe('spin');
+    await expect(page.locator('body')).toHaveClass(/playing/);
+    expect(await spinning()).toBe('spin');
+    await expect(play.locator('.k')).toHaveText(/Playing/);
     await play.click();
-    expect(await disc.evaluate((el) => getComputedStyle(el).animationName)).toBe('none');
+    await expect(page.locator('body')).not.toHaveClass(/playing/);
+    expect(await spinning()).toBe('none');
+    // the widget pausing on its own (not through the button) parks the record too
+    await play.click();
+    await expect(page.locator('body')).toHaveClass(/playing/);
+    await page.evaluate(() => (window as unknown as { __sc: Array<{ pause(): void }> }).__sc[0]!.pause());
+    await expect(page.locator('body')).not.toHaveClass(/playing/);
+    await expect(play).toHaveAttribute('aria-pressed', 'false');
+    expect(await spinning()).toBe('none');
   });
 
   test('the HUD shows only receipted numbers with receipt links', async ({ page }) => {
@@ -208,22 +291,127 @@ test.describe('home page', () => {
     }
   });
 
-  test('loads no third-party iframe until the play control is pressed', async ({ page }) => {
+  test('loads no third-party iframe until the play control is pressed, then one SoundCloud widget', async ({ page }) => {
+    const requests = await stubSoundCloud(page);
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     await expect(page.locator('iframe')).toHaveCount(0);
+    expect(requests, 'nothing from SoundCloud before the press').toEqual([]);
+    // the strip is shut and its controls are out of the keyboard order
+    await expect(page.locator('#snd-next')).not.toBeVisible();
+    await page.evaluate(() => document.getElementById('snd-next')?.focus());
+    expect(await page.evaluate(() => document.activeElement?.id)).not.toBe('snd-next');
     const button = playButton(page);
     await expect(button).toHaveCount(1);
     await expect(button).toHaveAccessibleName(/Press play/);
     await expect(button).toHaveAttribute('aria-pressed', 'false');
+    await expect(button).toHaveAttribute('aria-controls', 'sleeve');
     await button.click();
     await expect(button).toHaveAttribute('aria-pressed', 'true');
     // Both controls report the same state, whichever one is shown.
     await expect(page.locator('button.snd[aria-pressed="true"]')).toHaveCount(2);
+    // exactly one iframe, the SoundCloud widget, asking for On 2nite with auto_play from the press itself
     const frame = page.locator('iframe');
     await expect(frame).toHaveCount(1);
-    await expect(frame).toHaveAttribute('src', /open\.spotify\.com\/embed\/playlist\/3RQb1MUtERqcwUlZdncPRN/);
+    await expect(frame).toHaveAttribute('src', /^https:\/\/w\.soundcloud\.com\/player\/\?/);
+    await expect(frame).toHaveAttribute('src', /url=https%3A%2F%2Fsoundcloud\.com%2Fsilvabumpa%2Fon-2nite/);
+    await expect(frame).toHaveAttribute('src', /auto_play=true/);
+    await expect(frame).toHaveAttribute('allow', /autoplay/);
+    // present but hidden and inert: its box is a clipped pixel
+    await expect(page.locator('#widget')).toHaveAttribute('inert', '');
+    const widgetBox = (await page.locator('#widget').boundingBox())!;
+    // the API script came with the press, not before; nothing else from SoundCloud
+    expect(requests.some((u) => u === 'https://w.soundcloud.com/player/api.js')).toBe(true);
+    expect(requests.every((u) => u.startsWith('https://w.soundcloud.com/player/'))).toBe(true);
+    // the play state follows the widget's own event, and the now-playing line credits the track
+    await expect(page.locator('body')).toHaveClass(/playing/);
+    await expect(button).toHaveAccessibleName(/Pause/);
+    const np = page.locator('#np');
+    await expect(np).toBeVisible();
+    expect(await nowPlaying(page)).toEqual({ state: 'Now playing', title: 'On 2nite', artist: 'Silva Bumpa', href: TRACKS[0]!.url });
+    await expect(np.getByRole('link', { name: 'On SoundCloud' })).toHaveAttribute('href', TRACKS[0]!.url);
+    // the plain playlist link
+    const playlist = page.locator('#player').getByRole('link', { name: "Click here to listen to songs I'm listening to recently" });
+    await expect(playlist).toBeVisible();
+    await expect(playlist).toHaveAttribute('href', 'https://open.spotify.com/playlist/3RQb1MUtERqcwUlZdncPRN');
+    // the open strip and its controls pass axe too
+    const results = await new AxeBuilder({ page })
+      .include('#sleeve')
+      .include('.acts')
+      .exclude('#widget')
+      .withTags(['wcag2a', 'wcag2aa', 'best-practice'])
+      .analyze();
+    const bad = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
+    expect(bad, bad.map((v) => `${v.id}: ${v.help} (${v.nodes.length})`).join('\n')).toEqual([]);
+    // the widget stays hidden: no visible box in the page
+    expect(widgetBox.width).toBeLessThanOrEqual(1);
+    expect(widgetBox.height).toBeLessThanOrEqual(1);
+    // pause: the iframe stays (present but hidden), the state follows the
+    // widget's pause event, and the strip stays open with Previous and Next
     await button.click();
-    await expect(page.locator('iframe')).toHaveCount(0);
+    await expect(button).toHaveAttribute('aria-pressed', 'false');
+    await expect(page.locator('body')).not.toHaveClass(/playing/);
+    await expect(page.locator('iframe')).toHaveCount(1);
+    expect((await nowPlaying(page)).state).toBe('Paused');
+    await expect(page.locator('#snd-next')).toBeVisible();
+    // the touch button, when it is the one shown, is at least 48px on both sides
+    if (await page.locator('#snd-touch').isVisible()) {
+      const box = (await page.locator('#snd-touch').boundingBox())!;
+      expect(box.width).toBeGreaterThanOrEqual(48);
+      expect(box.height).toBeGreaterThanOrEqual(48);
+    }
+  });
+
+  test('Previous and Next step through the four tracks in order, loop, auto-advance, and work from the keyboard', async ({ page }) => {
+    await stubSoundCloud(page);
+    await page.goto('/');
+    const button = playButton(page);
+    await button.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('body')).toHaveClass(/playing/);
+    const next = page.locator('#snd-next');
+    const prev = page.locator('#snd-prev');
+    await expect(next).toBeVisible();
+    await expect(prev).toBeVisible();
+    for (const b of [prev, next]) {
+      const box = (await b.boundingBox())!;
+      expect(box.height).toBeGreaterThanOrEqual(24);
+    }
+    const expectTrack = async (i: number): Promise<void> => {
+      const t = TRACKS[i]!;
+      await expect.poll(() => nowPlaying(page)).toEqual({ state: 'Now playing', title: t.title, artist: t.artist, href: t.url });
+      // still the one iframe, now asking for this track
+      await expect(page.locator('iframe')).toHaveCount(1);
+      expect(await page.locator('iframe').getAttribute('src')).toContain(`url=${encodeURIComponent(t.url)}`);
+    };
+    await expectTrack(0);
+    // Next, from the keyboard, three times, then round to the first
+    await next.focus();
+    expect(await page.evaluate(() => document.activeElement?.id)).toBe('snd-next');
+    await page.keyboard.press('Enter');
+    await expectTrack(1);
+    await page.keyboard.press('Space');
+    await expectTrack(2);
+    await next.click();
+    await expectTrack(3);
+    await next.click();
+    await expectTrack(0);
+    // Previous wraps the other way
+    await prev.focus();
+    await page.keyboard.press('Enter');
+    await expectTrack(3);
+    await prev.click();
+    await expectTrack(2);
+    // a track ending moves to the next one on its own, and the last loops to the first
+    const finish = () => page.evaluate(() => (window as unknown as { __sc: Array<{ finish(): void }> }).__sc[0]!.finish());
+    await finish();
+    await expectTrack(3);
+    await finish();
+    await expectTrack(0);
+    // the play button still pauses the current track
+    await button.click();
+    await expect(page.locator('body')).not.toHaveClass(/playing/);
+    await expect(button).toHaveAttribute('aria-pressed', 'false');
   });
 
   test('every image declares width and height', async ({ page }) => {
@@ -243,6 +431,7 @@ test.describe('home page', () => {
   });
 
   test('respects prefers-reduced-motion', async ({ page }) => {
+    await stubSoundCloud(page);
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     // The background field and the sound bars are off, the hero copy sits in
@@ -255,6 +444,7 @@ test.describe('home page', () => {
     const stick = await page.locator('#tour-stick').evaluate((el) => getComputedStyle(el).position);
     expect(stick).toBe('static');
     await playButton(page).click();
+    await expect(page.locator('body')).toHaveClass(/playing/);
     const bar = await page.locator('.bars i').first().evaluate((el) => getComputedStyle(el).animationName);
     expect(bar).toBe('none');
     const disc = await page.locator('#snd .fb .disc').evaluate((el) => getComputedStyle(el).animationName);

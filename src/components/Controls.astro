@@ -1,29 +1,31 @@
 ---
 /**
- * The sound control. Sound is off by default. The Spotify iframe is not in
- * the DOM until a button is pressed, so no third-party request happens on
- * load; it opens in the #sleeve strip under the hero scene.
+ * The sound control. Sound is off by default. Nothing from SoundCloud is in
+ * the DOM until a button is pressed: the page script then creates the one
+ * widget iframe inside that press (see src/scripts/sound.ts) and the strip
+ * under the hero scene (#sleeve) opens with the now-playing line, Previous
+ * and Next.
  *
  * Two variants share one state (the page script keeps them in step):
  * - "desk": the turntable. A small 3D stage (a vinyl disc with a tonearm
- *   that lowers and spins while sound is on, and a row of equalizer bars
- *   that move only while sound is on; decoration, not analysis) beside the
- *   label and the "Sound off" / "Playing" caption. Shown on wide screens
- *   with a fine pointer. The SVG is the drawing before the scene loads and
- *   wherever WebGL is missing; its disc spins by CSS while sound is on.
+ *   that lowers and spins while sound is playing, and a row of equalizer
+ *   bars that move only while sound is playing; decoration, not analysis)
+ *   beside the label and the "Sound off" / "Loading" / "Playing" caption.
+ *   Shown on wide screens with a fine pointer. The SVG is the drawing before
+ *   the scene loads and wherever WebGL is missing; its disc spins by CSS
+ *   while sound is playing.
  * - "touch": a plain large button with a small disc icon that spins while
- *   sound is on. Shown on coarse pointers and at 820px and below.
+ *   sound is playing. Shown on coarse pointers and at 820px and below.
+ *
+ * aria-pressed is what was asked for (play pressed, not yet paused); the
+ * `playing` class on <body>, which the drawings follow, is set only by the
+ * widget's own play and pause events.
  */
 interface Props {
   id: string;
   variant: 'desk' | 'touch';
-  playlistId: string;
-  playlistTitle: string;
-  openingTrack: string;
-  openingArtist: string;
 }
-const { id, variant, playlistId, playlistTitle } = Astro.props;
-const embedSrc = `https://open.spotify.com/embed/playlist/${playlistId}?utm_source=generator`;
+const { id, variant } = Astro.props;
 ---
 
 <button
@@ -32,8 +34,6 @@ const embedSrc = `https://open.spotify.com/embed/playlist/${playlistId}?utm_sour
   type="button"
   aria-pressed="false"
   aria-controls="sleeve"
-  data-embed-src={embedSrc}
-  data-embed-title={`Spotify playlist: ${playlistTitle}`}
 >
   {variant === 'desk' ? (
     <span class="stage tt" id="vinyl-stage" aria-hidden="true">
@@ -73,11 +73,12 @@ const embedSrc = `https://open.spotify.com/embed/playlist/${playlistId}?utm_sour
   )}
   <span class="tx">
     <span class="off">Press play</span>
-    <span class="on">Stop</span>
+    <span class="on">Pause</span>
     {variant === 'desk' && (
       <span class="k">
         <span class="off">Sound off</span>
-        <span class="on">Playing</span>
+        <span class="ld">Loading</span>
+        <span class="now">Playing</span>
         <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span>
       </span>
     )}

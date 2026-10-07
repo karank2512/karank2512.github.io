@@ -271,16 +271,16 @@ h1 .l { display: block; }
    only move; they are the largest text on the page and stay visible from the
    first paint so the largest contentful paint is the first paint. The
    smaller pieces fade in as they rise. */
-h1 .l, .hero .role, .hero .pic, .hero .intro, .hero .acts, .hero .hint, .hud > * {
+h1 .l, .hero .role, .hero .pic, .hero .intro, .hero .acts, .hud > * {
   translate: 0 0.5rem;
   animation: rise 0.6s var(--d, 0s) var(--ease) both;
 }
-.hero .role, .hero .pic, .hero .acts, .hero .hint, .hud > * { opacity: 0; }
+.hero .role, .hero .pic, .hero .acts, .hud > * { opacity: 0; }
 h1 .l:nth-child(2) { --d: 0.09s; }
 .hero .role, .hero .pic { --d: 0.18s; }
 .hero .intro { --d: 0.27s; }
 .hero .acts { --d: 0.36s; }
-.hero .hint, .hud > * { --d: 0.45s; }
+.hud > * { --d: 0.45s; }
 
 /* HUD: three corner readouts in mono on solid Ink, so the text keeps its
    contrast whatever the scene is doing behind it. Only receipted numbers. */
@@ -352,8 +352,11 @@ h1 .l:nth-child(2) { --d: 0.09s; }
 .snd:hover { border-color: var(--bone); }
 .snd:focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; }
 .snd[aria-pressed="true"] { border-color: var(--sage); color: var(--sage); }
-.snd .off, .snd[aria-pressed="true"] .on { display: inline; }
-.snd .on, .snd[aria-pressed="true"] .off { display: none; }
+/* The label: "Press play" until pressed, then "Pause". The caption under it
+   on the turntable: "Sound off", then "Loading" once pressed, then
+   "Playing" once the widget itself reports playing (body.playing). */
+.snd .off, .snd[aria-pressed="true"] .on, .snd[aria-pressed="true"] .k .ld, body.playing .snd[aria-pressed="true"] .k .now { display: inline; }
+.snd .on, .snd .k .ld, .snd .k .now, .snd[aria-pressed="true"] .off, body.playing .snd[aria-pressed="true"] .k .ld { display: none; }
 .snd .tx { display: flex; flex-direction: column; gap: 0.2rem; }
 .snd .k {
   display: inline-flex;
@@ -365,18 +368,18 @@ h1 .l:nth-child(2) { --d: 0.09s; }
   color: var(--bone-2);
 }
 .snd[aria-pressed="true"] .k { color: var(--sage); }
-/* three bars in the caption, scaleY only, run while sound is on */
+/* three bars in the caption, scaleY only, run while the widget is playing */
 .bars { display: none; align-items: flex-end; gap: 2px; height: 0.8em; }
 .bars i { display: block; width: 3px; height: 100%; background: currentColor; transform-origin: bottom; }
-.snd[aria-pressed="true"] .bars { display: inline-flex; }
-.snd[aria-pressed="true"] .bars i { animation: bar 0.9s ease-in-out infinite alternate; }
-.snd[aria-pressed="true"] .bars i:nth-child(2) { animation-delay: -0.3s; }
-.snd[aria-pressed="true"] .bars i:nth-child(3) { animation-delay: -0.6s; }
-.hero.paused .snd[aria-pressed="true"] .bars i { animation-play-state: paused; }
+body.playing .snd .bars { display: inline-flex; }
+body.playing .snd .bars i { animation: bar 0.9s ease-in-out infinite alternate; }
+body.playing .snd .bars i:nth-child(2) { animation-delay: -0.3s; }
+body.playing .snd .bars i:nth-child(3) { animation-delay: -0.6s; }
+.hero.paused .snd .bars i { animation-play-state: paused; }
 /* The turntable stage: 6 by 3.2 rem of the Ink sheet inside the button. The
    SVG is the drawing before the scene loads and without WebGL; its disc and
-   its equalizer bars move by CSS while sound is on, the scene takes over
-   once it has drawn a frame. */
+   its equalizer bars move by CSS while the widget is playing, the scene
+   takes over once it has drawn a frame. */
 .snd .stage { position: relative; flex: none; width: 6rem; height: 3.2rem; background: var(--ink); }
 .snd .stage .fb { inset: 0; width: 100%; height: 100%; }
 .snd .fb .pl { fill: var(--ink-2); stroke: var(--line); }
@@ -386,33 +389,68 @@ h1 .l:nth-child(2) { --d: 0.09s; }
 .snd .fb .arm { fill: none; stroke: var(--bone-2); stroke-width: 1.5; stroke-linecap: square; }
 .snd .fb .eq rect { fill: var(--sage); transform-box: fill-box; transform-origin: bottom; }
 .snd .fb .disc { transform-box: fill-box; transform-origin: center; }
-.snd[aria-pressed="true"] .fb .disc { animation: spin 1.8s linear infinite; }
-.snd[aria-pressed="true"] .fb .eq rect { animation: bar 0.8s ease-in-out infinite alternate; }
-.snd[aria-pressed="true"] .fb .eq rect:nth-child(2) { animation-delay: -0.25s; }
-.snd[aria-pressed="true"] .fb .eq rect:nth-child(3) { animation-delay: -0.5s; }
-.snd[aria-pressed="true"] .fb .eq rect:nth-child(4) { animation-delay: -0.15s; }
-.snd[aria-pressed="true"] .fb .eq rect:nth-child(5) { animation-delay: -0.4s; }
-.hero.paused .snd[aria-pressed="true"] .fb .disc,
-.hero.paused .snd[aria-pressed="true"] .fb .eq rect { animation-play-state: paused; }
-.hint { margin-top: 0.8rem; max-width: 40ch; font-size: 0.72rem; color: var(--bone-2); }
-.hint strong { color: var(--bone); font-weight: 500; }
+body.playing .snd .fb .disc { animation: spin 1.8s linear infinite; }
+body.playing .snd .fb .eq rect { animation: bar 0.8s ease-in-out infinite alternate; }
+body.playing .snd .fb .eq rect:nth-child(2) { animation-delay: -0.25s; }
+body.playing .snd .fb .eq rect:nth-child(3) { animation-delay: -0.5s; }
+body.playing .snd .fb .eq rect:nth-child(4) { animation-delay: -0.15s; }
+body.playing .snd .fb .eq rect:nth-child(5) { animation-delay: -0.4s; }
+.hero.paused .snd .fb .disc,
+.hero.paused .snd .fb .eq rect { animation-play-state: paused; }
+
+/* The player strip under the hero scene: closed and out of the tab order
+   until play is pressed (visibility hidden removes its buttons and links
+   from the keyboard order while the strip is shut). Inside: the now-playing
+   line, Previous and Next, the plain playlist link, and the one widget
+   iframe, present but hidden and inert. */
 #sleeve { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.5s var(--ease); }
 body.on #sleeve { grid-template-rows: 1fr; }
 #sleeve > div { overflow: hidden; min-height: 0; }
-#sleeve .in { padding-block: 1rem 1.5rem; }
-#sleeve p { font-size: 0.9rem; color: var(--bone-2); margin-bottom: 0.6rem; }
-#sleeve iframe { border: 0; display: block; width: 100%; }
+#sleeve .in {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: 1.5rem;
+  row-gap: 0.6rem;
+  padding-block: 1rem 1.5rem;
+  visibility: hidden;
+  transition: visibility 0s 0.5s;
+}
+body.on #sleeve .in { visibility: visible; transition-delay: 0s; }
+.np { margin: 0; font-size: 0.8rem; color: var(--bone-2); }
+.np-state { color: var(--mute); }
+body.playing .np-state { color: var(--sage); }
+.np-title { color: var(--bone); font-weight: 500; }
+.np-link { color: var(--sage); text-decoration-color: var(--sage); padding-block: 0.35rem; }
+.skip-btns { display: inline-flex; gap: 0.5rem; }
+.skip-btn {
+  all: unset;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 0.75rem;
+  color: var(--bone-2);
+  border: 1px solid var(--line);
+  padding: 0.3rem 0.7rem;
+  transition: border-color 0.2s, color 0.2s;
+}
+.skip-btn:hover { color: var(--bone); border-color: var(--bone-2); }
+.skip-btn:focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; }
+.pl-link { margin: 0; flex-basis: 100%; font-size: 0.85rem; color: var(--bone-2); }
+.pl-link a { color: var(--bone); padding-block: 0.3rem; }
+.widget { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.widget iframe { border: 0; display: block; }
 
 /* The touch play button: plain, 4rem tall, with a small disc icon that spins
-   while sound is on. Hidden on wide screens with a fine pointer, where the
-   turntable button is used; on coarse pointers, and on narrow screens, it
-   takes over and the turntable goes. */
+   while the widget is playing. Hidden on wide screens with a fine pointer,
+   where the turntable button is used; on coarse pointers, and on narrow
+   screens, it takes over and the turntable goes. */
 .snd-touch { display: none; }
 .disc-ico { width: 1.5em; height: 1.5em; flex: none; }
 .disc-ico circle { fill: none; stroke: currentColor; stroke-width: 1.2; }
 .disc-ico .em { fill: var(--ember); stroke: none; }
-.snd[aria-pressed="true"] .disc-ico { animation: spin 1.8s linear infinite; }
-.hero.paused .snd[aria-pressed="true"] .disc-ico { animation-play-state: paused; }
+body.playing .snd .disc-ico { animation: spin 1.8s linear infinite; }
+.hero.paused .snd .disc-ico { animation-play-state: paused; }
 @media (pointer: coarse), (max-width: 820px) {
   .snd-desk { display: none; }
   .snd-touch {
@@ -822,12 +860,13 @@ footer .wrap {
   }
   /* Finished states, so nothing is half drawn. The scenes render one frame. */
   .field { animation: none; }
-  h1 .l, .hero .role, .hero .pic, .hero .intro, .hero .acts, .hero .hint, .hud > * { opacity: 1; translate: 0 0; animation: none; }
+  h1 .l, .hero .role, .hero .pic, .hero .intro, .hero .acts, .hud > * { opacity: 1; translate: 0 0; animation: none; }
   .tile-in { transition: none; }
-  .snd[aria-pressed="true"] .bars i,
-  .snd[aria-pressed="true"] .fb .disc,
-  .snd[aria-pressed="true"] .fb .eq rect,
-  .snd[aria-pressed="true"] .disc-ico { animation: none; }
+  body.playing .snd .bars i,
+  body.playing .snd .fb .disc,
+  body.playing .snd .fb .eq rect,
+  body.playing .snd .disc-ico { animation: none; }
+  #sleeve .in { transition: none; }
   .rv, .roles .mk { animation: none; }
   .stage canvas, .deck canvas { transition: none; }
   /* the tour becomes a still frame with its five captions listed under it */

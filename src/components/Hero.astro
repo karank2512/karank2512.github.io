@@ -21,10 +21,8 @@ interface Props {
   email: string;
   photo: { alt: string };
   music: {
-    playlistId: string;
-    playlistTitle: string;
-    openingTrack: string;
-    openingArtist: string;
+    playlist: { label: string; url: string };
+    tracks: Array<{ title: string; artist: string; url: string }>;
   };
   /** The median fork metric (A1 in thaw.json). */
   fork: Metric | undefined;
@@ -32,9 +30,11 @@ interface Props {
   restores: Metric[];
 }
 const { name, tagline, intro, email, photo, music, fork, restores } = Astro.props;
-const [first, ...rest] = name.split(' ');
+const [given, ...rest] = name.split(' ');
 const last = rest.join(' ');
 const receipt = restores[0]?.source;
+const first = music.tracks[0];
+if (!first) throw new Error('profile music.tracks is empty');
 
 /** Link the first mention of thaw and RelayIQ without changing the approved words. */
 function linkify(text: string): string {
@@ -58,7 +58,7 @@ function linkify(text: string): string {
              first screen on every width. The photo is uncropped at its own
              3:4 ratio and declares its size, so nothing shifts. -->
         <div class="id">
-          <h1 id="h1"><span class="l">{first}</span><span class="l">{last}</span></h1>
+          <h1 id="h1"><span class="l">{given}</span><span class="l">{last}</span></h1>
           <p class="role">{tagline}</p>
           <Image
             class="pic"
@@ -83,8 +83,8 @@ function linkify(text: string): string {
              the page script keeps their state in step. -->
         <div class="acts">
           <a class="cta" href={`mailto:${email}`}>Contact me</a>
-          <Controls id="snd" variant="desk" {...music} />
-          <Controls id="snd-touch" variant="touch" {...music} />
+          <Controls id="snd" variant="desk" />
+          <Controls id="snd-touch" variant="touch" />
         </div>
       </div>
       <div class="room" aria-hidden="true"></div>
@@ -126,14 +126,32 @@ function linkify(text: string): string {
     </div>
   </div>
 
+  <!-- The player strip. Closed, and out of the tab order, until play is
+       pressed. Then: the now-playing line (title, artist, and a link to the
+       track on SoundCloud, which is the credit SoundCloud asks for),
+       Previous and Next, and the plain link to the Spotify playlist. The
+       one widget iframe is created by the page script inside the first
+       press and lives in #widget, present but hidden and inert; the four
+       tracks are listed in #snd-tracks for the script, first track first. -->
   <div class="wrap">
-    <div id="sleeve" aria-live="polite">
+    <div id="sleeve">
       <div>
-        <div class="in">
-          <p>If it does not start on its own, tap play once inside the player. Logged-out listeners get 30 second previews.</p>
-          <div id="emb"></div>
+        <div class="in" id="player">
+          <p class="np mono" id="np" aria-live="polite">
+            <span class="np-state">Loading</span>:
+            <span class="np-title">{first.title}</span>,
+            <span class="np-artist">{first.artist}</span>.
+            <a class="np-link" href={first.url} rel="noopener">On SoundCloud</a>
+          </p>
+          <div class="skip-btns">
+            <button class="skip-btn" id="snd-prev" type="button">Previous</button>
+            <button class="skip-btn" id="snd-next" type="button">Next</button>
+          </div>
+          <p class="pl-link"><a href={music.playlist.url} rel="noopener">{music.playlist.label}</a></p>
+          <div class="widget" id="widget" inert></div>
         </div>
       </div>
     </div>
+    <script is:inline type="application/json" id="snd-tracks" set:html={JSON.stringify(music.tracks)}></script>
   </div>
 </section>

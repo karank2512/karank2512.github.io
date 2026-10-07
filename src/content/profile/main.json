@@ -15,10 +15,16 @@
     "resume": "/resume.pdf"
   },
   "music": {
-    "playlistId": "3RQb1MUtERqcwUlZdncPRN",
-    "playlistTitle": "Home not house",
-    "openingTrack": "On 2nite",
-    "openingArtist": "Silva Bumpa"
+    "playlist": {
+      "label": "Click here to listen to songs I'm listening to recently",
+      "url": "https://open.spotify.com/playlist/3RQb1MUtERqcwUlZdncPRN"
+    },
+    "tracks": [
+      { "title": "On 2nite", "artist": "Silva Bumpa", "url": "https://soundcloud.com/silvabumpa/on-2nite" },
+      { "title": "Can't Slow Down", "artist": "Omar+", "url": "https://soundcloud.com/omarplus/slow-down" },
+      { "title": "Blackberries", "artist": "Fish Tales", "url": "https://soundcloud.com/fish-tales/blackberries" },
+      { "title": "Dreams", "artist": "Prospa feat. Rohan Pinnock-Hamilton", "url": "https://soundcloud.com/circolocorecords/prospa-feat-rohan-pinnock-hamilton-dreams-11" }
+    ]
   },
   "photo": {
     "alt": "Karan Kapur, head and shoulders, in a black suit."
