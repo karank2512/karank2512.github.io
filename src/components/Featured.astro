@@ -1,47 +1,66 @@
 ---
+/**
+ * The featured experience entry: the thaw role with the project folded in.
+ * Visible at once: role, org, dates, the one-sentence line, the project
+ * tagline, summary, credit line and links. Behind the disclosure: the
+ * scroll-driven engineering tour (five stops) and the receipts list. The
+ * entry keeps the id "thaw" so the hero's link and old anchors still land.
+ */
 import type { CollectionEntry } from 'astro:content';
 import Tour from './Tour.astro';
 
 interface Props {
+  role: CollectionEntry<'experience'>;
   project: CollectionEntry<'projects'>;
 }
-const { project } = Astro.props;
-const { title, tagline, summary, credit, links, metrics, hardware } = project.data;
+const { role, project } = Astro.props;
+const { tagline, summary, credit, links, metrics, hardware } = project.data;
+const r = role.data;
 ---
 
-<section class="sec feat" id="thaw" aria-labelledby="h-thaw">
-  <div class="wrap grid top">
-    <p class="lab mono">Featured work</p>
-    <div>
-      <h2 id="h-thaw" class="rv">{title}<span class="dot">.</span></h2>
-      <p class="tag mono rv">{tagline}</p>
-      <p class="sum rv">{summary}</p>
-      {credit && <p class="credit rv">{credit}.</p>}
-      {links.length > 0 && (
-        <ul class="links rv">
-          {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
-        </ul>
-      )}
-    </div>
-  </div>
+<li class="feat" id="thaw">
+  <span class="mk" aria-hidden="true"></span>
+  <span class="r">
+    {r.role}
+    <span class="o">{r.org}, {r.location}</span>
+  </span>
+  <span class="w mono">{r.start} to {r.end}</span>
+  <span class="ln">{r.line}</span>
 
-  <Tour />
+  <div class="more">
+    <p class="tag mono">{tagline}</p>
+    <p class="sum">{summary}</p>
+    {credit && <p class="credit">{credit}.</p>}
+    {links.length > 0 && (
+      <ul class="links">
+        {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+      </ul>
+    )}
 
-  <div class="wrap grid bottom">
-    <p class="lab mono">Receipts</p>
-    <div>
-      <ol class="rcpt">
-        {metrics.map((m) => (
-          <li class="row rv">
-            <span class="lbl">{m.label}</span>
-            <span class:list={['val', { word: !m.unit }]}>
-              {m.value}{m.unit && <small>{m.unit}</small>}
-            </span>
-            <span class="set">{m.setup} <a href={m.source}>Receipt</a>.</span>
-          </li>
-        ))}
-      </ol>
-      {hardware && <p class="hw mono">{hardware}</p>}
-    </div>
+    <details class="tour-more" id="tour-more">
+      <summary class="mono">
+        <span class="caret" aria-hidden="true"></span>
+        <span class="o-c">Open the engineering tour, five stops, and the receipts</span>
+        <span class="o-o">Close the engineering tour</span>
+      </summary>
+
+      <Tour />
+
+      <div class="rcpts">
+        <p class="lab mono">Receipts</p>
+        <ol class="rcpt">
+          {metrics.map((m) => (
+            <li class="row">
+              <span class="lbl">{m.label}</span>
+              <span class:list={['val', { word: !m.unit }]}>
+                {m.value}{m.unit && <small>{m.unit}</small>}
+              </span>
+              <span class="set">{m.setup} <a href={m.source}>Receipt</a>.</span>
+            </li>
+          ))}
+        </ol>
+        {hardware && <p class="hw mono">{hardware}</p>}
+      </div>
+    </details>
   </div>
-</section>
+</li>

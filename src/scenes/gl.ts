@@ -272,3 +272,131 @@ export const smoothstep = (v: number): number => {
 };
 
 export const damp = (dt: number, rate: number): number => 1 - Math.exp(-rate * dt);
+
+/** Small deterministic hash in [0, 1) so a scene's "random" choices never change between frames. */
+export const hash = (n: number): number => {
+  const s = Math.sin(n * 127.1 + 311.7) * 43758.5453;
+  return s - Math.floor(s);
+};
+
+/** Put a camera on an orbit around `target` and point it there. */
+export function orbit(camera: THREE.Camera, target: THREE.Vector3, yaw: number, pitch: number, dist: number): void {
+  camera.position.set(
+    target.x + Math.sin(yaw) * Math.cos(pitch) * dist,
+    target.y + Math.sin(pitch) * dist,
+    target.z + Math.cos(yaw) * Math.cos(pitch) * dist,
+  );
+  camera.lookAt(target);
+}
+
+export interface SceneOptions {
+  canvas: HTMLCanvasElement;
+  /** Sized box the canvas fills. */
+  stage: HTMLElement;
+  reduced: boolean;
+  onFirstFrame: () => void;
+}
+
+export interface View {
+  /** Horizontal and vertical radius of the object, for the fit. */
+  rh: number;
+  rv: number;
+  yaw: number;
+  pitch: number;
+  target: THREE.Vector3;
+}
+
+/**
+ * The common shell of the small scenes (project cards, the turntable): a
+ * renderer, a lit scene with one root group, a camera on a fixed orbit that
+ * refits on resize, and a Loop that stops off screen. `run(tick)` starts the
+ * loop; under reduced motion it renders the one frame tick(0, still) and
+ * never loops. `frame(t)` renders one more frame on demand (state changes
+ * under reduced motion).
+ */
+export class Stage {
+  readonly renderer: THREE.WebGLRenderer;
+  readonly scene = new THREE.Scene();
+  readonly camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+  readonly root = new THREE.Group();
+  private readonly ro: ResizeObserver;
+  private loop: Loop | null = null;
+  private tick: ((dt: number, t: number) => void | boolean) | null = null;
+  private first = true;
+  private lastT = 0;
+
+  constructor(private readonly o: SceneOptions, private readonly view: View, private readonly still = 0) {
+    this.renderer = makeRenderer(o.canvas);
+    addLights(this.scene);
+    this.scene.add(this.root);
+    this.ro = new ResizeObserver(() => this.resize());
+    this.ro.observe(o.stage);
+    this.resize();
+  }
+
+  private resize(): void {
+    const w = Math.max(1, this.o.stage.clientWidth);
+    const h = Math.max(1, this.o.stage.clientHeight);
+    frameCamera(this.renderer, this.camera, w, h, 1);
+    const dist = fitDistance(this.camera, this.view.rh, this.view.rv, 1);
+    orbit(this.camera, this.view.target, this.view.yaw, this.view.pitch, dist);
+    if (this.tick) this.frame(this.o.reduced ? this.still : this.lastT);
+  }
+
+  /** Render one frame at scene time t. */
+  frame(t: number): void {
+    this.tick?.(0, t);
+    this.render();
+  }
+
+  private render(): void {
+    this.renderer.render(this.scene, this.camera);
+    if (this.first) {
+      this.first = false;
+      this.o.onFirstFrame();
+    }
+  }
+
+  /** Start the loop. A tick that returns false has changed nothing, and that frame is not drawn. */
+  run(tick: (dt: number, t: number) => void | boolean): void {
+    this.tick = tick;
+    if (this.o.reduced) {
+      this.frame(this.still);
+      return;
+    }
+    this.loop = new Loop(this.o.stage, (dt, t) => {
+      this.lastT = t;
+      if (tick(dt, t) !== false) this.render();
+    });
+  }
+
+  dispose(extra: Blocks[] = []): void {
+    this.loop?.dispose();
+    this.ro.disconnect();
+    extra.forEach((b) => b.dispose());
+    disposeTree(this.scene);
+    this.renderer.dispose();
+  }
+}
+
+/** Place block i of b at a position with a uniform or per-axis scale and a color. */
+const pm = new THREE.Matrix4();
+const pq = new THREE.Quaternion();
+const pp = new THREE.Vector3();
+const ps = new THREE.Vector3();
+export function put(b: Blocks, i: number, x: number, y: number, z: number, c: THREE.Color, s: number | THREE.Vector3 = 1): void {
+  if (typeof s === 'number') ps.set(s, s, s);
+  else ps.copy(s);
+  pm.compose(pp.set(x, y, z), pq, ps);
+  b.set(i, pm);
+  b.color(i, c);
+}
+
+/** A hairline rectangle on the floor plane y, from (x0, z0) to (x1, z1). */
+export function floorRect(x0: number, z0: number, x1: number, z1: number, y: number, color: number): THREE.LineLoop {
+  return polyline(
+    [new THREE.Vector3(x0, y, z0), new THREE.Vector3(x1, y, z0), new THREE.Vector3(x1, y, z1), new THREE.Vector3(x0, y, z1)],
+    color,
+    true,
+  ) as THREE.LineLoop;
+}

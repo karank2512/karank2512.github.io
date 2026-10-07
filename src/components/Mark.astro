@@ -1,45 +1,96 @@
 ---
 /**
- * A small line drawing per project, drawn with hairlines only. Colors come
- * from the .mark rules in global.css.
+ * The static drawing in each project card's stage: an isometric hairline
+ * version of the card's 3D scene, shown before the scene loads and kept
+ * wherever WebGL is missing. Hairlines only; colors come from the .mark
+ * rules in global.css (Bone 2 at rest, Ember and Sage for the accents).
+ * Decorative: the card's caption says in words what the scene shows, so the
+ * drawing is hidden from assistive tech and keeps the link's name short.
+ *
+ * The isometric projection matches src/scenes/iso.ts: x right-down, z
+ * left-down, y up.
  */
 interface Props {
   id: string;
 }
 const { id } = Astro.props;
+
+const S = 40; // px per scene unit
+const iso = (x: number, y: number, z: number): [number, number] => [
+  160 + (x - z) * 0.866 * S,
+  110 + ((x + z) * 0.5 - y) * S,
+];
+const r1 = (n: number): string => (Math.round(n * 10) / 10).toString();
+const P = (x: number, y: number, z: number): string => iso(x, y, z).map(r1).join(' ');
+
+/** Wireframe box: centre and half sizes. */
+function box(cx: number, cy: number, cz: number, hx: number, hy: number, hz: number): string {
+  const c = [
+    [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
+    [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1],
+  ].map(([a, b, d]) => P(cx + (a ?? 0) * hx, cy + (b ?? 0) * hy, cz + (d ?? 0) * hz));
+  const e = [0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7];
+  let d = '';
+  for (let i = 0; i < e.length; i += 2) d += `M${c[e[i] ?? 0] ?? ''}L${c[e[i + 1] ?? 0] ?? ''}`;
+  return d;
+}
+const seg = (a: [number, number, number], b: [number, number, number]): string => `M${P(...a)}L${P(...b)}`;
+
+let base = '';
+let ember = '';
+let sage = '';
+const labels: Record<string, string> = {
+  relayiq: 'RelayIQ: records approach a decision plane; some pass to a stack, one is dropped.',
+  foreman: 'Foreman: a job spec, a worker figure built from blocks, and three approval gates.',
+  tell: 'tell: scattered event particles converge into a ranked list of five bars.',
+};
+const label = labels[id] ?? '';
+
+if (id === 'relayiq') {
+  // lane, leads, the plane, the stack, one dropped lead
+  base += seg([-3.2, -0.2, 0], [1.9, -0.2, 0]);
+  for (const x of [-2.9, -2.2, -1.5, -0.8]) base += box(x, 0, 0, 0.11, 0.11, 0.11);
+  ember += box(0, 0.2, 0, 0.02, 0.6, 0.5);
+  for (const x of [0.6, 1.3]) sage += box(x, 0, 0, 0.11, 0.11, 0.11);
+  base += box(0.5, -0.7, 0.2, 0.08, 0.08, 0.08);
+  for (let i = 0; i < 5; i++) base += box(2.6, -0.45 + i * 0.2, 0, 0.5, 0.07, 0.4);
+  sage += box(2.6, 0.55, 0, 0.5, 0.07, 0.4);
+} else if (id === 'foreman') {
+  // floor, spec slab, the worker, three gates
+  base += seg([-3.4, -0.6, -1], [3.4, -0.6, -1]) + seg([-3.4, -0.6, 1], [3.4, -0.6, 1]) + seg([-3.4, -0.6, -1], [-3.4, -0.6, 1]) + seg([3.4, -0.6, -1], [3.4, -0.6, 1]);
+  base += box(-2.6, 0, 0, 0.35, 0.25, 0.02);
+  const wx = -1.4;
+  const h = 0.08;
+  ember += box(wx, 0.55, 0, h, h, h);
+  for (const [x, y] of [[-0.08, 0.3], [0.08, 0.3], [-0.08, 0.14], [0.08, 0.14], [-0.08, -0.02], [0.08, -0.02]]) sage += box(wx + (x ?? 0), y ?? 0, 0, h, h, h);
+  for (const [x, y] of [[-0.24, 0.3], [0.24, 0.3], [-0.24, 0.14], [0.24, 0.14]]) sage += box(wx + (x ?? 0), y ?? 0, 0, h, h, h);
+  for (const [x, y] of [[-0.08, -0.2], [0.08, -0.2], [-0.08, -0.36], [0.08, -0.36]]) sage += box(wx + (x ?? 0), y ?? 0, 0, h, h, h);
+  for (const gx of [-0.4, 0.9, 2.2]) {
+    base += box(gx, 0.1, -0.45, 0.04, 0.7, 0.04) + box(gx, 0.1, 0.45, 0.04, 0.7, 0.04) + box(gx, 0.84, 0, 0.04, 0.04, 0.49);
+  }
+} else if (id === 'tell') {
+  // scattered particles, three shapes, converging on five ranked bars
+  const pts: Array<[number, number, number, number]> = [
+    [-3.1, 0.6, -0.8, 0], [-2.6, -0.5, 0.6, 1], [-2.1, 0.9, 0.3, 2], [-1.7, -0.2, -0.9, 0], [-1.2, 0.5, 0.8, 1], [-0.8, -0.7, -0.2, 2], [-0.4, 0.1, 0.4, 0], [0.2, 0.6, -0.5, 1], [0.7, -0.3, 0.2, 2],
+  ];
+  for (const [x, y, z, k] of pts) {
+    if (k === 0) base += box(x, y, z, 0.08, 0.055, 0.01);
+    else if (k === 1) base += box(x, y, z, 0.03, 0.1, 0.03);
+    else sage += box(x, y, z, 0.05, 0.05, 0.05);
+  }
+  base += seg([1.4, 1.05, 0], [1.4, -1.05, 0]);
+  const widths = [1.6, 1.3, 1.05, 0.85, 0.7];
+  widths.forEach((w, i) => {
+    const d = box(1.5 + w / 2, 0.8 - i * 0.4, 0, w / 2, 0.08, 0.3);
+    if (i === 0) ember += d;
+    else base += d;
+  });
+  for (const [x, y, z] of [[-0.4, 0.1, 0.4], [0.7, -0.3, 0.2]]) sage += `M${P(x ?? 0, y ?? 0, z ?? 0)}Q${P(0.9, 1.2, 0)} ${P(1.5, 0.8, 0)}`;
+}
 ---
 
-{id === 'thaw' ? (
-  <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-    <path d="M4 24h14"></path>
-    <circle class="em" cx="20" cy="24" r="3"></circle>
-    <path d="M22 24c8 0 8-10 16-10h6"></path>
-    <path d="M22 24h22"></path>
-    <path d="M22 24c8 0 8 10 16 10h6"></path>
-  </svg>
-) : id === 'relayiq' ? (
-  <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-    <path d="M6 14h14M6 24h14M6 34h14"></path>
-    <path class="gate" d="M26 8v32"></path>
-    <path d="M30 14h12M30 24h12"></path>
-    <path class="pass" d="M30 34h12"></path>
-  </svg>
-) : id === 'foreman' ? (
-  <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-    <rect class="w1" x="6" y="6" width="10" height="10"></rect>
-    <rect class="w2" x="24" y="16" width="10" height="10"></rect>
-    <rect class="w3" x="12" y="30" width="10" height="10"></rect>
-    <path d="M6 44h36"></path>
-  </svg>
-) : id === 'tell' ? (
-  <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-    <circle cx="12" cy="36" r="2.5"></circle>
-    <path class="arc a1" d="M12 26a10 10 0 0 1 10 10"></path>
-    <path class="arc a2" d="M12 18a18 18 0 0 1 18 18"></path>
-    <path class="arc a3" d="M12 10a26 26 0 0 1 26 26"></path>
-  </svg>
-) : (
-  <svg class="mark" viewBox="0 0 48 48" aria-hidden="true" focusable="false">
-    <path d="M6 24h36"></path>
-  </svg>
-)}
+<svg class="fb mark" viewBox="0 0 320 220" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" data-label={label}>
+  {base && <path d={base} />}
+  {sage && <path class="sg" d={sage} />}
+  {ember && <path class="em" d={ember} />}
+</svg>

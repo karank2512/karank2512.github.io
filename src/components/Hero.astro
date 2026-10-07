@@ -55,10 +55,19 @@ function linkify(text: string): string {
         <ul class="intro">
           {intro.map((line) => <li set:html={linkify(line)} />)}
         </ul>
+        <!-- Contact me and Press play share one row. The turntable control
+             is for fine pointers on wide screens; the plain button takes
+             over on touch and at 820px and below. Both are in the DOM and
+             the page script keeps their state in step. -->
         <div class="acts">
           <a class="cta" href={`mailto:${email}`}>Contact me</a>
+          <Controls id="snd" variant="desk" {...music} />
           <Controls id="snd-touch" variant="touch" {...music} />
         </div>
+        <p class="hint mono">
+          Opens <strong>{music.playlistTitle}</strong>, the playlist I practice to, starting with {music.openingTrack} by {music.openingArtist}.
+          Nothing plays until you press.
+        </p>
       </div>
       <div class="room" aria-hidden="true"></div>
     </div>
@@ -91,10 +100,6 @@ function linkify(text: string): string {
           {receipt && <dd><a href={receipt}>Receipt</a></dd>}
         </dl>
       )}
-
-      <div class="hud-bl">
-        <Controls id="snd" variant="hud" {...music} />
-      </div>
     </div>
   </div>
 

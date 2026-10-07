@@ -1,4 +1,12 @@
 ---
+/**
+ * The project deck: three cards floating in perspective, each with its own
+ * procedural 3D scene on top (RelayIQ: the gate; Foreman: the staffing
+ * agency; tell: the signal field). The scenes are three.js, loaded when the
+ * deck nears the viewport and only on hardware WebGL; the SVG in each stage
+ * is the drawing before that and wherever WebGL is missing. Cards with a
+ * link are the link. tell has none and says so in plain text.
+ */
 import type { CollectionEntry } from 'astro:content';
 import Mark from './Mark.astro';
 
@@ -6,14 +14,9 @@ interface Props {
   projects: CollectionEntry<'projects'>[];
 }
 const { projects } = Astro.props;
-
-/** What the card says under the tagline. The featured project points up. */
-function blurb(p: CollectionEntry<'projects'>): string {
-  if (p.data.kind === 'featured') {
-    return `${p.data.credit ? `${p.data.credit}. ` : ''}The receipts and the engineering tour are above.`;
-  }
-  return p.data.summary;
-}
+const n = projects.length;
+const count = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'][n] ?? String(n);
+const unlinked = projects.filter((p) => p.data.links.length === 0).map((p) => p.data.title);
 ---
 
 <section class="sec proj" id="projects" aria-labelledby="h-proj">
@@ -21,12 +24,15 @@ function blurb(p: CollectionEntry<'projects'>): string {
     <div class="grid">
       <p class="lab mono">Projects</p>
       <div>
-        <h2 id="h-proj" class="rv">Four projects<span class="dot">.</span></h2>
-        <p class="lead rv">Cards with a link open the repo or the site. tell gets one when it is public.</p>
+        <h2 id="h-proj" class="rv">{count} projects<span class="dot">.</span></h2>
+        <p class="lead rv">
+          Cards with a link open the repo.
+          {unlinked.length > 0 && ` ${unlinked.join(' and ')} ${unlinked.length > 1 ? 'are' : 'is'} open source soon.`}
+        </p>
       </div>
     </div>
 
-    <div class="deck" id="deck">
+    <div class="deck" id="deck" data-n={n}>
       <canvas id="deck-gl" aria-hidden="true"></canvas>
       <ul class="cards" id="cards">
         {projects.map((p, i) => {
@@ -35,11 +41,15 @@ function blurb(p: CollectionEntry<'projects'>): string {
           return (
             <li class:list={['slot', `s${i}`, { linked: Boolean(primary) }]}>
               <Tag class="card" href={primary?.href}>
-                <Mark id={p.id} />
+                <span class="stage" data-scene={p.id} id={`scene-${p.id}`}>
+                  <Mark id={p.id} />
+                  <canvas id={`scene-${p.id}-gl`} aria-hidden="true"></canvas>
+                </span>
+                {p.data.caption && <span class="cap mono">{p.data.caption}</span>}
                 <h3>{p.data.title}</h3>
                 <span class="sp mono">{p.data.tagline}</span>
                 <p>
-                  {blurb(p)}
+                  {p.data.summary}
                   {p.data.note && <span class="note">{p.data.note}</span>}
                 </p>
                 {primary && (

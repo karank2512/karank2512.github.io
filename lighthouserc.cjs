@@ -26,9 +26,11 @@ module.exports = {
         'resource-summary:font:size': ['error', { maxNumericValue: 163840 }],
         // Script: the one page script (controls, offscreen pause, tour
         // scroll, lazy scene imports). The three.js scene chunks (about
-        // 540 KB) load only on hardware WebGL, after idle or on approach;
-        // headless Chrome here has a software rasterizer, which the page
-        // treats as no WebGL, so they are outside this run on purpose.
+        // 540 KB shared three.js plus a few KB per scene: hero, tour,
+        // turntable, deck backdrop, gate, agency, field) load only on
+        // hardware WebGL, after idle or on approach; headless Chrome here
+        // has a software rasterizer, which the page treats as no WebGL, so
+        // they are outside this run on purpose.
         'resource-summary:script:size': ['error', { maxNumericValue: 12288 }],
         'resource-summary:total:size': ['error', { maxNumericValue: 614400 }],
         'resource-summary:third-party:count': ['error', { maxNumericValue: 0 }],

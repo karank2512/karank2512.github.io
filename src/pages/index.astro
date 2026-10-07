@@ -3,9 +3,9 @@ import { getCollection, getEntry } from 'astro:content';
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
-import Featured from '../components/Featured.astro';
-import Projects from '../components/Projects.astro';
 import Experience from '../components/Experience.astro';
+import Projects from '../components/Projects.astro';
+import Leadership from '../components/Leadership.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
 
@@ -15,27 +15,47 @@ if (!profile) throw new Error('src/content/profile/main.json is missing');
 const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
 const featured = projects.find((p) => p.data.kind === 'featured');
 if (!featured) throw new Error('No featured project. Set "kind": "featured" on one project.');
+// The cards: every project that is not folded into the experience entry.
+const cards = projects.filter((p) => p.data.kind !== 'featured');
 
 // The hero HUD shows only receipted numbers, read from the featured project.
 const metric = (no: string) => featured.data.metrics.find((m) => m.no === no);
 const fork = metric('A1');
 const restores = [metric('A2'), metric('A3')].filter((m): m is NonNullable<typeof m> => Boolean(m));
 
+// thaw is the first and featured experience entry; the role that names it
+// carries the project's tagline, summary, credit, links, tour and receipts.
 const roles = (await getCollection('experience')).sort((a, b) => a.data.order - b.data.order);
+const lead = roles.find((r) => r.data.project);
+if (!lead) throw new Error('No experience entry sets "project". The featured project needs a home.');
+if (lead.data.project !== featured.id) {
+  throw new Error(`Experience entry ${lead.id} points at project "${lead.data.project}", but the featured project is "${featured.id}".`);
+}
+
+// Leadership ships empty until entries arrive; the section and its nav link
+// render only when there is at least one.
+const leadership = (await getCollection('leadership')).sort((a, b) => a.id.localeCompare(b.id));
 
 const { name, tagline, intro, education, contact, music, photo } = profile.data;
 const title = `${name}. Engineer, co-founder of thaw.`;
 const description =
   'Karan Kapur co-founded thaw, open-source LLM inference infrastructure in Rust and CUDA, and owns its cloud storage layer. Looking for founding engineer, forward deployed or GTM engineering roles at AI startups.';
+
+const sections = [
+  { href: '#experience', label: 'Experience' },
+  { href: '#projects', label: 'Projects' },
+  ...(leadership.length > 0 ? [{ href: '#leadership', label: 'Leadership' }] : []),
+  { href: '#contact', label: 'Contact' },
+];
 ---
 
 <Base title={title} description={description}>
-  <Header name={name} />
+  <Header name={name} sections={sections} />
   <main id="main">
     <Hero name={name} tagline={tagline} intro={intro} email={contact.email} music={music} fork={fork} restores={restores} />
-    <Featured project={featured} />
-    <Projects projects={projects} />
-    <Experience roles={roles} education={education} photo={photo} />
+    <Experience roles={roles} featured={featured} education={education} photo={photo} />
+    <Projects projects={cards} />
+    {leadership.length > 0 && <Leadership entries={leadership} />}
     <Contact {...contact} />
   </main>
   <Footer />

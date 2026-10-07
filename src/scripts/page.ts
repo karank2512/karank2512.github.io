@@ -8,9 +8,10 @@ import { hasWebGL, near, reducedMotion, whenIdle } from '../scenes/boot';
 
 const reduced = reducedMotion();
 const byId = <T extends HTMLElement>(id: string): T | null => document.getElementById(id) as T | null;
+const onHide = (fn: () => void): void => window.addEventListener('pagehide', fn, { once: true });
 
 // 1. Pause the looping CSS animations in the hero (background field, sound
-//    bars) when the hero is off screen or the tab is hidden.
+//    bars, the fallback disc) when the hero is off screen or the tab is hidden.
 const hero = byId('hero');
 if (hero) {
   let offscreen = false;
@@ -35,19 +36,22 @@ if (forkButton) {
   });
 }
 
-// 3. Sound. Two buttons (HUD and touch) share one state. The iframe exists
-//    only while sound is on; removing it is the only reliable way to stop
-//    the audio. Once the strip has opened, bring the player into view.
+// 3. Sound. Two buttons (turntable and touch) share one state. The iframe
+//    exists only while sound is on; removing it is the only reliable way to
+//    stop the audio. Once the strip has opened, bring the player into view.
+//    The turntable scene, if loaded, follows the same state.
 const sndButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('button.snd'));
 const slot = byId('emb');
 const sleeve = byId('sleeve');
+let soundOn = false;
+let vinyl: { setPlaying(on: boolean): void } | null = null;
 if (sndButtons.length > 0 && slot) {
-  let on = false;
   const setSound = (next: boolean): void => {
-    on = next;
-    for (const b of sndButtons) b.setAttribute('aria-pressed', String(on));
-    document.body.classList.toggle('on', on);
-    if (!on) {
+    soundOn = next;
+    for (const b of sndButtons) b.setAttribute('aria-pressed', String(soundOn));
+    document.body.classList.toggle('on', soundOn);
+    vinyl?.setPlaying(soundOn);
+    if (!soundOn) {
       slot.replaceChildren();
       return;
     }
@@ -61,18 +65,20 @@ if (sndButtons.length > 0 && slot) {
     frame.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
     slot.replaceChildren(frame);
   };
-  for (const b of sndButtons) b.addEventListener('click', () => setSound(!on));
+  for (const b of sndButtons) b.addEventListener('click', () => setSound(!soundOn));
   sleeve?.addEventListener('transitionend', (e) => {
-    if (on && e.target === sleeve) sleeve.scrollIntoView({ block: 'nearest' });
+    if (soundOn && e.target === sleeve) sleeve.scrollIntoView({ block: 'nearest' });
   });
 }
 
-// 4. The tour: scroll position picks the caption and, once the scene is
-//    there, the camera view. Native scrolling, nothing is hijacked.
+// 4. The tour, inside the thaw entry's disclosure: scroll position picks the
+//    caption and, once the scene is there, the camera view. Native
+//    scrolling, nothing is hijacked. Opening the disclosure recomputes.
 const tour = byId('tour');
 const stick = byId('tour-stick');
 const tourStage = byId('tour-stage');
 const tourCanvas = byId<HTMLCanvasElement>('tour-gl');
+const tourMore = byId<HTMLDetailsElement>('tour-more');
 const caps = Array.from(document.querySelectorAll<HTMLElement>('#tour-caps .cap'));
 let tourScene: { setProgress(p: number): void } | null = null;
 let tourUpdate: (() => void) | null = null;
@@ -104,13 +110,14 @@ if (tour && stick && caps.length > 0 && !reduced) {
   };
   addEventListener('scroll', onScroll, { passive: true });
   addEventListener('resize', onScroll);
+  tourMore?.addEventListener('toggle', onScroll);
   tourUpdate();
 }
 
 // 5. The scenes. One WebGL probe for the page; software rasterizers count as
 //    no WebGL and keep the static drawings. Every scene chunk is imported
-//    only when its stage is near the viewport. The hero also waits for an
-//    idle moment so three.js never competes with first paint.
+//    only when its stage is near the viewport. The hero and the turntable
+//    also wait for an idle moment so three.js never competes with first paint.
 const gl = hasWebGL();
 const stage = byId('stage');
 const heroCanvas = byId<HTMLCanvasElement>('hero-gl');
@@ -125,7 +132,28 @@ if (gl && stage && heroCanvas) {
         reduced,
         onFirstFrame: () => stage.classList.add('is-3d'),
       });
-      window.addEventListener('pagehide', () => scene.dispose(), { once: true });
+      onHide(() => scene.dispose());
+    }),
+  );
+}
+
+// The turntable lives in the sound control for fine pointers; on touch and
+// narrow screens that button is display: none and never nears the viewport.
+const vinylStage = byId('vinyl-stage');
+const vinylCanvas = byId<HTMLCanvasElement>('vinyl-gl');
+if (gl && vinylStage && vinylCanvas) {
+  near(vinylStage, () =>
+    whenIdle(async () => {
+      const { mountVinyl } = await import('../scenes/vinyl');
+      const scene = mountVinyl({
+        canvas: vinylCanvas,
+        stage: vinylStage,
+        reduced,
+        playing: soundOn,
+        onFirstFrame: () => vinylStage.classList.add('is-3d'),
+      });
+      vinyl = scene;
+      onHide(() => scene.dispose());
     }),
   );
 }
@@ -141,13 +169,14 @@ if (gl && tour && tourStage && tourCanvas) {
     });
     tourScene = handle;
     tourUpdate?.();
-    window.addEventListener('pagehide', () => handle.dispose(), { once: true });
+    onHide(() => handle.dispose());
   });
 }
 
-// The cards are HTML and already laid out by CSS. Near the viewport, the
-// small motion module takes over (drift, tilt, lift); with WebGL, the
-// backdrop chunk draws the floor and a wire frame around each card.
+// The project cards are HTML and already laid out by CSS. Near the viewport,
+// the small motion module takes over (drift, tilt, lift); with WebGL, the
+// backdrop chunk draws the floor and a wire frame around each card, and each
+// card's stage gets its own scene.
 const deck = byId('deck');
 const deckCanvas = byId<HTMLCanvasElement>('deck-gl');
 if (deck) {
@@ -162,13 +191,33 @@ if (deck) {
       backdrop = mountCardsGl(deckCanvas, state);
       deckCanvas.classList.add('on');
     }
-    window.addEventListener(
-      'pagehide',
-      () => {
-        backdrop?.dispose();
-        state.dispose();
-      },
-      { once: true },
-    );
+    onHide(() => {
+      backdrop?.dispose();
+      state.dispose();
+    });
   });
+}
+
+const sceneLoaders: Record<string, () => Promise<{ mount: (o: SceneOpts) => { dispose(): void } }>> = {
+  relayiq: () => import('../scenes/gate'),
+  foreman: () => import('../scenes/agency'),
+  tell: () => import('../scenes/field'),
+};
+interface SceneOpts {
+  canvas: HTMLCanvasElement;
+  stage: HTMLElement;
+  reduced: boolean;
+  onFirstFrame: () => void;
+}
+if (gl) {
+  for (const cardStage of Array.from(document.querySelectorAll<HTMLElement>('.card .stage[data-scene]'))) {
+    const load = sceneLoaders[cardStage.dataset.scene ?? ''];
+    const canvas = cardStage.querySelector('canvas');
+    if (!load || !canvas) continue;
+    near(cardStage, async () => {
+      const { mount } = await load();
+      const scene = mount({ canvas, stage: cardStage, reduced, onFirstFrame: () => cardStage.classList.add('is-3d') });
+      onHide(() => scene.dispose());
+    });
+  }
 }

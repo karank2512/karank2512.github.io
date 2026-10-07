@@ -4,6 +4,7 @@
   "order": 3,
   "tagline": "Buying-signals pipeline",
   "summary": "Ingests public buying signals, normalizes them, and hands clean events to whatever sits downstream. GTM plumbing, built the way infra should be.",
-  "note": "Not public yet. A link lands here when it is.",
+  "note": "Open source soon.",
+  "caption": "Public events, job posts, filings and news, converge into a ranked account list.",
   "links": []
 }

@@ -15,7 +15,7 @@ const link = z.object({
  * printed as a small caption next to the value.
  */
 const metric = z.object({
-  /** Vinyl-style track number, e.g. "A1". Purely presentational. */
+  /** Row number, e.g. "A1". Purely presentational. */
   no: z.string().regex(/^[A-Z]\d$/),
   label: z.string().min(1),
   value: z.string().min(1),
@@ -28,15 +28,20 @@ const projects = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/projects' }),
   schema: z.object({
     title: z.string().min(1),
-    /** "featured" renders as the liner-notes section; "crate" as a sleeve. */
+    /**
+     * "featured" is the project folded into the first experience entry (thaw:
+     * tour and receipts). "crate" is a project card with its own 3D scene.
+     */
     kind: z.enum(['featured', 'crate']),
     order: z.number().int().nonnegative(),
-    /** One-line descriptor shown under the title on a sleeve. */
+    /** One-line descriptor shown under the title on a card. */
     tagline: z.string().min(1),
     /** One or two sentences. */
     summary: z.string().min(1),
-    /** Short italic note under the summary. */
+    /** Short note under the summary. For an unreleased project, the release line. */
     note: z.string().optional(),
+    /** One mono line under the card's 3D scene, saying what the scene shows. */
+    caption: z.string().optional(),
     /** Who it was built with, if anyone. */
     credit: z.string().optional(),
     /** Empty when the code is not public yet. */
@@ -57,6 +62,29 @@ const experience = defineCollection({
     start: z.string().min(1),
     end: z.string().min(1),
     /** One sentence. Numbers here need a receipt too; prefer none. */
+    line: z.string().min(1),
+    /**
+     * Id of a project in `projects` to fold into this entry as the featured
+     * one (its tagline, summary, credit, links, engineering tour and
+     * receipts). At most one entry sets this; it renders first.
+     */
+    project: z.string().min(1).optional(),
+  }),
+});
+
+/**
+ * Leadership entries. The section and its nav link render only when this
+ * collection has at least one file; ship it empty rather than invent one.
+ * Files render in file-name order, so prefix them (01-, 02-).
+ */
+const leadership = defineCollection({
+  loader: glob({ pattern: '**/*.json', base: './src/content/leadership' }),
+  schema: z.object({
+    role: z.string().min(1),
+    org: z.string().min(1),
+    start: z.string().min(1),
+    end: z.string().min(1),
+    /** One sentence. Numbers here need a receipt; prefer none. */
     line: z.string().min(1),
   }),
 });
@@ -92,4 +120,4 @@ const profile = defineCollection({
   }),
 });
 
-export const collections = { projects, experience, profile };
+export const collections = { projects, experience, leadership, profile };

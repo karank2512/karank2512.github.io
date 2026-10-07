@@ -1,12 +1,20 @@
 ---
+/**
+ * Experience. The first entry is thaw, featured: it carries the project's
+ * tagline, summary, credit line and links, and holds the engineering tour
+ * and the receipts list behind a disclosure (see Featured.astro). The other
+ * roles follow as compact rows on the same rail.
+ */
 import type { CollectionEntry } from 'astro:content';
+import Featured from './Featured.astro';
 
 interface Props {
   roles: CollectionEntry<'experience'>[];
+  featured: CollectionEntry<'projects'>;
   education: string;
   photo: { src: string; alt: string; width: number; height: number };
 }
-const { roles, education, photo } = Astro.props;
+const { roles, featured, education, photo } = Astro.props;
 ---
 
 <section class="sec exp" id="experience" aria-labelledby="h-exp">
@@ -19,17 +27,21 @@ const { roles, education, photo } = Astro.props;
     <div>
       <h2 id="h-exp" class="rv">Background<span class="dot">.</span></h2>
       <ol class="roles">
-        {roles.map((r) => (
-          <li class="rv">
-            <span class="mk" aria-hidden="true"></span>
-            <span class="r">
-              {r.data.role}
-              <span class="o">{r.data.org}, {r.data.location}</span>
-            </span>
-            <span class="w mono">{r.data.start} to {r.data.end}</span>
-            <span class="ln">{r.data.line}</span>
-          </li>
-        ))}
+        {roles.map((r) =>
+          r.data.project ? (
+            <Featured role={r} project={featured} />
+          ) : (
+            <li class="rv">
+              <span class="mk" aria-hidden="true"></span>
+              <span class="r">
+                {r.data.role}
+                <span class="o">{r.data.org}, {r.data.location}</span>
+              </span>
+              <span class="w mono">{r.data.start} to {r.data.end}</span>
+              <span class="ln">{r.data.line}</span>
+            </li>
+          ),
+        )}
       </ol>
     </div>
   </div>

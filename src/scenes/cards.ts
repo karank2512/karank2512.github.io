@@ -50,42 +50,49 @@ export interface DeckState {
 export const PERSPECTIVE = 1200;
 const RX = [4, -5, 6, -4];
 const RY = [-9, 7, -6, 10];
-const DY = [-36, 44, -28, 36];
-const DZ = [-60, 30, -40, 50];
+const DY = [-20, 24, -12, 20];
+const DZ = [-40, 20, -60, 30];
+/** Card height before the cards are measured; the CSS default for --ch. */
+export const CH_DEFAULT = 470;
 
-export function layoutFor(w: number, n: number): Layout {
+/**
+ * Resting slots for n cards of height ch in a deck w wide (the deck is the
+ * viewport less the gutters, so 800 here is about the 899px CSS breakpoint
+ * and 540 about the 599px one): one row, two columns (an odd last card
+ * centred), or one column. The slot x/y are offsets from the deck centre.
+ */
+export function layoutFor(w: number, n: number, ch: number): Layout {
   const slots: Slot[] = [];
-  if (w >= 960) {
-    const cw = Math.max(220, Math.min(290, (w - 72) / n));
-    const ch = 236;
-    const gap = Math.min(300, (w - cw) / Math.max(1, n - 1));
+  if (w >= 800) {
+    const cw = Math.max(250, Math.min(320, (w - 40 * (n - 1)) / n));
+    const gap = n > 1 ? Math.min(cw + 140, (w - cw) / (n - 1)) : 0;
     for (let i = 0; i < n; i++) {
       slots.push({ x: (i - (n - 1) / 2) * gap, y: DY[i] ?? 0, z: DZ[i] ?? 0, rx: RX[i] ?? 0, ry: RY[i] ?? 0 });
     }
-    return { slots, cw, ch, height: 520 };
+    return { slots, cw, ch, height: ch + 120 };
   }
-  if (w >= 640) {
-    const cw = Math.min(290, (w - 60) / 2);
-    const ch = 236;
+  if (w >= 540) {
+    const cw = Math.min(320, (w - 40) / 2);
+    const rows = Math.ceil(n / 2);
     for (let i = 0; i < n; i++) {
       const col = i % 2;
       const row = Math.floor(i / 2);
+      const alone = row === rows - 1 && n % 2 === 1;
       slots.push({
-        x: (col - 0.5) * (cw + 36),
-        y: (row - 0.5) * (ch + 48) + (DY[i] ?? 0) * 0.4,
+        x: alone ? 0 : (col - 0.5) * (cw + 40),
+        y: (row - (rows - 1) / 2) * (ch + 48) + (DY[i] ?? 0) * 0.4,
         z: DZ[i] ?? 0,
         rx: RX[i] ?? 0,
         ry: RY[i] ?? 0,
       });
     }
-    return { slots, cw, ch, height: ch * 2 + 160 };
+    return { slots, cw, ch, height: rows * ch + (rows - 1) * 48 + 100 };
   }
-  const cw = Math.min(300, w - 24);
-  const ch = 236;
+  const cw = Math.min(320, w - 24);
   for (let i = 0; i < n; i++) {
-    slots.push({ x: (i % 2 ? 10 : -10), y: (i - (n - 1) / 2) * (ch + 30), z: DZ[i] ?? 0, rx: (RX[i] ?? 0) * 0.6, ry: (RY[i] ?? 0) * 0.6 });
+    slots.push({ x: i % 2 ? 8 : -8, y: (i - (n - 1) / 2) * (ch + 32), z: DZ[i] ?? 0, rx: (RX[i] ?? 0) * 0.6, ry: (RY[i] ?? 0) * 0.6 });
   }
-  return { slots, cw, ch, height: n * ch + (n - 1) * 30 + 80 };
+  return { slots, cw, ch, height: n * ch + (n - 1) * 32 + 80 };
 }
 
 export function mountCards(deck: HTMLElement, cardEls: HTMLElement[], reduced: boolean): DeckState {
@@ -105,7 +112,7 @@ export function mountCards(deck: HTMLElement, cardEls: HTMLElement[], reduced: b
   const state: DeckState = {
     deck,
     cards,
-    layout: layoutFor(deck.clientWidth, cards.length),
+    layout: layoutFor(deck.clientWidth, cards.length, CH_DEFAULT),
     perspective: PERSPECTIVE,
     pointer: { x: 0, y: 0, inside: false },
     reduced,
@@ -118,14 +125,33 @@ export function mountCards(deck: HTMLElement, cardEls: HTMLElement[], reduced: b
     c.el.style.transform = `translate3d(${c.x.toFixed(1)}px, ${c.y.toFixed(1)}px, ${(c.z + c.lift).toFixed(1)}px) rotateX(${(c.rx + c.tx).toFixed(2)}deg) rotateY(${(c.ry + c.ty).toFixed(2)}deg)`;
   }
 
+  /**
+   * The tallest card's natural height at the current width, so no card
+   * clips its copy. offsetHeight ignores the 3D transform.
+   */
+  function measure(cw: number): number {
+    deck.style.setProperty('--cw', `${cw}px`);
+    for (const c of cards) c.el.style.height = 'auto';
+    let h = 0;
+    for (const c of cards) h = Math.max(h, (c.el.firstElementChild as HTMLElement | null)?.offsetHeight ?? 0);
+    for (const c of cards) c.el.style.height = '';
+    return Math.max(300, Math.ceil(h) + 2);
+  }
+
   function applyLayout(): void {
-    state.layout = layoutFor(deck.clientWidth, cards.length);
+    const w = deck.clientWidth;
+    const probe = layoutFor(w, cards.length, CH_DEFAULT);
+    state.layout = layoutFor(w, cards.length, measure(probe.cw));
     deck.style.setProperty('--cw', `${state.layout.cw}px`);
     deck.style.setProperty('--ch', `${state.layout.ch}px`);
     deck.style.height = `${state.layout.height}px`;
     cards.forEach((c, i) => {
       const s = state.layout.slots[i];
       if (!s) return;
+      // the CSS resting rules place slots by left/top per breakpoint; from
+      // here on every slot hangs from the deck centre and moves by transform
+      c.el.style.left = '50%';
+      c.el.style.top = '50%';
       c.x = s.x;
       c.y = s.y;
       c.z = s.z;
