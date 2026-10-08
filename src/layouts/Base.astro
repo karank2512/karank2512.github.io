@@ -13,9 +13,11 @@ import bricolage from '../assets/fonts/bricolage-grotesque-latin-400-700.woff2?u
 interface Props {
   title: string;
   description: string;
+  /** The 404 page: no canonical URL, and keep it out of search indexes. */
+  notFound?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, notFound = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 const og = new URL('/og-image.png', Astro.site);
 ---
@@ -27,7 +29,7 @@ const og = new URL('/og-image.png', Astro.site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href={canonical} />
+    {notFound ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     <link rel="preload" href={bricolage} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="theme-color" content="#17130f" />
@@ -35,7 +37,7 @@ const og = new URL('/og-image.png', Astro.site);
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
+    {!notFound && <meta property="og:url" content={canonical} />}
     <meta property="og:image" content={og} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
