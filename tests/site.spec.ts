@@ -181,17 +181,20 @@ test.describe('home page', () => {
     test.skip(testInfo.project.name !== 'mobile-390', 'phone layout only');
     await page.goto('/');
     await page.waitForLoadState('networkidle');
-    // The phone project emulates touch, where the turntable is hidden.
+    // The phone project emulates touch, where the turntable is a strip under the buttons.
     expect(await page.evaluate(() => matchMedia('(pointer: coarse)').matches)).toBe(true);
     // Let the hero entrance finish so the boxes are at rest.
     await page.evaluate(() =>
       Promise.all(
-        (document.querySelector('.acts')?.getAnimations({ subtree: true }) ?? []).map((a) => a.finished),
+        (document.querySelector('.acts')?.getAnimations({ subtree: true }) ?? [])
+          // the turntable disc spins forever; only wait for the entrance
+          .filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity)
+          .map((a) => a.finished),
       ),
     );
     const viewport = page.viewportSize();
     expect(viewport).toEqual({ width: 390, height: 844 });
-    await expect(page.locator('#vinyl-stage')).toBeHidden();
+    await expect(page.locator('#vinyl-stage')).toBeVisible();
     const link = playlistLink(page);
     const contact = page.getByRole('link', { name: 'Contact me' });
     const [lb, cb] = await Promise.all([link.boundingBox(), contact.boundingBox()]);
