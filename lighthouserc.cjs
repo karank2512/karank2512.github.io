@@ -33,7 +33,7 @@ module.exports = {
         'cumulative-layout-shift': ['error', { maxNumericValue: 0.02 }],
         'total-blocking-time': ['error', { maxNumericValue: 100 }],
         // Bytes, transfer size.
-        // Fonts: Bricolage Grotesque variable (131,312) plus DM Mono latin 400
+        // Fonts: Bricolage Grotesque variable, wght 400-700 and subset (75,516), plus DM Mono latin 400
         // and 500 (14,820 and 14,988). The latin-ext files load only for
         // characters the page does not use.
         'resource-summary:font:size': ['error', { maxNumericValue: 163840 }],
