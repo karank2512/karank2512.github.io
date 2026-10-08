@@ -1,7 +1,5 @@
 ---
 import '../styles/fonts.css';
-import '@fontsource/dm-mono/400.css';
-import '@fontsource/dm-mono/500.css';
 import '../styles/global.css';
 // The display face, preloaded: the stylesheet is inlined into the page, so
 // without this hint the browser would only find the font once it has run
@@ -11,8 +9,6 @@ import '../styles/global.css';
 // weights the hero uses are preloaded too: left to normal discovery they
 // started about 100 ms after the display font and held back the largest paint.
 import bricolage from '../assets/fonts/bricolage-grotesque-latin-400-700.woff2?url';
-import mono400 from '@fontsource/dm-mono/files/dm-mono-latin-400-normal.woff2?url';
-import mono500 from '@fontsource/dm-mono/files/dm-mono-latin-500-normal.woff2?url';
 
 interface Props {
   title: string;
@@ -33,8 +29,6 @@ const og = new URL('/og-image.png', Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="preload" href={bricolage} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={mono400} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={mono500} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta name="theme-color" content="#17130f" />
     <meta name="color-scheme" content="dark" />
