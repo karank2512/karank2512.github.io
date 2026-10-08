@@ -34,6 +34,17 @@ test.describe('home page', () => {
   test('has no serious or critical axe violations', async ({ page }, testInfo) => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
+    // Entrance animations fade text in; axe samples blended colours mid-fade and
+    // reports false contrast failures. Wait for every finite animation to settle
+    // so it measures the real, final colours. Infinite loops (drift, spin) and scroll-driven reveals (they only finish on scroll) are skipped.
+    await page.evaluate(() =>
+      Promise.all(
+        document
+          .getAnimations()
+          .filter((a) => a.timeline instanceof DocumentTimeline && a.effect && a.effect.getComputedTiming().iterations !== Infinity)
+          .map((a) => a.finished.catch(() => undefined)),
+      ),
+    );
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'])
       .analyze();
