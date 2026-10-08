@@ -106,26 +106,16 @@ const profile = defineCollection({
       resume: z.string().startsWith('/'),
     }),
     /**
-     * The sound control. `tracks` play in order through the SoundCloud
-     * widget, first to last, then round again; each needs the public track
-     * page on soundcloud.com, which the now-playing line links to (the
-     * widget's own metadata replaces title and artist once it has loaded).
-     * `playlist` is the plain link to the Spotify playlist under the player.
+     * The only thing about music on the site: the plain link beside
+     * "Contact me" to the Spotify playlist, worded as the songs he is
+     * listening to lately (DECISIONS.md, "Music, superseded"). No audio
+     * plays on the site.
      */
     music: z.object({
       playlist: z.object({
         label: z.string().min(1),
         url: url,
       }),
-      tracks: z
-        .array(
-          z.object({
-            title: z.string().min(1),
-            artist: z.string().min(1),
-            url: z.string().url().startsWith('https://soundcloud.com/'),
-          }),
-        )
-        .min(1),
     }),
     /**
      * The headshot's alt text. The file itself is src/assets/pro-headshot.jpg,

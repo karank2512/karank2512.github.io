@@ -1,19 +1,18 @@
 /**
  * The page script, the only JavaScript that loads with the page. It toggles
- * classes, runs the sound control (the SoundCloud widget, created on the
- * first press), drives the tour captions from scroll, and imports a scene
- * chunk when its canvas nears the viewport. three.js is never imported here;
- * it arrives with the scene chunks.
+ * classes, runs the fork control, drives the tour captions from scroll, and
+ * imports a scene chunk when its canvas nears the viewport. three.js is
+ * never imported here; it arrives with the scene chunks. Nothing here, or
+ * anywhere on the page, loads a third-party script or iframe.
  */
 import { hasWebGL, near, reducedMotion, whenIdle } from '../scenes/boot';
-import { mountSound, type Track } from './sound';
 
 const reduced = reducedMotion();
 const byId = <T extends HTMLElement>(id: string): T | null => document.getElementById(id) as T | null;
 const onHide = (fn: () => void): void => window.addEventListener('pagehide', fn, { once: true });
 
-// 1. Pause the looping CSS animations in the hero (background field, sound
-//    bars, the fallback disc) when the hero is off screen or the tab is hidden.
+// 1. Pause the looping CSS animations in the hero (the background field, the
+//    turntable's fallback disc) when the hero is off screen or the tab is hidden.
 const hero = byId('hero');
 if (hero) {
   let offscreen = false;
@@ -38,44 +37,7 @@ if (forkButton) {
   });
 }
 
-// 3. Sound. Two buttons (turntable and touch) share one state, kept by the
-//    sound module: the SoundCloud widget iframe is created on the first
-//    press, Previous and Next move through the tracks, and the turntable
-//    scene, if loaded, follows the widget's real play and pause events.
-//    Once the strip has opened, bring the player into view.
-const sndButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('button.snd'));
-const widgetMount = byId('widget');
-const npLine = byId('np');
-const sleeve = byId('sleeve');
-let soundPlaying = false;
-let vinyl: { setPlaying(on: boolean): void } | null = null;
-if (sndButtons.length > 0 && widgetMount && npLine) {
-  let tracks: Track[] = [];
-  try {
-    tracks = JSON.parse(byId('snd-tracks')?.textContent ?? '[]') as Track[];
-  } catch {
-    tracks = [];
-  }
-  if (tracks.length > 0) {
-    mountSound({
-      buttons: sndButtons,
-      prev: byId<HTMLButtonElement>('snd-prev'),
-      next: byId<HTMLButtonElement>('snd-next'),
-      mount: widgetMount,
-      line: npLine,
-      tracks,
-      onPlaying: (on) => {
-        soundPlaying = on;
-        vinyl?.setPlaying(on);
-      },
-    });
-    sleeve?.addEventListener('transitionend', (e) => {
-      if (document.body.classList.contains('on') && e.target === sleeve) sleeve.scrollIntoView({ block: 'nearest' });
-    });
-  }
-}
-
-// 4. The tour, inside the thaw entry's disclosure: scroll position picks the
+// 3. The tour, inside the thaw entry's disclosure: scroll position picks the
 //    caption and, once the scene is there, the camera view. Native
 //    scrolling, nothing is hijacked. Opening the disclosure recomputes.
 const tour = byId('tour');
@@ -118,7 +80,7 @@ if (tour && stick && caps.length > 0 && !reduced) {
   tourUpdate();
 }
 
-// 5. The scenes. One WebGL probe for the page, taken lazily: creating a
+// 4. The scenes. One WebGL probe for the page, taken lazily: creating a
 //    WebGL context costs tens of milliseconds of main thread (the GPU process
 //    has to answer), and this script runs before the first paint, so the
 //    probe waits until the first stage asks for a scene, which is the hero
@@ -150,8 +112,9 @@ if (stage && heroCanvas) {
   );
 }
 
-// The turntable lives in the sound control for fine pointers; on touch and
-// narrow screens that button is display: none and never nears the viewport.
+// The turntable after the hero's buttons is decoration, shown on wide screens
+// with a fine pointer; on touch and narrow screens it is display: none and
+// never nears the viewport, so its chunk is never fetched.
 const vinylStage = byId('vinyl-stage');
 const vinylCanvas = byId<HTMLCanvasElement>('vinyl-gl');
 if (vinylStage && vinylCanvas) {
@@ -163,10 +126,8 @@ if (vinylStage && vinylCanvas) {
         canvas: vinylCanvas,
         stage: vinylStage,
         reduced,
-        playing: soundPlaying,
         onFirstFrame: () => vinylStage.classList.add('is-3d'),
       });
-      vinyl = scene;
       onHide(() => scene.dispose());
     }),
   );

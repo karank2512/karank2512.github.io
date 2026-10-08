@@ -1,7 +1,7 @@
 ---
 import { Image } from 'astro:assets';
-import Controls from './Controls.astro';
 import LatticeSvg from './LatticeSvg.astro';
+import Vinyl from './Vinyl.astro';
 // The headshot. A 300 x 400 JPEG; the image pipeline resizes it to the
 // displayed size at 1x and 2x and writes webp files with their own name.
 import headshot from '../assets/pro-headshot.jpg';
@@ -20,9 +20,9 @@ interface Props {
   intro: string[];
   email: string;
   photo: { alt: string };
+  /** The one plain link about music: the Spotify playlist, label and URL. */
   music: {
     playlist: { label: string; url: string };
-    tracks: Array<{ title: string; artist: string; url: string }>;
   };
   /** The median fork metric (A1 in thaw.json). */
   fork: Metric | undefined;
@@ -33,8 +33,6 @@ const { name, tagline, intro, email, photo, music, fork, restores } = Astro.prop
 const [given, ...rest] = name.split(' ');
 const last = rest.join(' ');
 const receipt = restores[0]?.source;
-const first = music.tracks[0];
-if (!first) throw new Error('profile music.tracks is empty');
 
 /** Link the first mention of thaw and RelayIQ without changing the approved words. */
 function linkify(text: string): string {
@@ -77,14 +75,13 @@ function linkify(text: string): string {
         <ul class="intro">
           {intro.map((line) => <li set:html={linkify(line)} />)}
         </ul>
-        <!-- Contact me and Press play share one row. The turntable control
-             is for fine pointers on wide screens; the plain button takes
-             over on touch and at 820px and below. Both are in the DOM and
-             the page script keeps their state in step. -->
+        <!-- Contact me and the playlist link share one row; the link opens
+             in a new tab. After them, on wide screens with a fine pointer,
+             the turntable: decoration only, it plays nothing. -->
         <div class="acts">
           <a class="cta" href={`mailto:${email}`}>Contact me</a>
-          <Controls id="snd" variant="desk" />
-          <Controls id="snd-touch" variant="touch" />
+          <a class="playlist" href={music.playlist.url} target="_blank" rel="noopener">{music.playlist.label}</a>
+          <Vinyl />
         </div>
       </div>
       <div class="room" aria-hidden="true"></div>
@@ -124,34 +121,5 @@ function linkify(text: string): string {
         </dl>
       )}
     </div>
-  </div>
-
-  <!-- The player strip. Closed, and out of the tab order, until play is
-       pressed. Then: the now-playing line (title, artist, and a link to the
-       track on SoundCloud, which is the credit SoundCloud asks for),
-       Previous and Next, and the plain link to the Spotify playlist. The
-       one widget iframe is created by the page script inside the first
-       press and lives in #widget, present but hidden and inert; the four
-       tracks are listed in #snd-tracks for the script, first track first. -->
-  <div class="wrap">
-    <div id="sleeve">
-      <div>
-        <div class="in" id="player">
-          <p class="np mono" id="np" aria-live="polite">
-            <span class="np-state">Loading</span>:
-            <span class="np-title">{first.title}</span>,
-            <span class="np-artist">{first.artist}</span>.
-            <a class="np-link" href={first.url} rel="noopener">On SoundCloud</a>
-          </p>
-          <div class="skip-btns">
-            <button class="skip-btn" id="snd-prev" type="button">Previous</button>
-            <button class="skip-btn" id="snd-next" type="button">Next</button>
-          </div>
-          <p class="pl-link"><a href={music.playlist.url} rel="noopener">{music.playlist.label}</a></p>
-          <div class="widget" id="widget" inert></div>
-        </div>
-      </div>
-    </div>
-    <script is:inline type="application/json" id="snd-tracks" set:html={JSON.stringify(music.tracks)}></script>
   </div>
 </section>
