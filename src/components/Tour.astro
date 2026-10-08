@@ -1,0 +1,84 @@
+---
+/**
+ * The thaw engineering tour: a sticky WebGL stage with a scroll-driven
+ * camera path through five views of what the storage layer saves, each with
+ * a caption. The static fork diagram below is the fallback for engines
+ * without WebGL and the picture screen readers get.
+ */
+const steps = [
+  {
+    title: 'Weights',
+    text: 'The model, loaded once onto the card and shared by every session running on it.',
+  },
+  {
+    title: 'KV cache',
+    text: 'Every token the session has seen, as keys and values for each layer. This is what makes a running session expensive to rebuild.',
+  },
+  {
+    title: 'Prefix-hash table',
+    text: 'Each cache block is keyed by a hash of the prefix that produced it, so sessions that start the same way can share blocks.',
+  },
+  {
+    title: 'Scheduler state',
+    text: 'Which requests are running, which are waiting, and where their blocks live. Saved with the rest, or a restore has nothing to resume.',
+  },
+  {
+    title: 'The fork',
+    text: 'All four, saved together and brought back as one. A fork picks up exactly where the session was, bit for bit.',
+  },
+];
+
+/** The four things the storage layer saves, drawn as one snapshot. */
+const layers = ['weights', 'KV cache', 'prefix-cache metadata', 'scheduler state'];
+const forks = [
+  { y: 90, label: 'fork a' },
+  { y: 150, label: 'fork b' },
+  { y: 210, label: 'fork c' },
+];
+---
+
+<div class="tour" id="tour">
+  <div class="stick" id="tour-stick">
+    <div class="stage" id="tour-stage">
+      <canvas id="tour-gl" aria-hidden="true"></canvas>
+      <svg
+        class="fb"
+        viewBox="0 0 720 300"
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        aria-label="A running session is saved as one snapshot of weights, KV cache, prefix-cache metadata and scheduler state, then restored as three forked sessions."
+      >
+        <text x="0" y="134">a running session</text>
+        <path class="ln" d="M0 150 H200"></path>
+        <text x="200" y="74" class="lt">saved as one snapshot</text>
+        {layers.map((name, i) => (
+          <g>
+            <rect class="box" x="200" y={89 + i * 32} width="150" height="26"></rect>
+            <text x="210" y={106 + i * 32}>{name}</text>
+          </g>
+        ))}
+        {forks.map((f) =>
+          f.y === 150
+            ? <path class="ln sg" d="M350 150 H430"></path>
+            : <path class="ln sg" d={`M350 150 C390 150 390 ${f.y} 430 ${f.y}`}></path>
+        )}
+        {forks.map((f) => (
+          <>
+            <text x="430" y={f.y - 10}>{f.label}</text>
+            <path class="ln sg" d={`M430 ${f.y} H700`}></path>
+            <rect class="cr" x="702" y={f.y - 5} width="3" height="10"></rect>
+          </>
+        ))}
+      </svg>
+    </div>
+    <ol class="caps" id="tour-caps">
+      {steps.map((s, i) => (
+        <li class:list={['cap', { on: i === 0 }]}>
+          <span class="n mono">{String(i + 1).padStart(2, '0')} of {String(steps.length).padStart(2, '0')}</span>
+          <h3>{s.title}<span class="dot">.</span></h3>
+          <p>{s.text}</p>
+        </li>
+      ))}
+    </ol>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+---
+/**
+ * The turntable, pure decoration, after the buttons in the hero on wide
+ * screens with a fine pointer. A small 3D stage (src/scenes/vinyl.ts): a
+ * vinyl record on a plinth turning slowly, the tonearm parked beside it and
+ * a row of equalizer bars at rest. It plays nothing and reacts to nothing.
+ * The SVG is the drawing before the scene loads and wherever WebGL is
+ * missing; its disc turns by CSS at the same slow rate and stands still
+ * under reduced motion. Hidden on coarse pointers and at 820px and below.
+ */
+---
+
+<span class="stage tt" id="vinyl-stage" aria-hidden="true">
+  <svg class="fb" viewBox="0 0 140 72" preserveAspectRatio="xMidYMid meet" focusable="false">
+    <!-- plinth -->
+    <rect class="pl" x="4" y="14" width="88" height="50"></rect>
+    <!-- the disc: rim, grooves, label -->
+    <g class="disc">
+      <circle class="rim" cx="40" cy="39" r="24"></circle>
+      <circle class="gr" cx="40" cy="39" r="19"></circle>
+      <circle class="gr" cx="40" cy="39" r="14"></circle>
+      <circle class="em" cx="40" cy="39" r="7"></circle>
+      <circle class="rim" cx="40" cy="39" r="1.2"></circle>
+    </g>
+    <!-- tonearm, parked -->
+    <rect class="rim" x="76" y="18" width="8" height="8"></rect>
+    <path class="arm" d="M80 22 L66 60"></path>
+    <rect class="em" x="63" y="58" width="6" height="4"></rect>
+    <!-- equalizer bars, resting -->
+    <g class="eq">
+      <rect x="102" y="54" width="4" height="10"></rect>
+      <rect x="109" y="54" width="4" height="10"></rect>
+      <rect x="116" y="54" width="4" height="10"></rect>
+      <rect x="123" y="54" width="4" height="10"></rect>
+      <rect x="130" y="54" width="4" height="10"></rect>
+    </g>
+  </svg>
+  <canvas id="vinyl-gl"></canvas>
+</span>

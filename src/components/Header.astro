@@ -1,0 +1,17 @@
+---
+interface Props {
+  name: string;
+  /** Section links, in page order. Leadership is absent while its collection is empty. */
+  sections: { href: string; label: string }[];
+}
+const { name, sections } = Astro.props;
+---
+
+<header class="top">
+  <div class="wrap bar">
+    <a class="mono name" href="#main">{name}</a>
+    <nav class="mono" aria-label="Sections">
+      {sections.map((s) => <a href={s.href}>{s.label}</a>)}
+    </nav>
+  </div>
+</header>

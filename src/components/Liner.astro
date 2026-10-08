@@ -1,0 +1,39 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  project: CollectionEntry<'projects'>;
+}
+const { project } = Astro.props;
+const { title, summary, credit, links, metrics, hardware } = project.data;
+---
+
+<section class="liner" id="thaw" aria-labelledby="h-thaw">
+  <div class="top">
+    <h2 id="h-thaw" class="rv">{title}.<br />Liner notes.</h2>
+    <div class="rv">
+      <p>{summary}</p>
+      {credit && <p class="credit">{credit}.</p>}
+      {links.length > 0 && (
+        <ul class="links">
+          {links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}
+        </ul>
+      )}
+    </div>
+  </div>
+  <ol class="tracks">
+    {metrics.map((m) => (
+      <li class="tr">
+        <span class="no">{m.no}</span>
+        <span class="t">
+          {m.label}
+          <span class="s">{m.setup} <a href={m.source}>Receipt</a>.</span>
+        </span>
+        <span class:list={['d', { word: !m.unit }]}>
+          {m.value}{m.unit && <small>{m.unit}</small>}
+        </span>
+      </li>
+    ))}
+  </ol>
+  {hardware && <p class="hw mono">{hardware}</p>}
+</section>

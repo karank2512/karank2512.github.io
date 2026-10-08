@@ -1,0 +1,12 @@
+{
+  "title": "RelayIQ",
+  "kind": "crate",
+  "order": 1,
+  "tagline": "Enrichment control plane",
+  "summary": "Spend control for lead enrichment. Sits between Clay-style workflows and the CRM. Decides per record whether paying for enrichment is worth it, and keeps low-confidence data out of the CRM.",
+  "note": "In a simulated benchmark of 495 submissions, cost per usable lead fell from 13.24 to 4.65 credits and field precision rose from 0.68 to 0.78. Providers were simulated, not live vendors.",
+  "caption": "Decides before it spends; benchmarks use simulated providers.",
+  "links": [
+    { "label": "GitHub", "href": "https://github.com/karank2512/RelayIQ" }
+  ]
+}

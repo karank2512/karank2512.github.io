@@ -1,116 +1,64 @@
-# Karan Kapur — Personal Portfolio
+# karankapur.com
 
-A fast, minimal, recruiter-friendly portfolio with a technical/terminal personality.
-Built to be skimmed in 60 seconds and edited from **one file**.
+Personal site for Karan Kapur. Static Astro 5, zero framework JavaScript, one small page script (`src/scripts/page.ts`: fork control, offscreen pause, tour scroll, lazy scene loading) and seven small WebGL scenes in three.js that load only when their canvas nears the viewport and the device has hardware WebGL. This branch is v3, "Fork": minimalist and dark, warm near-black with one ember accent, built around a session that forks into branches. The hero is a draggable 3D KV cache lattice that forks; thaw is the first entry under Experience and opens into a scroll-driven engineering tour; the three project cards each carry their own procedural scene (a gate, a staffing agency, a signal field) and float in perspective; a small turntable turns slowly after the hero's buttons as decoration. No audio plays on the site and nothing third-party is loaded; the one link about music is the Spotify playlist link beside "Contact me". All geometry is procedural, in `src/scenes`. The contract is in `DESIGN.md`. The v2 branch holds the "Crate" design.
 
-**Stack:** React + Vite + TypeScript + Tailwind CSS + Framer Motion.
+## Quick start
 
----
-
-## 🚀 Quick start
-
-> You need **Node.js 18+** installed. Get it at https://nodejs.org (LTS).
+Needs Node 20 or newer.
 
 ```bash
-# 1. install dependencies
 npm install
+npm run dev        # http://localhost:4321
+npm run build      # outputs dist/
+npm run preview    # serves dist/ on 127.0.0.1:4321
+```
 
-# 2. run the dev server (http://localhost:5173)
-npm run dev
+## Checks
 
-# 3. build for production (outputs to /dist)
+```bash
+npm run check                          # astro check
 npm run build
-
-# 4. preview the production build locally
-npm run preview
+npx playwright install chromium        # once
+npm run test:e2e                       # Playwright + axe at 390, 820, 1440
+npm run lhci                           # Lighthouse CI budgets against dist/
 ```
 
-Optional type-check: `npm run typecheck`
+CI runs the same plus a lychee link check over the built HTML. See `.github/workflows/ci.yml`.
 
----
+## Editing content
 
-## ✏️ How to edit (everything lives in one file)
+Everything the page says lives in `src/content/`, validated by `src/content.config.ts` and documented in `CLAUDE.md`:
 
-Open **`src/data/profile.ts`**. That's the single source of truth. No need to touch components.
+| File | What |
+|---|---|
+| `profile/main.json` | Name, approved tagline and intro bullets, contact links, the Spotify playlist link (label and URL), photo |
+| `projects/thaw.json` | The featured project, folded into the first experience entry. Each metric needs `setup` and a `source` URL or the build fails |
+| `projects/*.json` with `"kind": "crate"` | The project cards. `caption` is the line under the card's scene. Leave `links` empty to render a card with no link |
+| `experience/*.json` | One sentence per role. The entry with `"project": "thaw"` renders first and featured |
+| `leadership/*.json` | Leadership roles. Empty for now; the section and its nav link appear only when a file exists |
 
-| What you want to change | Edit this in `src/data/profile.ts` |
-| --- | --- |
-| **Name, headline, one-liner, target roles** | `identity` |
-| **Email, GitHub, LinkedIn, Resume path** | `links` |
-| **Hero terminal commands** | `terminalCommands` |
-| **About paragraphs** | `about` |
-| **Projects** (title, blurb, metrics, stack, tags, links) | `projects` |
-| **Work history / timeline** | `experience` |
-| **Skill categories + related projects** | `skillGroups` (and `languages`) |
-| **Hobby cards** | `hobbies` |
-| **Spotify playlist** | `music.spotifyUrl` |
-| **Closing contact line** | `contact` |
+Metric numbers must come from `_brief/RECEIPTS.md`. Rationale for every direction change is in `_brief/DECISIONS.md`.
 
-### Replace the resume
-The "Resume" buttons currently point to a **Google Drive** link (set in `links.resume`) so recruiters can preview + download it. To swap it, just change `links.resume` in `profile.ts` to a new Drive link — or, to host the PDF on the site itself, drop a file at **`public/resume.pdf`** and set `links.resume: "./resume.pdf"`.
+## 3D scenes
 
-### Add your Spotify playlist
-1. In Spotify: open a playlist → **Share → Copy link to playlist**
-2. Paste it into `music.spotifyUrl`, e.g.
-   ```ts
-   spotifyUrl: "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M",
-   ```
-   The component turns it into an embed automatically. Leave it `""` to show the fallback state.
+| File | What |
+|---|---|
+| `src/scripts/page.ts` | The only script in the first load: the fork control, offscreen pause, the tour scroll, and the dynamic imports below |
+| `src/scenes/boot.ts` | Helpers for the page script: the one WebGL probe (software rasterizers count as none), near-viewport and idle callbacks |
+| `src/scenes/lattice.ts` | Pure geometry of the forking KV cache lattice, shared by the SVG fallback and the hero |
+| `src/scenes/iso.ts` | Build-time isometric SVG of the lattice (the hero fallback) |
+| `src/scenes/gl.ts` | Shared three.js helpers: renderer with capped pixel ratio, instanced boxes with hairline edges, the pausing render loop, the `Stage` shell for the small scenes, disposal |
+| `src/scenes/hero.ts` | The hero: drag to orbit, drag or scroll to fork, parallax, inertia |
+| `src/scenes/tour.ts` | The thaw tour: five camera views, highlight, the fork flyout |
+| `src/scenes/vinyl.ts` | The turntable after the hero's buttons, decoration only: the record turns slowly, the arm is parked, the bars are at rest |
+| `src/scenes/gate.ts` | RelayIQ: leads stream at a decision plane; pass, drop or hold |
+| `src/scenes/agency.ts` | Foreman: a job spec assembles into a worker that walks through approval gates |
+| `src/scenes/field.ts` | tell: event particles converge into a ranked list |
+| `src/scenes/cards.ts` | Card drift, tilt and lift in CSS 3D (no three.js) |
+| `src/scenes/cardsGl.ts` | The deck backdrop: floor hairlines and a wire frame per card, camera matched to the CSS perspective |
 
-### Re-theme colors / fonts
-- **Colors:** `tailwind.config.js` → `theme.extend.colors` (the `accent` value drives the whole look).
-- **Fonts:** swap the Google Fonts `<link>` in `index.html` and `theme.extend.fontFamily` in `tailwind.config.js`.
+Unused v2 components (`Crate.astro`, `Turntable.astro`, `Liner.astro`, `Background.astro`), the v3 SVG `Session.astro`, and the removed sound control (`Controls.astro`, `src/scripts/sound.ts`) are not imported anywhere and should be deleted; the lane this was built in blocks `rm` and `git rm`.
 
-### Update the social preview
-- `og-image.png` lives in `public/`. Replace it with any 1200×630 image.
-- In `index.html`, set `og:url` and `og:image` to **absolute** URLs once you know your final domain (some platforms like Slack/Twitter require absolute URLs).
+## Deploy
 
----
-
-## 🗂 Project structure
-
-```
-.
-├── index.html                 # SEO + OG meta, font links, app mount
-├── package.json
-├── vite.config.ts             # base: "./" for GitHub Pages
-├── tailwind.config.js         # colors, fonts, animations
-├── postcss.config.js
-├── .github/workflows/deploy.yml
-├── public/
-│   ├── resume.pdf             # ← your resume
-│   ├── og-image.png           # social preview (1200×630)
-│   ├── favicon.svg
-│   └── .nojekyll
-└── src/
-    ├── main.tsx
-    ├── App.tsx                # section order
-    ├── index.css             # Tailwind layers + base styles
-    ├── data/
-    │   └── profile.ts        # ← EDIT EVERYTHING HERE
-    ├── lib/
-    │   └── motion.ts         # shared animation variants
-    └── components/
-        ├── Nav.tsx
-        ├── Hero.tsx
-        ├── Terminal.tsx
-        ├── About.tsx
-        ├── Projects.tsx
-        ├── ProjectCard.tsx
-        ├── Experience.tsx
-        ├── Skills.tsx
-        ├── Hobbies.tsx
-        ├── Music.tsx
-        ├── Contact.tsx
-        ├── Footer.tsx
-        ├── CursorGlow.tsx
-        ├── CountUp.tsx
-        ├── Magnetic.tsx
-        ├── Reveal.tsx
-        ├── Section.tsx
-        └── icons.tsx
-```
-
----
-
-Built by Karan Kapur. Fork it, break it, make it yours.
+`deploy.yml` builds `main` and publishes `dist/` to GitHub Pages. `public/CNAME` keeps the custom domain. The `v2` and `v3` branches are not wired to deploy yet.

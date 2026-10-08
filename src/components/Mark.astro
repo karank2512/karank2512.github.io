@@ -1,0 +1,267 @@
+---
+/**
+ * The static drawing in each project card's stage: an isometric hairline
+ * version of the card's 3D scene, shown before the scene loads and kept
+ * wherever WebGL is missing. Hairlines only; colors come from the .mark
+ * rules in global.css (Bone 2 at rest, Ember and Sage for the accents).
+ * Decorative: the card's caption says in words what the scene shows, so the
+ * drawing is hidden from assistive tech and keeps the link's name short.
+ *
+ * The isometric projection matches src/scenes/iso.ts: x right-down, z
+ * left-down, y up.
+ *
+ * The project cards keep the fixed 320 by 220 frame their scenes were drawn
+ * for. The role drawings (the Experience and Leadership tiles) get a viewBox
+ * cut to their own bounds plus a small margin, so each fills its tile at any
+ * aspect; the hairlines stay one pixel through vector-effect in the CSS.
+ */
+interface Props {
+  id: string;
+}
+const { id } = Astro.props;
+
+const S = 40; // px per scene unit
+/** Bounds of every projected point, for the fitted viewBox. */
+let minX = Infinity;
+let minY = Infinity;
+let maxX = -Infinity;
+let maxY = -Infinity;
+const iso = (x: number, y: number, z: number): [number, number] => {
+  const px = 160 + (x - z) * 0.866 * S;
+  const py = 110 + ((x + z) * 0.5 - y) * S;
+  if (px < minX) minX = px;
+  if (px > maxX) maxX = px;
+  if (py < minY) minY = py;
+  if (py > maxY) maxY = py;
+  return [px, py];
+};
+const r1 = (n: number): string => (Math.round(n * 10) / 10).toString();
+const P = (x: number, y: number, z: number): string => iso(x, y, z).map(r1).join(' ');
+
+/** Wireframe box: centre and half sizes. */
+function box(cx: number, cy: number, cz: number, hx: number, hy: number, hz: number): string {
+  const c = [
+    [-1, -1, -1], [1, -1, -1], [1, 1, -1], [-1, 1, -1],
+    [-1, -1, 1], [1, -1, 1], [1, 1, 1], [-1, 1, 1],
+  ].map(([a, b, d]) => P(cx + (a ?? 0) * hx, cy + (b ?? 0) * hy, cz + (d ?? 0) * hz));
+  const e = [0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7];
+  let d = '';
+  for (let i = 0; i < e.length; i += 2) d += `M${c[e[i] ?? 0] ?? ''}L${c[e[i + 1] ?? 0] ?? ''}`;
+  return d;
+}
+const seg = (a: [number, number, number], b: [number, number, number]): string => `M${P(...a)}L${P(...b)}`;
+/** A hairline rectangle on the floor plane y. */
+const rect = (x0: number, z0: number, x1: number, z1: number, y: number): string =>
+  `M${P(x0, y, z0)}L${P(x1, y, z0)}L${P(x1, y, z1)}L${P(x0, y, z1)}Z`;
+/** A hairline circle of radius r around the x axis through (cx, 0, 0). */
+function ringX(cx: number, r: number): string {
+  let d = '';
+  for (let i = 0; i <= 24; i++) {
+    const a = (i / 24) * Math.PI * 2;
+    d += `${i === 0 ? 'M' : 'L'}${P(cx, Math.cos(a) * r, Math.sin(a) * r)}`;
+  }
+  return d;
+}
+
+let base = '';
+let ember = '';
+let sage = '';
+const labels: Record<string, string> = {
+  relayiq: 'RelayIQ: records approach a decision plane; some pass to a stack, one is dropped.',
+  foreman: 'Foreman: a job spec, a worker figure built from blocks, and three approval gates.',
+  tell: 'tell: scattered event particles converge into a ranked list of five bars.',
+  thaw: 'thaw: a running session of token columns forks at a ring into three branches.',
+  eurofins: 'Eurofins: lab records feed a model; forecast bars rise with a confidence cap on each.',
+  ece: 'ECE support: three machines send log ticks to a monitor; one failure is flagged and handled.',
+  'ai-lab': 'AI lab: a query over an index of documents; the nearest three travel into the app.',
+  hcl: 'HCLSoftware: a test plane sweeps a platform of modules; a compliance report stands beside it.',
+  'kek-vp': 'Kappa Eta Kappa: campus nodes around a national hub; chapters light up and link to it.',
+  'kek-delta-president': 'Kappa Eta Kappa, Delta chapter: member blocks around a table light one by one into a closed ring.',
+};
+const label = labels[id] ?? '';
+
+/** Campus positions for the network, the same list as src/scenes/roles.ts. */
+const CAMPUSES: Array<[number, number]> = [
+  [-2.2, -0.6], [-1.6, 0.8], [-0.9, -0.95], [0.4, 0.95], [1.3, -0.8],
+  [2.3, 0.2], [-0.5, 0.55], [1.1, 0.85], [-2.4, 0.3], [0.9, -0.2],
+];
+/** Seats around the chapter table, the same ring as src/scenes/roles.ts. */
+const SEAT_N = 12;
+const SEAT_RX = 1.9;
+const SEAT_RZ = 0.8;
+const seatAngle = (k: number): number => (k / SEAT_N) * Math.PI * 2;
+const SEATS: Array<[number, number]> = Array.from({ length: SEAT_N }, (_, k): [number, number] => [
+  Math.cos(seatAngle(k)) * SEAT_RX,
+  Math.sin(seatAngle(k)) * SEAT_RZ,
+]);
+
+if (id === 'relayiq') {
+  // lane, leads, the plane, the stack, one dropped lead
+  base += seg([-3.2, -0.2, 0], [1.9, -0.2, 0]);
+  for (const x of [-2.9, -2.2, -1.5, -0.8]) base += box(x, 0, 0, 0.11, 0.11, 0.11);
+  ember += box(0, 0.2, 0, 0.02, 0.6, 0.5);
+  for (const x of [0.6, 1.3]) sage += box(x, 0, 0, 0.11, 0.11, 0.11);
+  base += box(0.5, -0.7, 0.2, 0.08, 0.08, 0.08);
+  for (let i = 0; i < 5; i++) base += box(2.6, -0.45 + i * 0.2, 0, 0.5, 0.07, 0.4);
+  sage += box(2.6, 0.55, 0, 0.5, 0.07, 0.4);
+} else if (id === 'foreman') {
+  // floor, spec slab, the worker, three gates
+  base += seg([-3.4, -0.6, -1], [3.4, -0.6, -1]) + seg([-3.4, -0.6, 1], [3.4, -0.6, 1]) + seg([-3.4, -0.6, -1], [-3.4, -0.6, 1]) + seg([3.4, -0.6, -1], [3.4, -0.6, 1]);
+  base += box(-2.6, 0, 0, 0.35, 0.25, 0.02);
+  const wx = -1.4;
+  const h = 0.08;
+  ember += box(wx, 0.55, 0, h, h, h);
+  for (const [x, y] of [[-0.08, 0.3], [0.08, 0.3], [-0.08, 0.14], [0.08, 0.14], [-0.08, -0.02], [0.08, -0.02]]) sage += box(wx + (x ?? 0), y ?? 0, 0, h, h, h);
+  for (const [x, y] of [[-0.24, 0.3], [0.24, 0.3], [-0.24, 0.14], [0.24, 0.14]]) sage += box(wx + (x ?? 0), y ?? 0, 0, h, h, h);
+  for (const [x, y] of [[-0.08, -0.2], [0.08, -0.2], [-0.08, -0.36], [0.08, -0.36]]) sage += box(wx + (x ?? 0), y ?? 0, 0, h, h, h);
+  for (const gx of [-0.4, 0.9, 2.2]) {
+    base += box(gx, 0.1, -0.45, 0.04, 0.7, 0.04) + box(gx, 0.1, 0.45, 0.04, 0.7, 0.04) + box(gx, 0.84, 0, 0.04, 0.04, 0.49);
+  }
+} else if (id === 'tell') {
+  // scattered particles, three shapes, converging on five ranked bars
+  const pts: Array<[number, number, number, number]> = [
+    [-3.1, 0.6, -0.8, 0], [-2.6, -0.5, 0.6, 1], [-2.1, 0.9, 0.3, 2], [-1.7, -0.2, -0.9, 0], [-1.2, 0.5, 0.8, 1], [-0.8, -0.7, -0.2, 2], [-0.4, 0.1, 0.4, 0], [0.2, 0.6, -0.5, 1], [0.7, -0.3, 0.2, 2],
+  ];
+  for (const [x, y, z, k] of pts) {
+    if (k === 0) base += box(x, y, z, 0.08, 0.055, 0.01);
+    else if (k === 1) base += box(x, y, z, 0.03, 0.1, 0.03);
+    else sage += box(x, y, z, 0.05, 0.05, 0.05);
+  }
+  base += seg([1.4, 1.05, 0], [1.4, -1.05, 0]);
+  const widths = [1.6, 1.3, 1.05, 0.85, 0.7];
+  widths.forEach((w, i) => {
+    const d = box(1.5 + w / 2, 0.8 - i * 0.4, 0, w / 2, 0.08, 0.3);
+    if (i === 0) ember += d;
+    else base += d;
+  });
+  for (const [x, y, z] of [[-0.4, 0.1, 0.4], [0.7, -0.3, 0.2]]) sage += `M${P(x ?? 0, y ?? 0, z ?? 0)}Q${P(0.9, 1.2, 0)} ${P(1.5, 0.8, 0)}`;
+} else if (id === 'thaw') {
+  // the fork, settled: seven trunk columns, the ring, three branches with ember tips
+  const STEP = 0.34;
+  const X0 = -1.2;
+  const FORK = X0 + 6.5 * STEP;
+  for (let i = 0; i < 7; i++) {
+    const d = box(X0 + i * STEP, 0, 0, 0.11, 0.37, 0.11) + seg([X0 + i * STEP - 0.11, 0.13, 0.11], [X0 + i * STEP + 0.11, 0.13, 0.11]) + seg([X0 + i * STEP - 0.11, -0.13, 0.11], [X0 + i * STEP + 0.11, -0.13, 0.11]);
+    if (i === 3) ember += d;
+    else base += d;
+  }
+  ember += ringX(FORK, 0.55);
+  const dirs = [[0.72, 0.5, -0.42], [0.72, 0.05, 0.66], [0.72, -0.5, -0.3]].map(([x, y, z]) => {
+    const l = Math.hypot(x ?? 0, y ?? 0, z ?? 0);
+    return [(x ?? 0) / l, (y ?? 0) / l, (z ?? 0) / l];
+  });
+  for (const [dx, dy, dz] of dirs) {
+    for (let j = 0; j < 5; j++) {
+      const d = (j + 1) * STEP;
+      const b = box(FORK + (dx ?? 0) * d, (dy ?? 0) * d, (dz ?? 0) * d, 0.11, 0.37, 0.11);
+      if (j === 4) ember += b;
+      else sage += b;
+    }
+  }
+} else if (id === 'eurofins') {
+  // the ledger, the lane, the model, five forecast bars with caps
+  const FLOOR = -0.5;
+  for (let i = 1; i < 5; i++) base += box(-2.4, FLOOR + 0.03 + (4 - i) * 0.085, 0, 0.3, 0.03, 0.21);
+  base += seg([-2.4, FLOOR, 0], [-0.7, FLOOR, 0]);
+  ember += box(-0.7, FLOOR + 0.31, 0, 0.25, 0.31, 0.25);
+  base += rect(0.2, -0.35, 2.5, 0.35, FLOOR);
+  const hs = [0.7, 0.45, 0.85, 0.55, 0.65];
+  const cs = [0.9, 0.6, 0.75, 1.0, 0.5];
+  hs.forEach((h, i) => {
+    const x = 0.45 + i * 0.45;
+    sage += box(x, FLOOR + h / 2, 0, 0.12, h / 2, 0.12);
+    ember += box(x, FLOOR + h + 0.03, 0, 0.18 * (cs[i] ?? 1), 0.022, 0.15);
+  });
+} else if (id === 'ece') {
+  // three machines, the lane with log ticks, the monitor, one flag
+  const FLOOR = -0.45;
+  const MX = [-2.5, -1.75, -1.0];
+  for (const mx of MX) base += box(mx, FLOOR + 0.17, 0, 0.25, 0.17, 0.21) + seg([mx, FLOOR, 0.21], [mx, FLOOR, 0.5]);
+  base += seg([-2.5, FLOOR, 0.5], [1.65, FLOOR, 0.5]);
+  for (const x of [-2.1, -1.45, -0.6, 0.3, 1.1]) base += box(x, FLOOR + 0.07, 0.5, 0.025, 0.07, 0.025);
+  ember += box(-0.1, FLOOR + 0.07, 0.5, 0.025, 0.07, 0.025);
+  ember += box(1.9, FLOOR + 0.35, 0, 0.25, 0.35, 0.25);
+  sage += box(-1.75, FLOOR + 0.6, 0, 0.07, 0.07, 0.07);
+} else if (id === 'ai-lab') {
+  // the index of flat documents, the query, three raised, the app frame
+  const FLOOR = -0.45;
+  const GX = [-2.4, -1.9, -1.4, -0.9];
+  const GZ = [-0.55, 0, 0.55];
+  const up = new Set([1, 6, 8]);
+  for (let d = 0; d < 12; d++) {
+    const x = GX[d % 4] ?? 0;
+    const z = GZ[Math.floor(d / 4)] ?? 0;
+    if (up.has(d)) sage += box(x, FLOOR + 0.36, z, 0.17, 0.01, 0.22);
+    else base += box(x, FLOOR + 0.01, z, 0.17, 0.01, 0.22);
+  }
+  ember += box(-1.65, FLOOR + 0.6, 0, 0.08, 0.08, 0.08);
+  base += `M${P(1.0, FLOOR, 0.55)}L${P(2.3, FLOOR, 0.55)}L${P(2.3, FLOOR + 0.95, 0.55)}L${P(1.0, FLOOR + 0.95, 0.55)}Z`;
+  base += rect(1.0, -0.25, 2.3, 0.55, FLOOR);
+  sage += `M${P(-1.9, FLOOR + 0.36, 0)}Q${P(0, FLOOR + 1.1, 0.25)} ${P(1.65, FLOOR + 0.22, 0.5)}`;
+  sage += box(1.65, FLOOR + 0.22, 0.5, 0.17, 0.01, 0.22);
+} else if (id === 'hcl') {
+  // the platform, ten modules (the swept ones in sage), the test plane, the report
+  const FLOOR = -0.45;
+  base += box(-0.55, FLOOR + 0.05, 0, 1.4, 0.05, 0.55);
+  for (let col = 0; col < 5; col++) {
+    for (const z of [-0.3, 0.3]) {
+      const x = -1.6 + col * 0.45;
+      const b = box(x, FLOOR + 0.23, z, 0.13, 0.13, 0.13);
+      if (col < 3) sage += b;
+      else base += b;
+    }
+  }
+  ember += box(-0.25, FLOOR + 0.45, 0, 0.015, 0.35, 0.65);
+  base += box(1.9, FLOOR + 0.39, 0, 0.3, 0.39, 0.025);
+  for (let k = 0; k < 4; k++) base += seg([1.66, FLOOR + 0.62 - k * 0.13, 0.03], [2.06, FLOOR + 0.62 - k * 0.13, 0.03]);
+  ember += box(2.06, FLOOR + 0.18, 0.045, 0.05, 0.05, 0.05);
+} else if (id === 'kek-vp') {
+  // the floor, the hub, ten campus nodes; four linked chapters in sage
+  const FLOOR = -0.3;
+  const HY = FLOOR + 0.08;
+  base += rect(-2.7, -1.3, 2.7, 1.3, FLOOR);
+  ember += box(0, FLOOR + 0.15, 0, 0.15, 0.15, 0.15);
+  const lit = new Set([0, 4, 7, 1]);
+  CAMPUSES.forEach(([x, z], i) => {
+    const b = box(x, HY, z, 0.08, 0.08, 0.08);
+    if (lit.has(i)) sage += b + seg([0, HY, 0], [x, HY, z]);
+    else base += b;
+  });
+} else if (id === 'kek-delta-president') {
+  // the floor, the table, twelve seats: seven seated in sage with the ring drawn between them,
+  // the roll call pulse on its way to the eighth (the scene at its reduced-motion instant)
+  const FLOOR = -0.3;
+  const HY = FLOOR + 0.08;
+  const SEATED = 7;
+  base += rect(-2.7, -1.3, 2.7, 1.3, FLOOR);
+  ember += box(0, FLOOR + 0.07, 0, 0.6, 0.07, 0.25);
+  SEATS.forEach(([x, z], k) => {
+    const b = box(x, HY, z, 0.08, 0.08, 0.08);
+    if (k < SEATED) {
+      sage += b;
+      const [px, pz] = SEATS[k - 1] ?? [x, z];
+      if (k > 0) sage += seg([px, HY, pz], [x, HY, z]);
+    } else base += b;
+  });
+  const a = seatAngle(SEATED - 0.5);
+  ember += box(Math.cos(a) * SEAT_RX, HY + 0.2, Math.sin(a) * SEAT_RZ, 0.04, 0.04, 0.04);
+}
+
+/** The role drawings are framed by their own bounds; the card drawings keep the fixed frame. */
+const ROLE_IDS = new Set(['thaw', 'eurofins', 'ece', 'ai-lab', 'hcl', 'kek-vp', 'kek-delta-president']);
+let viewBox = '0 0 320 220';
+if (ROLE_IDS.has(id) && Number.isFinite(minX) && Number.isFinite(minY)) {
+  const w = maxX - minX;
+  const h = maxY - minY;
+  // 7% of the longer side plus 2px for the stroke, so the drawing fills about
+  // 86% of its frame on its longer axis and never touches the tile's hairline
+  const pad = Math.max(w, h) * 0.07 + 2;
+  viewBox = `${r1(minX - pad)} ${r1(minY - pad)} ${r1(w + 2 * pad)} ${r1(h + 2 * pad)}`;
+}
+---
+
+<svg class="fb mark" viewBox={viewBox} preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false" data-label={label}>
+  {base && <path d={base} />}
+  {sage && <path class="sg" d={sage} />}
+  {ember && <path class="em" d={ember} />}
+</svg>

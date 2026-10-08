@@ -1,0 +1,9 @@
+{
+  "order": 4,
+  "role": "AI fellow",
+  "org": "Wisconsin Summer AI Lab, OpenAI and UW-Madison",
+  "location": "Madison, WI",
+  "start": "Jun 2025",
+  "end": "Aug 2025",
+  "line": "Built a retrieval-augmented search platform with LangChain and Pinecone, deployed as a Streamlit app for non-technical users."
+}

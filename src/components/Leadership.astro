@@ -1,0 +1,39 @@
+---
+/**
+ * Leadership roles, rows on the same rail as Experience, each with its own
+ * graphic (Tile.astro). Rendered only when src/content/leadership has at
+ * least one entry; index.astro skips the section and its nav link otherwise.
+ */
+import type { CollectionEntry } from 'astro:content';
+import Tile from './Tile.astro';
+
+interface Props {
+  entries: CollectionEntry<'leadership'>[];
+}
+const { entries } = Astro.props;
+/** The entry id without its order prefix (01-kek-vp becomes kek-vp, 02-kek-delta-president becomes kek-delta-president) picks the scene and the drawing. */
+const key = (id: string): string => id.replace(/^\d+-/, '');
+---
+
+<section class="sec lead" id="leadership" aria-labelledby="h-lead">
+  <div class="wrap grid">
+    <p class="lab mono">Leadership</p>
+    <div>
+      <h2 id="h-lead" class="rv">Leadership<span class="dot">.</span></h2>
+      <ol class="roles">
+        {entries.map((e) => (
+          <li class="rv">
+            <span class="mk" aria-hidden="true"></span>
+            <Tile id={key(e.id)} />
+            <span class="r">
+              {e.data.role}
+              <span class="o">{e.data.org}</span>
+            </span>
+            <span class="w mono">{e.data.start} to {e.data.end}</span>
+            <span class="ln">{e.data.line}</span>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>

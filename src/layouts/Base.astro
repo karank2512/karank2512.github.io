@@ -1,0 +1,51 @@
+---
+import '../styles/fonts.css';
+import '../styles/global.css';
+// The display face, preloaded: the stylesheet is inlined into the page, so
+// without this hint the browser would only find the font once it has run
+// style resolution and laid out the first text. The preload starts the one
+// large font while the HTML is still being parsed, so the swap from the
+// size-adjusted fallback happens close to the first paint. The two DM Mono
+// weights the hero uses are preloaded too: left to normal discovery they
+// started about 100 ms after the display font and held back the largest paint.
+import bricolage from '../assets/fonts/bricolage-grotesque-latin-400-700.woff2?url';
+
+interface Props {
+  title: string;
+  description: string;
+  /** The 404 page: no canonical URL, and keep it out of search indexes. */
+  notFound?: boolean;
+}
+
+const { title, description, notFound = false } = Astro.props;
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const og = new URL('/og-image.png', Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {notFound ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <link rel="preload" href={bricolage} as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#17130f" />
+    <meta name="color-scheme" content="dark" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {!notFound && <meta property="og:url" content={canonical} />}
+    <meta property="og:image" content={og} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="generator" content={Astro.generator} />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <slot />
+  </body>
+</html>

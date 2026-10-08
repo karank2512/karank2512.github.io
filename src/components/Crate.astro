@@ -1,0 +1,33 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  projects: CollectionEntry<'projects'>[];
+}
+const { projects } = Astro.props;
+const colors = ['pink', 'orange', 'teal'];
+---
+
+<section class="crate" id="crate" aria-labelledby="h-crate">
+  <div class="top">
+    <h2 id="h-crate">The crate.</h2>
+    <span class="mono">Three more records</span>
+  </div>
+  <ul class="bin">
+    {projects.map((p, i) => {
+      const primary = p.data.links[0];
+      return (
+        <li class:list={['rec', colors[i % colors.length], { linked: Boolean(primary) }]}>
+          <div class="sl">
+            <h3>{primary ? <a href={primary.href}>{p.data.title}</a> : p.data.title}</h3>
+            <span class="sp">{p.data.tagline}</span>
+          </div>
+          <p>
+            {p.data.summary}
+            {p.data.note && <span class="note">{p.data.note}</span>}
+          </p>
+        </li>
+      );
+    })}
+  </ul>
+</section>

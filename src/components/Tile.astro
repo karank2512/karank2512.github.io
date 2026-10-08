@@ -1,0 +1,27 @@
+---
+/**
+ * The graphic beside an Experience or Leadership entry: a window of the Ink
+ * sheet holding the entry's own procedural scene (src/scenes/roles.ts,
+ * loaded on approach and only on hardware WebGL) over its static isometric
+ * drawing (Mark.astro), which shows first and stays wherever WebGL is
+ * missing. The tile drifts, tilts toward the pointer and lifts on hover by
+ * the small tile module. Decorative: the entry's line says in words what
+ * the role did, so the whole tile is hidden from assistive tech.
+ */
+import Mark from './Mark.astro';
+
+interface Props {
+  /** The entry id without its order prefix: thaw, eurofins, ece, ai-lab, hcl, kek-vp, kek-delta-president. */
+  id: string;
+}
+const { id } = Astro.props;
+---
+
+<div class="tile" aria-hidden="true">
+  <div class="tile-in">
+    <span class="stage" data-scene="role" data-role={id}>
+      <Mark id={id} />
+      <canvas></canvas>
+    </span>
+  </div>
+</div>

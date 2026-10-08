@@ -1,0 +1,9 @@
+{
+  "order": 2,
+  "role": "Data engineer, senior design capstone",
+  "org": "Eurofins Scientific",
+  "location": "Madison, WI",
+  "start": "Jan 2026",
+  "end": "May 2026",
+  "line": "Built a predictive analytics system in FastAPI, React and TypeScript that turns historical lab records into pre-test analyte forecasts with a confidence score attached."
+}
