@@ -93,6 +93,38 @@ test.describe('home page', () => {
     await expect(page.locator('button.snd, #snd, #snd-touch, #snd-prev, #snd-next, #np, #sleeve, #player, #widget')).toHaveCount(0);
   });
 
+  test('search engines get a sitemap, a canonical link and one Person structured-data block', async ({ page, request }) => {
+    const robots = await request.get('/robots.txt');
+    expect(robots.ok()).toBe(true);
+    expect(await robots.text()).toContain('Sitemap: https://karankapur.com/sitemap-index.xml');
+    const index = await request.get('/sitemap-index.xml');
+    expect(index.ok()).toBe(true);
+    expect(await index.text()).toContain('https://karankapur.com/sitemap-0.xml');
+    const sitemap = await request.get('/sitemap-0.xml');
+    expect(sitemap.ok()).toBe(true);
+    const urls = (await sitemap.text()).match(/<loc>([^<]+)<\/loc>/g) ?? [];
+    expect(urls).toEqual(['<loc>https://karankapur.com/</loc>']);
+
+    await page.goto('/');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://karankapur.com/');
+    await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
+    await expect(page.locator('h1')).toHaveCount(1);
+    const blocks = page.locator('script[type="application/ld+json"]');
+    await expect(blocks).toHaveCount(1);
+    const data = JSON.parse((await blocks.textContent()) ?? '{}');
+    expect(data['@type']).toBe('ProfilePage');
+    expect(data.mainEntity['@type']).toBe('Person');
+    expect(data.mainEntity.name).toBe('Karan Kapur');
+    expect(data.mainEntity.sameAs).toEqual(['https://github.com/karank2512', 'https://www.linkedin.com/in/karankapur5']);
+    // no number is claimed in structured data; receipts live on the page
+    expect(JSON.stringify(data)).not.toMatch(/\d+(\.\d+)?\s?(GB\/s|s\b|×|x\b)/);
+
+    const notFound = await page.goto('/404.html');
+    expect(notFound?.ok()).toBe(true);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+  });
+
   test('sections run hero, experience, projects, contact; leadership only when it has entries', async ({ page }) => {
     await page.goto('/');
     const ids = await page.$$eval('main > section', (els) => els.map((el) => el.id));

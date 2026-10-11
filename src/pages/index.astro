@@ -41,6 +41,41 @@ const title = `${name}. Engineer, co-founder of thaw.`;
 const description =
   'Karan Kapur co-founded thaw, open-source LLM inference infrastructure in Rust and CUDA, and owns its cloud storage layer. Looking for founding engineer, forward deployed or GTM engineering roles at AI startups.';
 
+// Structured data: the page is a profile page whose main entity is Karan,
+// so a search engine can tie the name to the roles, the employer, the school
+// and the GitHub and LinkedIn profiles. Facts come from the profile and
+// experience content only; no number appears here.
+const thaw = roles.find((r) => r.data.project)?.data;
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfilePage',
+  dateModified: new Date().toISOString().slice(0, 10),
+  mainEntity: {
+    '@type': 'Person',
+    '@id': `${Astro.site}#karan-kapur`,
+    name,
+    url: String(Astro.site),
+    image: new URL('/og-image.png', Astro.site).href,
+    description,
+    email: `mailto:${contact.email}`,
+    jobTitle: thaw ? `${thaw.role}, ${thaw.org}` : 'Engineer',
+    worksFor: {
+      '@type': 'Organization',
+      name: 'thaw',
+      url: 'https://thaw.sh',
+      sameAs: ['https://github.com/thaw-ai/thaw'],
+    },
+    alumniOf: {
+      '@type': 'CollegeOrUniversity',
+      name: 'University of Wisconsin-Madison',
+      sameAs: 'https://www.wisc.edu/',
+    },
+    homeLocation: { '@type': 'Place', name: 'Madison, WI' },
+    knowsAbout: ['LLM inference infrastructure', 'Rust', 'CUDA', 'cloud storage', 'GTM engineering', 'forward deployed engineering'],
+    sameAs: [contact.github, contact.linkedin],
+  },
+};
+
 const sections = [
   { href: '#experience', label: 'Experience' },
   { href: '#projects', label: 'Projects' },
@@ -50,6 +85,10 @@ const sections = [
 ---
 
 <Base title={title} description={description}>
+  <Fragment slot="head">
+    <meta name="author" content={name} />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </Fragment>
   <Header name={name} sections={sections} />
   <main id="main">
     <Hero name={name} tagline={tagline} intro={intro} email={contact.email} photo={photo} music={music} fork={fork} restores={restores} />

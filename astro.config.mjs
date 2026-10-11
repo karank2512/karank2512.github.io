@@ -1,11 +1,15 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://karankapur.com',
   output: 'static',
   trailingSlash: 'ignore',
+  // sitemap-index.xml and sitemap-0.xml at build time; robots.txt points at
+  // the index. The 404 page is left out: it is noindex.
+  integrations: [sitemap({ filter: (page) => !page.endsWith('/404') && !page.endsWith('/404/') })],
   build: {
     // The one stylesheet (about 25 KB, 6.6 KB over the wire) goes into the
     // page as a style element instead of a render-blocking request: the
