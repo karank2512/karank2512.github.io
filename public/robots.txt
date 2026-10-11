@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://karankapur.com/sitemap-index.xml

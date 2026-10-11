@@ -43,6 +43,8 @@ const og = new URL('/og-image.png', Astro.site);
     <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="generator" content={Astro.generator} />
+    <!-- Structured data and any other page-specific head tags. -->
+    <slot name="head" />
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
