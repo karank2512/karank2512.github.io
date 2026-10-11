@@ -1,52 +1,106 @@
 ---
 /**
- * Experience. The first entry is thaw, featured: it carries the project's
- * tagline, summary, credit line and links, and holds the engineering tour
- * and the receipts list behind a disclosure (see Featured.astro). The other
- * roles follow as rows on the same rail. Every entry has its own graphic
- * (Tile.astro) beside its text. The rail holds the label and the degree
- * line; the headshot lives in the hero.
+ * "Where I've worked": every role, then the leadership roles, as rows on one
+ * list cut by rules. Dates in mono on the left, the role in display type and
+ * the org under it in the middle, the resume bullets on the right. The degree
+ * line and coursework close the section in mono.
  */
 import type { CollectionEntry } from 'astro:content';
-import Featured from './Featured.astro';
-import Tile from './Tile.astro';
 
 interface Props {
   roles: CollectionEntry<'experience'>[];
-  featured: CollectionEntry<'projects'>;
+  leadership: CollectionEntry<'leadership'>[];
   education: string;
+  coursework?: string;
 }
-const { roles, featured, education } = Astro.props;
-/** The entry id without its order prefix (01-thaw becomes thaw) picks the scene and the drawing. */
-const key = (id: string): string => id.replace(/^\d+-/, '');
+const { roles, leadership, education, coursework } = Astro.props;
+const rows = [
+  ...roles.map((r) => ({ id: r.id, ...r.data, location: r.data.location as string | undefined })),
+  ...leadership.map((l) => ({ id: l.id, ...l.data, location: undefined })),
+];
 ---
 
-<section class="sec exp" id="experience" aria-labelledby="h-exp">
-  <div class="wrap grid">
-    <div class="lab">
-      <p class="mono">Experience</p>
-      <p class="edu">{education}</p>
-    </div>
-    <div>
-      <h2 id="h-exp" class="rv">Background<span class="dot">.</span></h2>
-      <ol class="roles">
-        {roles.map((r) =>
-          r.data.project ? (
-            <Featured role={r} project={featured} />
-          ) : (
-            <li class="rv">
-              <span class="mk" aria-hidden="true"></span>
-              <Tile id={key(r.id)} />
-              <span class="r">
-                {r.data.role}
-                <span class="o">{r.data.org}, {r.data.location}</span>
-              </span>
-              <span class="w mono">{r.data.start} to {r.data.end}</span>
-              <span class="ln">{r.data.line}</span>
-            </li>
-          ),
-        )}
-      </ol>
-    </div>
+<section class="sec" id="experience" aria-labelledby="h-exp">
+  <div class="wrap">
+    <p class="lab mono">Background</p>
+    <h2 class="d" id="h-exp">Where I've worked</h2>
+    <ol class="roles">
+      {rows.map((r) => (
+        <li>
+          <span class="w mono">{r.start} to {r.end}</span>
+          <span class="r">
+            <span class="d">{r.role}</span>
+            <span class="o">{r.org}{r.location && `. ${r.location}`}</span>
+          </span>
+          <ul class="bul">
+            {r.bullets.map((b) => (
+              <li>
+                {b.text}
+                {b.link && (
+                  <>
+                    {' '}
+                    <a href={b.link.href}>{b.link.label}</a>.
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+        </li>
+      ))}
+    </ol>
+    <p class="edu mono">{education} {coursework}</p>
   </div>
 </section>
+
+<style>
+  h2 {
+    margin-bottom: 1.5rem;
+  }
+  .roles {
+    border-top: var(--rule) solid var(--ink);
+  }
+  .roles > li {
+    display: grid;
+    grid-template-columns: 7rem 1fr 1.4fr;
+    gap: 1rem 1.5rem;
+    padding-block: 1.1rem;
+    border-bottom: 3px solid var(--ink);
+  }
+  .w {
+    padding-top: 0.3rem;
+  }
+  .r .d {
+    display: block;
+    font-size: 1.6rem;
+    line-height: 1;
+  }
+  .o {
+    display: block;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--mute);
+    margin-top: 0.3rem;
+  }
+  .bul {
+    max-width: 62ch;
+    gap: 0.4rem;
+  }
+  .bul li::before {
+    background: var(--red);
+    width: 0.5rem;
+    height: 0.5rem;
+    top: 0.55em;
+  }
+  .edu {
+    margin-top: 1.2rem;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--mute);
+  }
+  @media (max-width: 900px) {
+    .roles > li {
+      grid-template-columns: 1fr;
+      gap: 0.6rem;
+    }
+  }
+</style>

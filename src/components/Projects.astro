@@ -1,67 +1,149 @@
 ---
 /**
- * The project deck: three cards floating in perspective, each with its own
- * procedural 3D scene on top (RelayIQ: the gate; Foreman: the staffing
- * agency; tell: the signal field). The scenes are three.js, loaded when the
- * deck nears the viewport and only on hardware WebGL; the SVG in each stage
- * is the drawing before that and wherever WebGL is missing. Cards with a
- * link are the link. tell has none and says so in plain text.
+ * Four posters on equal footing in a two-by-two grid: the same size, the
+ * same parts (date stamp, eyebrow, title, one bold line, bullets, footer
+ * links), each in its own pigment. No project is featured. A poster is not
+ * itself a link, so its footer can hold more than one; hover lifts the sheet
+ * and drops a hard ink shadow.
  */
 import type { CollectionEntry } from 'astro:content';
-import Mark from './Mark.astro';
 
 interface Props {
   projects: CollectionEntry<'projects'>[];
 }
 const { projects } = Astro.props;
-const n = projects.length;
-const count = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'][n] ?? String(n);
-const unlinked = projects.filter((p) => p.data.links.length === 0).map((p) => p.data.title);
+const count = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'][projects.length] ?? String(projects.length);
 ---
 
-<section class="sec proj" id="projects" aria-labelledby="h-proj">
+<section class="sec" id="projects" aria-labelledby="h-proj">
   <div class="wrap">
-    <div class="grid">
-      <p class="lab mono">Projects</p>
-      <div>
-        <h2 id="h-proj" class="rv">{count} projects<span class="dot">.</span></h2>
-        <p class="lead rv">
-          Cards with a link open the repo.
-          {unlinked.length > 0 && ` ${unlinked.join(' and ')} ${unlinked.length > 1 ? 'are' : 'is'} open source soon.`}
-        </p>
-      </div>
-    </div>
-
-    <div class="deck" id="deck" data-n={n}>
-      <canvas id="deck-gl" aria-hidden="true"></canvas>
-      <ul class="cards" id="cards">
-        {projects.map((p, i) => {
-          const primary = p.data.links[0];
-          const Tag = primary ? 'a' : 'div';
-          return (
-            <li class:list={['slot', `s${i}`, { linked: Boolean(primary) }]}>
-              <Tag class="card" href={primary?.href}>
-                <span class="stage" data-scene={p.id} id={`scene-${p.id}`}>
-                  <Mark id={p.id} />
-                  <canvas id={`scene-${p.id}-gl`} aria-hidden="true"></canvas>
-                </span>
-                {p.data.caption && <span class="cap mono">{p.data.caption}</span>}
-                <h3>{p.data.title}</h3>
-                <span class="sp mono">{p.data.tagline}</span>
-                <p>
-                  {p.data.summary}
-                  {p.data.note && <span class="note">{p.data.note}</span>}
-                </p>
-                {primary && (
-                  <svg class="go" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M6 18L18 6M9 6h9v9"></path>
-                  </svg>
+    <h2 class="lab mono" id="h-proj">{count} projects</h2>
+    <ul class="posters">
+      {projects.map((p) => (
+        <li class:list={['poster', p.data.tone]} id={p.id}>
+          <span class="when mono">{p.data.when}</span>
+          <span class="eyebrow mono">{p.data.eyebrow}</span>
+          <h3 class="d">{p.data.title}</h3>
+          <p class="sub">{p.data.sub}</p>
+          <ul class="bul">
+            {p.data.bullets.map((b) => (
+              <li>
+                {b.text}
+                {b.link && (
+                  <>
+                    {' '}
+                    <a href={b.link.href}>{b.link.label}</a>.
+                  </>
                 )}
-              </Tag>
-            </li>
-          );
-        })}
-      </ul>
-    </div>
+              </li>
+            ))}
+          </ul>
+          <p class="foot">
+            {p.data.links.length > 0 ? p.data.links.map((l) => <a href={l.href}>{l.label}</a>) : <span>{p.data.soon ?? 'Repo opens soon'}</span>}
+          </p>
+        </li>
+      ))}
+    </ul>
   </div>
 </section>
+
+<style>
+  .posters {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+  .poster {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    position: relative;
+    border: var(--rule) solid var(--ink);
+    padding: 1.4rem;
+    background: var(--c);
+    color: var(--fg);
+    transition:
+      transform 0.2s var(--ease),
+      box-shadow 0.2s var(--ease);
+  }
+  .poster:hover {
+    transform: translate(-5px, -5px);
+    box-shadow: 8px 8px 0 var(--ink);
+  }
+  .red {
+    --c: var(--red-fill);
+    --fg: var(--paper);
+  }
+  .blue {
+    --c: var(--blue);
+    --fg: var(--paper);
+  }
+  .yellow {
+    --c: var(--yellow);
+    --fg: var(--ink);
+  }
+  .paper {
+    --c: var(--paper);
+    --fg: var(--ink);
+  }
+  .when {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.2rem;
+    font-size: 0.72rem;
+    border: 2px solid currentColor;
+    padding: 0.15rem 0.45rem;
+  }
+  .eyebrow {
+    padding-right: 11rem;
+  }
+  h3 {
+    font-size: clamp(3rem, 6vw, 5.5rem);
+  }
+  .sub {
+    font-weight: 700;
+    font-size: 1.05rem;
+    max-width: 58ch;
+  }
+  .bul {
+    font-size: 0.98rem;
+    max-width: 58ch;
+    gap: 0.5rem;
+  }
+  .bul li::before {
+    background: currentColor;
+  }
+  .bul a {
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.15em;
+  }
+  .foot {
+    margin-top: auto;
+    padding-top: 0.6rem;
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    font-weight: 700;
+  }
+  .foot a {
+    text-decoration: none;
+    border-bottom: 3px solid currentColor;
+    padding-block: 0.2rem;
+  }
+  .foot a:hover {
+    border-bottom-color: transparent;
+  }
+  @media (max-width: 640px) {
+    .posters {
+      grid-template-columns: 1fr;
+    }
+    .when {
+      position: static;
+      align-self: flex-start;
+    }
+    .eyebrow {
+      padding-right: 0;
+    }
+  }
+</style>

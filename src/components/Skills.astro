@@ -1,0 +1,50 @@
+---
+/** Three boxes with the resume's skill groups. */
+interface Props {
+  skills: { title: string; items: string }[];
+}
+const { skills } = Astro.props;
+---
+
+<section class="sec" id="skills" aria-labelledby="h-skills">
+  <div class="wrap">
+    <h2 class="lab mono" id="h-skills">Skills</h2>
+    <ul class="skills">
+      {skills.map((g) => (
+        <li>
+          <h3 class="d">{g.title}</h3>
+          <p>{g.items}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .skills {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+  }
+  li {
+    border: var(--rule) solid var(--ink);
+    padding: 1rem;
+  }
+  h3 {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+  }
+  p {
+    font-size: 0.98rem;
+  }
+  @media (max-width: 900px) {
+    .skills {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .skills {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

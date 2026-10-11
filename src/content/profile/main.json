@@ -7,7 +7,13 @@
     "Before any of that I played table tennis at the national level in India. These days I cook, DJ, golf, and follow F1 closely.",
     "I'm looking for a founding engineer, forward deployed or GTM engineering role at an AI startup."
   ],
-  "education": "B.S. Computer Science and Data Science, Certificate in Entrepreneurship, University of Wisconsin-Madison, May 2026.",
+  "targets": [
+    "Founding engineer",
+    "Forward deployed",
+    "GTM engineering"
+  ],
+  "education": "B.S. Computer Science and Data Science, Minor in Entrepreneurship. University of Wisconsin-Madison, May 2026.",
+  "coursework": "Coursework: Artificial Intelligence, Big Data Systems, Operating Systems, Algorithms.",
   "contact": {
     "email": "kkapur5@wisc.edu",
     "github": "https://github.com/karank2512",
@@ -21,6 +27,42 @@
     }
   },
   "photo": {
-    "alt": "Karan Kapur, head and shoulders, in a black suit."
+    "alt": "Karan Kapur, head and shoulders, in a black suit.",
+    "stamp": "Madison, WI"
+  },
+  "skills": [
+    {
+      "title": "Languages and stack",
+      "items": "Python, TypeScript, SQL, Rust, C++, Next.js, React, FastAPI, PostgreSQL, Docker, AWS"
+    },
+    {
+      "title": "AI and agents",
+      "items": "LLM tool calling, agents, RAG, LLM-judge evals, calibration, Vercel AI SDK, MCP, vLLM, CUDA"
+    },
+    {
+      "title": "GTM and tools",
+      "items": "HubSpot APIs, webhooks, Clay and Snowflake (familiar), Claude Code daily, Cursor"
+    }
+  ],
+  "life": {
+    "photos": [
+      {
+        "file": "graduation",
+        "alt": "Karan popping champagne in a graduation gown in front of Bascom Hall"
+      },
+      {
+        "file": "atv-trail",
+        "alt": "Karan riding an ATV down a dusty desert trail"
+      },
+      {
+        "file": "christkindlmarket",
+        "alt": "Karan smiling in the snow at Christkindlmarket Chicago"
+      },
+      {
+        "file": "bar-night",
+        "alt": "Karan at a neon-lit bar, mid gesture"
+      }
+    ],
+    "line": "Table tennis at the national level in India, then Madison. These days I cook, DJ, golf, and follow F1 closely."
   }
 }

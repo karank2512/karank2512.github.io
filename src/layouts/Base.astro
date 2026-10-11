@@ -3,12 +3,9 @@ import '../styles/fonts.css';
 import '../styles/global.css';
 // The display face, preloaded: the stylesheet is inlined into the page, so
 // without this hint the browser would only find the font once it has run
-// style resolution and laid out the first text. The preload starts the one
-// large font while the HTML is still being parsed, so the swap from the
-// size-adjusted fallback happens close to the first paint. The two DM Mono
-// weights the hero uses are preloaded too: left to normal discovery they
-// started about 100 ms after the display font and held back the largest paint.
-import bricolage from '../assets/fonts/bricolage-grotesque-latin-400-700.woff2?url';
+// style resolution and laid out the first text. The name is the largest
+// paint, so Anton starts while the HTML is still being parsed.
+import anton from '@fontsource/anton/files/anton-latin-400-normal.woff2?url';
 
 interface Props {
   title: string;
@@ -30,10 +27,10 @@ const og = new URL('/og-image.png', Astro.site);
     <title>{title}</title>
     <meta name="description" content={description} />
     {notFound ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
-    <link rel="preload" href={bricolage} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={anton} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#17130f" />
-    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#f4f0e6" />
+    <meta name="color-scheme" content="light" />
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

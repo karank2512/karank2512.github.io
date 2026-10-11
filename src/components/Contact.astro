@@ -1,4 +1,5 @@
 ---
+/** "Email is fastest" at poster size in red, then the four links. */
 interface Props {
   email: string;
   github: string;
@@ -10,9 +11,9 @@ const { email, github, linkedin, resume } = Astro.props;
 
 <section class="sec say" id="contact" aria-labelledby="h-say">
   <div class="wrap">
-    <h2 id="h-say" class="rv">Say hey<span class="dot">.</span></h2>
-    <p class="rv">Building something early and need an engineer who ships? Email is fastest.</p>
-    <ul class="rv">
+    <p class="lab mono">Say hey</p>
+    <h2 class="d" id="h-say">Email is fastest</h2>
+    <ul>
       <li><a href={`mailto:${email}`}>{email}</a></li>
       <li><a href={github}>GitHub</a></li>
       <li><a href={linkedin}>LinkedIn</a></li>
@@ -20,3 +21,28 @@ const { email, github, linkedin, resume } = Astro.props;
     </ul>
   </div>
 </section>
+
+<style>
+  h2 {
+    font-size: clamp(4rem, 16vw, 16rem);
+    color: var(--red);
+  }
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2.5rem;
+    margin-top: 1.5rem;
+    font-weight: 700;
+    font-size: 1.3rem;
+  }
+  a {
+    text-decoration: underline;
+    text-decoration-thickness: 4px;
+    text-decoration-color: var(--yellow);
+    text-underline-offset: 0.2em;
+    padding-block: 0.3rem;
+  }
+  a:hover {
+    text-decoration-color: var(--blue);
+  }
+</style>

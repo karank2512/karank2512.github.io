@@ -1,0 +1,92 @@
+---
+/**
+ * "Off the clock": a blue field with four photographs in paper frames, each
+ * tilted a degree or two and straightening under the pointer, with no
+ * captions. One line under them, and the playlist link: the only thing on
+ * the site about music, a plain link that plays nothing.
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  photos: { file: string; alt: string }[];
+  line: string;
+  playlist: { label: string; url: string };
+}
+const { photos, line, playlist } = Astro.props;
+
+const files = import.meta.glob<{ default: ImageMetadata }>('../assets/photos/*.png', { eager: true });
+const pick = (name: string): ImageMetadata => {
+  const hit = files[`../assets/photos/${name}.png`];
+  if (!hit) throw new Error(`No photo src/assets/photos/${name}.png for the "Off the clock" strip.`);
+  return hit.default;
+};
+const tilt = [-2, 1.5, -1, 2];
+---
+
+<section class="sec life" id="life" aria-labelledby="h-life">
+  <div class="wrap">
+    <h2 class="lab mono" id="h-life">Off the clock</h2>
+    <ul class="strip">
+      {photos.map((p, i) => (
+        <li style={`--r:${tilt[i % tilt.length]}deg`}>
+          <Image src={pick(p.file)} alt={p.alt} width={480} height={640} densities={[1, 1.5]} format="webp" quality={78} loading="lazy" decoding="async" />
+        </li>
+      ))}
+    </ul>
+    <p class="line">
+      {line} <a class="playlist" href={playlist.url} target="_blank" rel="noopener">{playlist.label}</a>.
+    </p>
+  </div>
+</section>
+
+<style>
+  .life {
+    background: var(--blue);
+    color: var(--paper);
+  }
+  .lab::after {
+    background: var(--paper);
+  }
+  .strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  .strip li {
+    border: var(--rule) solid var(--paper);
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    transform: rotate(var(--r));
+    transition: transform 0.3s var(--ease);
+    background: var(--ink);
+  }
+  .strip li:hover {
+    transform: rotate(0) scale(1.03);
+  }
+  .strip img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .line {
+    max-width: 62ch;
+    font-size: 1.15rem;
+    margin-top: 1.5rem;
+  }
+  .playlist {
+    font-weight: 700;
+    text-decoration-thickness: 3px;
+    text-decoration-color: var(--yellow);
+    text-underline-offset: 0.18em;
+    padding-block: 0.25rem;
+  }
+  .playlist:hover {
+    color: var(--yellow);
+  }
+  @media (max-width: 900px) {
+    .strip {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+</style>
