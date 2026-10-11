@@ -10,48 +10,41 @@ const link = z.object({
 });
 
 /**
- * A measured number. `source` is required on purpose: a value with no
- * receipt cannot build. Keep the hardware and model in `setup`, which is
- * printed as a small caption next to the value.
+ * One bullet. The text is the resume wording, verbatim. An optional link is
+ * printed after the text as its own anchor (a receipt, a write-up), so a
+ * bullet never carries markup.
  */
-const metric = z.object({
-  /** Row number, e.g. "A1". Purely presentational. */
-  no: z.string().regex(/^[A-Z]\d$/),
-  label: z.string().min(1),
-  value: z.string().min(1),
-  unit: z.string().optional(),
-  setup: z.string().min(1),
-  source: url,
+const bullet = z.object({
+  text: z.string().min(1),
+  link: link.optional(),
 });
 
+/**
+ * Projects, four posters on equal footing. `tone` picks the poster's fill
+ * from the palette in DESIGN.md section 2; use each tone once. `order` sets
+ * the reading order in the grid.
+ */
 const projects = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/projects' }),
   schema: z.object({
     title: z.string().min(1),
-    /**
-     * "featured" is the project folded into the first experience entry (thaw:
-     * tour and receipts). "crate" is a project card with its own 3D scene.
-     */
-    kind: z.enum(['featured', 'crate']),
     order: z.number().int().nonnegative(),
-    /** One-line descriptor shown under the title on a card. */
-    tagline: z.string().min(1),
-    /** One or two sentences. */
-    summary: z.string().min(1),
-    /** Short note under the summary. For an unreleased project, the release line. */
-    note: z.string().optional(),
-    /** One mono line under the card's 3D scene, saying what the scene shows. */
-    caption: z.string().optional(),
-    /** Who it was built with, if anyone. */
-    credit: z.string().optional(),
-    /** Empty when the code is not public yet. */
+    tone: z.enum(['red', 'blue', 'yellow', 'paper']),
+    /** Mono eyebrow over the title, e.g. the resume's category. */
+    eyebrow: z.string().min(1),
+    /** The date stamp in the corner. For an unreleased project, its status. */
+    when: z.string().min(1),
+    /** One bold sentence under the title. */
+    sub: z.string().min(1),
+    bullets: z.array(bullet).min(1),
+    /** Empty when the code is not public yet; the poster then prints `soon`. */
     links: z.array(link).default([]),
-    metrics: z.array(metric).default([]),
-    /** Printed once as a caption under the metrics. */
-    hardware: z.string().optional(),
+    /** Footer text for a poster with no links. */
+    soon: z.string().optional(),
   }),
 });
 
+/** Work history. Bullets are the resume wording. */
 const experience = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/experience' }),
   schema: z.object({
@@ -61,31 +54,20 @@ const experience = defineCollection({
     location: z.string().min(1),
     start: z.string().min(1),
     end: z.string().min(1),
-    /** One sentence. Numbers here need a receipt too; prefer none. */
-    line: z.string().min(1),
-    /**
-     * Id of a project in `projects` to fold into this entry as the featured
-     * one (its tagline, summary, credit, links, engineering tour and
-     * receipts). At most one entry sets this; it renders first.
-     */
-    project: z.string().min(1).optional(),
+    bullets: z.array(bullet).min(1),
   }),
 });
 
-/**
- * Leadership entries. The section and its nav link render only when this
- * collection has at least one file; ship it empty rather than invent one.
- * Files render in file-name order, so prefix them (01-, 02-).
- */
+/** Leadership roles, rendered after the work history in the same list. */
 const leadership = defineCollection({
   loader: glob({ pattern: '**/*.json', base: './src/content/leadership' }),
   schema: z.object({
+    order: z.number().int().nonnegative(),
     role: z.string().min(1),
     org: z.string().min(1),
     start: z.string().min(1),
     end: z.string().min(1),
-    /** One sentence. Numbers here need a receipt; prefer none. */
-    line: z.string().min(1),
+    bullets: z.array(bullet).min(1),
   }),
 });
 
@@ -97,7 +79,10 @@ const profile = defineCollection({
     tagline: z.string().min(1),
     /** Approved intro bullets, verbatim. */
     intro: z.array(z.string().min(1)).min(1),
+    /** The three stamps under the intro: the roles being looked for. */
+    targets: z.array(z.string().min(1)).min(1),
     education: z.string().min(1),
+    coursework: z.string().optional(),
     contact: z.object({
       email: z.string().email(),
       github: url,
@@ -106,8 +91,8 @@ const profile = defineCollection({
       resume: z.string().startsWith('/'),
     }),
     /**
-     * The only thing about music on the site: the plain link beside
-     * "Contact me" to the Spotify playlist, worded as the songs he is
+     * The only thing about music on the site: a plain link in the "Off the
+     * clock" section to the Spotify playlist, worded as the songs he is
      * listening to lately (DECISIONS.md, "Music, superseded"). No audio
      * plays on the site.
      */
@@ -117,12 +102,18 @@ const profile = defineCollection({
         url: url,
       }),
     }),
-    /**
-     * The headshot's alt text. The file itself is src/assets/pro-headshot.jpg,
-     * imported by Hero.astro so the image pipeline sizes and converts it.
-     */
+    /** The headshot's alt text. The file is src/assets/pro-headshot.jpg. */
     photo: z.object({
       alt: z.string().min(1),
+      /** The small stamp on the photo's corner. */
+      stamp: z.string().min(1),
+    }),
+    /** The skill groups from the resume, three boxes. */
+    skills: z.array(z.object({ title: z.string().min(1), items: z.string().min(1) })).min(1),
+    /** The "Off the clock" strip: file names in src/assets/photos without the extension, with alt text, and the line under them. */
+    life: z.object({
+      photos: z.array(z.object({ file: z.string().min(1), alt: z.string().min(1) })).min(1),
+      line: z.string().min(1),
     }),
   }),
 });

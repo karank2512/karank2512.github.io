@@ -1,10 +1,13 @@
 {
-  "order": 1,
-  "role": "Co-founder, cloud storage",
+  "order": 0,
+  "role": "Co-founder and cloud storage engineer",
   "org": "thaw",
   "location": "Madison, WI",
   "start": "Apr 2026",
   "end": "Present",
-  "line": "Own the cloud storage layer that persists and restores live LLM state: weights, KV cache, prefix-cache metadata and scheduler state. Contributed to the restore throughput results.",
-  "project": "thaw"
+  "bullets": [
+    {
+      "text": "Cut LLM session cold boots on H100s about 386x, from about 340 s to a 0.88 s median fork. Co-founded the open-source inference startup (Rust, CUDA) with N. Matteson and M. Yu."
+    }
+  ]
 }

@@ -1,9 +1,13 @@
 {
-  "order": 5,
+  "order": 4,
   "role": "Automation and compliance engineering intern",
   "org": "HCLSoftware",
   "location": "Noida, India",
   "start": "Jul 2024",
   "end": "Sep 2024",
-  "line": "Wrote automated regression tests and compliance validation reports for a large public-sector SaaS platform."
+  "bullets": [
+    {
+      "text": "Lifted onboarding conversion 30% via an analytics-driven redesign; 50+ tests shortened regression 60%."
+    }
+  ]
 }

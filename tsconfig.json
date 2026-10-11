@@ -1,20 +1,5 @@
 {
   "extends": "astro/tsconfigs/strict",
-  "include": [
-    ".astro/types.d.ts",
-    "src/**/*.astro",
-    "src/content.config.ts"
-  ],
-  "exclude": [
-    "dist",
-    "node_modules",
-    "src/App.tsx",
-    "src/main.tsx",
-    "src/vite-env.d.ts",
-    "src/env.d.ts",
-    "src/components/**/*.tsx",
-    "src/context",
-    "src/lib",
-    "src/data"
-  ]
+  "include": [".astro/types.d.ts", "src/**/*.astro", "src/content.config.ts"],
+  "exclude": ["dist", "node_modules", "src/env.d.ts"]
 }

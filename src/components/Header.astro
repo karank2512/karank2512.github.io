@@ -1,7 +1,10 @@
 ---
+/**
+ * Sticky masthead: the name in display type, the section links in mono, and
+ * the "Open to work" stamp with its blinking dot. A thick rule closes it.
+ */
 interface Props {
   name: string;
-  /** Section links, in page order. Leadership is absent while its collection is empty. */
   sections: { href: string; label: string }[];
 }
 const { name, sections } = Astro.props;
@@ -9,9 +12,86 @@ const { name, sections } = Astro.props;
 
 <header class="top">
   <div class="wrap bar">
-    <a class="mono name" href="#main">{name}</a>
+    <a class="d name" href="#main">{name}</a>
     <nav class="mono" aria-label="Sections">
       {sections.map((s) => <a href={s.href}>{s.label}</a>)}
     </nav>
+    <span class="stamp mono"><i aria-hidden="true"></i>Open to work</span>
   </div>
 </header>
+
+<style>
+  .top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--paper);
+    border-bottom: var(--rule) solid var(--ink);
+  }
+  .bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding-block: 0.75rem;
+  }
+  .name {
+    font-size: 1.5rem;
+    text-decoration: none;
+  }
+  nav {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+  }
+  nav a {
+    position: relative;
+    text-decoration: none;
+    padding-block: 0.4rem;
+  }
+  nav a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 100%;
+    bottom: 0;
+    height: 3px;
+    background: var(--red);
+    transition: right 0.25s var(--ease);
+  }
+  nav a:hover::after,
+  nav a:focus-visible::after {
+    right: 0;
+  }
+  .stamp {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 3px solid var(--ink);
+    padding: 0.3rem 0.6rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .stamp i {
+    width: 0.6rem;
+    height: 0.6rem;
+    background: var(--red);
+    border-radius: 50%;
+    animation: blink 1.6s steps(1) infinite;
+  }
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+  @media (max-width: 640px) {
+    .bar {
+      flex-wrap: wrap;
+    }
+    nav {
+      order: 3;
+      width: 100%;
+      gap: 0.6rem 1rem;
+    }
+  }
+</style>

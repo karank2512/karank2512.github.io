@@ -1,12 +1,22 @@
 {
   "title": "RelayIQ",
-  "kind": "crate",
   "order": 1,
-  "tagline": "Enrichment control plane",
-  "summary": "Spend control for lead enrichment. Sits between Clay-style workflows and the CRM. Decides per record whether paying for enrichment is worth it, and keeps low-confidence data out of the CRM.",
-  "note": "In a simulated benchmark of 495 submissions, cost per usable lead fell from 13.24 to 4.65 credits and field precision rose from 0.68 to 0.78. Providers were simulated, not live vendors.",
-  "caption": "Decides before it spends; benchmarks use simulated providers.",
+  "tone": "blue",
+  "eyebrow": "Agentic decision engine, solo build",
+  "when": "Jul 2026",
+  "sub": "Decides whether a lead is worth enriching before you pay for it.",
+  "bullets": [
+    {
+      "text": "3.3x lower cost per usable lead on a 495-case seeded benchmark: a multi-step agent routes each field to the best-fit enrichment provider and only spends a credit when it's worth it."
+    },
+    {
+      "text": "Raised precision from 0.682 to 0.773 across six strategies. Calibrated confidence (Brier 0.164, ECE 0.091) holds low-confidence writes back from HubSpot and escalates them to a human in real time."
+    }
+  ],
   "links": [
-    { "label": "GitHub", "href": "https://github.com/karank2512/RelayIQ" }
+    {
+      "label": "github.com/karank2512/RelayIQ",
+      "href": "https://github.com/karank2512/RelayIQ"
+    }
   ]
 }

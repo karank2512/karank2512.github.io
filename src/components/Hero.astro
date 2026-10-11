@@ -1,125 +1,162 @@
 ---
+/**
+ * The hero: the name at billboard size, two lines, the second in red and
+ * stepped right. Under it, the headshot on a yellow block with a thick border
+ * and a corner stamp, beside the tagline, the four approved intro bullets, the
+ * three role stamps and the buttons. No image treatment on the photo.
+ */
 import { Image } from 'astro:assets';
-import LatticeSvg from './LatticeSvg.astro';
-import Vinyl from './Vinyl.astro';
-// The headshot. A 300 x 400 JPEG; the image pipeline resizes it to the
-// displayed size at 1x and 2x and writes webp files with their own name.
 import headshot from '../assets/pro-headshot.jpg';
-
-interface Metric {
-  label: string;
-  value: string;
-  unit?: string;
-  setup: string;
-  source: string;
-}
 
 interface Props {
   name: string;
   tagline: string;
   intro: string[];
-  email: string;
-  photo: { alt: string };
-  /** The one plain link about music: the Spotify playlist, label and URL. */
-  music: {
-    playlist: { label: string; url: string };
-  };
-  /** The median fork metric (A1 in thaw.json). */
-  fork: Metric | undefined;
-  /** The restore metrics (A2 and A3). */
-  restores: Metric[];
+  targets: string[];
+  photo: { alt: string; stamp: string };
+  contact: { email: string; github: string; linkedin: string; resume: string };
 }
-const { name, tagline, intro, email, photo, music, fork, restores } = Astro.props;
+const { name, tagline, intro, targets, photo, contact } = Astro.props;
 const [given, ...rest] = name.split(' ');
 const last = rest.join(' ');
-const receipt = restores[0]?.source;
 
-/** Link the first mention of thaw and RelayIQ without changing the approved words. */
 function linkify(text: string): string {
-  return text
-    .replace(/\bthaw\b/, '<a href="#thaw">thaw</a>')
-    .replace(/\bRelayIQ\b/, '<a href="#projects">RelayIQ</a>');
+  return text.replace(/\bthaw\b/, '<a href="#thaw">thaw</a>').replace(/\bRelayIQ\b/, '<a href="#relayiq">RelayIQ</a>');
 }
+const tilt = [-2, 1.5, -1];
 ---
 
 <section class="hero" id="hero" aria-labelledby="h1">
-  <div class="scene">
-    <div class="field" aria-hidden="true"></div>
-
-    <!-- The copy comes first in the markup so the name and the intro, the
-         largest text on the page, are parsed and painted before the 16 KB
-         of lattice drawing that follows; the stage is positioned absolutely
-         behind the copy, so the order changes nothing on screen. -->
-    <div class="wrap grid">
-      <div class="copy">
-        <!-- The name and the tagline with the headshot beside them, in the
-             first screen on every width. The photo is uncropped at its own
-             3:4 ratio and declares its size, so nothing shifts. -->
-        <div class="id">
-          <h1 id="h1"><span class="l">{given}</span><span class="l">{last}</span></h1>
-          <p class="role">{tagline}</p>
-          <Image
-            class="pic"
-            src={headshot}
-            alt={photo.alt}
-            width={150}
-            height={200}
-            densities={[1, 2]}
-            format="webp"
-            quality={82}
-            loading="eager"
-            decoding="async"
-            fetchpriority="high"
-          />
-        </div>
-        <ul class="intro">
+  <div class="wrap">
+    <h1 id="h1" class="d"><span class="l">{given}</span><span class="l">{last}</span></h1>
+    <div class="grid">
+      <div class="pic">
+        <Image src={headshot} alt={photo.alt} width={300} height={400} densities={[1, 2]} format="webp" quality={82} loading="eager" decoding="async" fetchpriority="high" />
+        <span class="cap mono">{photo.stamp}</span>
+      </div>
+      <div class="side">
+        <p class="role">{tagline}</p>
+        <ul class="bul intro">
           {intro.map((line) => <li set:html={linkify(line)} />)}
         </ul>
-        <!-- Contact me and the playlist link share one row; the link opens
-             in a new tab. After them, on wide screens with a fine pointer,
-             the turntable: decoration only, it plays nothing. -->
+        <ul class="targets" aria-label="Roles I am looking for">
+          {targets.map((t, i) => <li style={`--r:${tilt[i % tilt.length]}deg`}>{t}</li>)}
+        </ul>
         <div class="acts">
-          <a class="cta" href={`mailto:${email}`}>Contact me</a>
-          <a class="playlist" href={music.playlist.url} target="_blank" rel="noopener">{music.playlist.label}</a>
-          <Vinyl />
+          <a class="btn" href={`mailto:${contact.email}`}>Email me</a>
+          <a class="btn o" href={contact.resume}>Resume</a>
+          <a class="btn o" href={contact.github}>GitHub</a>
+          <a class="btn o" href={contact.linkedin}>LinkedIn</a>
         </div>
       </div>
-      <div class="room" aria-hidden="true"></div>
-    </div>
-
-    <div class="stage" id="stage">
-      <LatticeSvg />
-      <canvas id="hero-gl" aria-hidden="true"></canvas>
-    </div>
-
-    <div class="hud">
-      <div class="hud-tl mono">
-        <span>One running session. Drag to orbit, scroll to fork.</span>
-        <button class="fork-btn" id="fork-btn" type="button" aria-pressed="false">Fork it</button>
-      </div>
-
-      {fork && (
-        <dl class="hud-tr mono">
-          <dt>{fork.label}</dt>
-          <dd class="v">{fork.value}{fork.unit && <small>{fork.unit}</small>}</dd>
-          <dd>vs about 340 s cold boot</dd>
-          <dd>{fork.setup}</dd>
-          <dd><a href={fork.source}>Receipt</a></dd>
-        </dl>
-      )}
-
-      {restores.length > 0 && (
-        <dl class="hud-br mono">
-          <dt>Weight restore</dt>
-          {restores.map((r) => (
-            <>
-              <dd class="v">{r.value}{r.unit && <small>{r.unit}</small>}</dd>
-              <dd>{r.setup}</dd>
-            </>
-          ))}
-          {receipt && <dd><a href={receipt}>Receipt</a></dd>}
-        </dl>
-      )}
     </div>
   </div>
 </section>
+
+<style>
+  .hero {
+    padding-block: clamp(1.2rem, 3vw, 2.2rem) 0;
+    border-bottom: var(--rule) solid var(--ink);
+  }
+  h1 {
+    font-size: clamp(4.2rem, 12.5vw, 11rem);
+    text-wrap: balance;
+  }
+  h1 .l {
+    display: block;
+  }
+  h1 .l:nth-child(2) {
+    color: var(--red);
+    padding-left: clamp(0rem, 10vw, 11rem);
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: end;
+    margin-top: clamp(0.8rem, 2vw, 1.4rem);
+  }
+  /* The source is 300 x 400, so the frame never asks for more than that at 1x. */
+  .pic {
+    position: relative;
+    width: min(100%, 20rem);
+    border: var(--rule) solid var(--ink);
+    background: var(--yellow);
+    padding: clamp(0.8rem, 2vw, 1.4rem) clamp(0.8rem, 2vw, 1.4rem) 0;
+  }
+  .pic img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    border: var(--rule) solid var(--ink);
+    border-bottom: 0;
+  }
+  .cap {
+    position: absolute;
+    right: calc(-1 * var(--rule));
+    bottom: 1.2rem;
+    background: var(--ink);
+    color: var(--paper);
+    padding: 0.35rem 0.7rem;
+    transform: rotate(-2deg);
+  }
+  .side {
+    display: grid;
+    gap: 1rem;
+    padding-bottom: clamp(1rem, 2vw, 1.4rem);
+    min-width: 0;
+  }
+  .role {
+    font-size: clamp(1.3rem, 2.4vw, 1.8rem);
+    font-weight: 700;
+    line-height: 1.2;
+    text-wrap: balance;
+  }
+  .intro {
+    max-width: 56ch;
+    font-size: 0.98rem;
+    line-height: 1.45;
+  }
+  .intro :global(a) {
+    text-decoration: underline;
+    text-decoration-color: var(--red);
+    text-decoration-thickness: 3px;
+    text-underline-offset: 0.15em;
+  }
+  .targets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .targets li {
+    border: 3px solid var(--ink);
+    padding: 0.25rem 0.6rem;
+    font-weight: 700;
+    background: var(--yellow);
+    transform: rotate(var(--r, 0deg));
+  }
+  .acts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    h1 .l:nth-child(2) {
+      padding-left: 0;
+    }
+    .pic {
+      width: min(100%, 17rem);
+    }
+    .acts .btn {
+      flex: 1 1 calc(50% - 0.75rem);
+      min-height: 3.6rem;
+    }
+  }
+</style>

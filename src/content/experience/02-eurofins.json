@@ -1,9 +1,16 @@
 {
-  "order": 2,
-  "role": "Data engineer, senior design capstone",
+  "order": 1,
+  "role": "Software engineer, senior capstone",
   "org": "Eurofins Scientific",
   "location": "Madison, WI",
   "start": "Jan 2026",
   "end": "May 2026",
-  "line": "Built a predictive analytics system in FastAPI, React and TypeScript that turns historical lab records into pre-test analyte forecasts with a confidence score attached."
+  "bullets": [
+    {
+      "text": "Shipped a forecasting product lab technicians used daily: partnered with Eurofins as a client through UW-Madison, interviewed technicians across 4+ business units, and took it from prototype to production."
+    },
+    {
+      "text": "Turned 10K+ messy records into forecasts with confidence scores: built the ETL pipelines, PostgreSQL schema, FastAPI backend and React front end; ran sprints as Scrum Master."
+    }
+  ]
 }
