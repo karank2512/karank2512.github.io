@@ -55,7 +55,7 @@ const tilt = [-2, 1.5, -1];
 
 <style>
   .hero {
-    padding-block: clamp(1.2rem, 3vw, 2.2rem) 0;
+    padding-block: clamp(1.2rem, 3vw, 2.2rem) clamp(1.5rem, 3vw, 2.5rem);
     border-bottom: var(--rule) solid var(--ink);
   }
   h1 {
@@ -73,7 +73,7 @@ const tilt = [-2, 1.5, -1];
     display: grid;
     grid-template-columns: auto 1fr;
     gap: clamp(1.5rem, 4vw, 3.5rem);
-    align-items: end;
+    align-items: start;
     margin-top: clamp(0.8rem, 2vw, 1.4rem);
   }
   /* The source is 300 x 400, so the frame never asks for more than that at 1x. */
@@ -82,7 +82,7 @@ const tilt = [-2, 1.5, -1];
     width: min(100%, 20rem);
     border: var(--rule) solid var(--ink);
     background: var(--yellow);
-    padding: clamp(0.8rem, 2vw, 1.4rem) clamp(0.8rem, 2vw, 1.4rem) 0;
+    padding: clamp(0.8rem, 2vw, 1.4rem);
   }
   .pic img {
     width: 100%;
@@ -90,12 +90,11 @@ const tilt = [-2, 1.5, -1];
     aspect-ratio: 3 / 4;
     object-fit: cover;
     border: var(--rule) solid var(--ink);
-    border-bottom: 0;
   }
   .cap {
     position: absolute;
     right: calc(-1 * var(--rule));
-    bottom: 1.2rem;
+    bottom: 2rem;
     background: var(--ink);
     color: var(--paper);
     padding: 0.35rem 0.7rem;
@@ -104,7 +103,6 @@ const tilt = [-2, 1.5, -1];
   .side {
     display: grid;
     gap: 1rem;
-    padding-bottom: clamp(1rem, 2vw, 1.4rem);
     min-width: 0;
   }
   .role {
