@@ -1,5 +1,5 @@
 {
-  "order": 2,
+  "order": 3,
   "role": "Software engineer",
   "org": "OpenAI x UW-Madison SAIL Program",
   "location": "Madison, WI",
@@ -7,7 +7,7 @@
   "end": "Aug 2025",
   "bullets": [
     {
-      "text": "Reduced manual lookup time 40% and cloud cost 25% for 60+ users in UW-Madison IT: built a GPT-4 RAG platform on LangChain and Pinecone serving 50+ concurrent queries at sub-2s latency."
+      "text": "Reduced manual lookup time 40% and cloud cost 25% for 60+ users in UW-Madison IT: built a GPT-4 RAG platform serving 50+ concurrent queries at sub-2s latency."
     }
   ]
 }

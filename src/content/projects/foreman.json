@@ -7,10 +7,10 @@
   "sub": "Describe a job in plain English and Foreman designs a worker for it. Open source, bring your own keys.",
   "bullets": [
     {
-      "text": "Lowered cost per run 30% vs an all-LLM pipeline on a 100-record paired benchmark: routed 5 of 7 steps to deterministic code, taking LLM calls per run from 11 to 6."
+      "text": "Lowered cost per run 30% vs an all-LLM pipeline on a 100-record paired benchmark: routed 5 of 7 steps to deterministic code, taking LLM calls per run from 11 to 6 (list prices)."
     },
     {
-      "text": "Drove repeated side effects after mid-run crashes to zero across 10 failure modes: a Postgres-backed run queue with leases, heartbeats, crash recovery and idempotent resume restores a crashed run within 3 minutes."
+      "text": "Prevented repeated side effects in all 10 tested crash and race failure modes: a Postgres-backed run queue with leases, heartbeats, crash recovery, and idempotent resume restores a crashed run within 3 minutes."
     },
     {
       "text": "Every tool call behind server-side permission checks and every external action behind human approval: an AES-256-GCM credential vault with key rotation, SSRF and DNS-rebinding guards, spend caps."

@@ -27,8 +27,11 @@ const description =
 // Structured data: the page is a profile page whose main entity is Karan,
 // so a search engine can tie the name to the role, the employer, the school
 // and the GitHub and LinkedIn profiles. Facts come from the profile and
-// experience content only; no number appears here.
-const current = roles[0]!.data;
+// experience content only; no number appears here. The job title pairs with
+// worksFor below, so it is the thaw role; the role list runs newest first and
+// does not start with thaw.
+const current = roles.find((r) => r.data.org === 'thaw')?.data;
+if (!current) throw new Error('No thaw role in src/content/experience; the structured data names it.');
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'ProfilePage',
