@@ -7,21 +7,17 @@
   "sub": "Who's hiring for the problem you solve?",
   "bullets": [
     {
-      "text": "Shrank entity-resolution review load 85% (625 to 91) on 16,243 held-out SEC Form D filings: guarded name links by issuer type, incorporation date, and fund status.",
-      "link": {
-        "label": "Receipt",
-        "href": "https://github.com/karank2512/tell-ai/blob/main/README.md#methods-and-numbers"
-      }
+      "text": "Linked 312 SEC Form D raises to each filer's own website using public data only, 38 of 38 hand-checked links correct (95% lower bound 0.91): required the site to state the exact legal name, or brand plus filing city, then linked by CIK."
     },
     {
-      "text": "Deployed 6 collectors on a 4x/day GitHub Actions cron at $0/month: job-board APIs, SEC EDGAR, and news into Neon Postgres; sha256 event IDs make reruns insert 0 rows, and CI replays every collector twice."
-    },
-    {
-      "text": "13.0% of 1,000 randomly sampled active YC companies have a job board on one of the four public ATS APIs tell reads, and 30.2% (794 of 2,625) of their open postings had been open more than 90 days.",
+      "text": "Found 14.8% of 2,625 open postings on 129 YC job boards had been open 180+ days, and 57% of boards with dated roles held at least one: fingerprinted every requisition so hiring signals count only fresh, unique openings.",
       "link": {
         "label": "Receipt",
         "href": "https://github.com/karank2512/tell-ai/blob/main/docs/methods/snapshot-2026-10-14.md"
       }
+    },
+    {
+      "text": "Deployed 6 collectors (4 job-board APIs, SEC EDGAR, news) on a 4x/day GitHub Actions cron with Neon Postgres and a static JSON API at $0/month: sha256 event IDs make reruns insert 0 rows, and CI replays every collector twice to prove it."
     }
   ],
   "links": [

@@ -117,13 +117,9 @@ test.describe('home page', () => {
     expect(await hrefs(1)).toEqual(['https://github.com/karank2512/RelayIQ']);
     expect(await hrefs(2)).toEqual(['https://github.com/karank2512/Foreman']);
     expect(await hrefs(3)).toEqual(['https://github.com/karank2512/tell-ai', 'https://github.com/karank2512/tell-data']);
-    // the thaw fork number carries its receipt, and so do tell's measured numbers
+    // the thaw fork number and tell's job-board finding carry their public receipts
     await expect(posters.nth(0).getByRole('link', { name: 'Receipt' })).toHaveAttribute('href', /thaw-ai\/thaw\/blob\/main\/site\/receipts/);
-    const tellReceipts = posters.nth(3).getByRole('link', { name: 'Receipt' });
-    expect(await tellReceipts.evaluateAll((as) => as.map((a) => a.getAttribute('href')))).toEqual([
-      'https://github.com/karank2512/tell-ai/blob/main/README.md#methods-and-numbers',
-      'https://github.com/karank2512/tell-ai/blob/main/docs/methods/snapshot-2026-10-14.md',
-    ]);
+    await expect(posters.nth(3).getByRole('link', { name: 'Receipt' })).toHaveAttribute('href', 'https://github.com/karank2512/tell-ai/blob/main/docs/methods/snapshot-2026-10-14.md');
   });
 
   test('every role and leadership entry is a row with dates, org and at least one bullet', async ({ page }) => {
