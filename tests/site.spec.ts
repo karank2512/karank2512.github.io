@@ -46,6 +46,9 @@ test.describe('home page', () => {
     expect(data.mainEntity['@type']).toBe('Person');
     expect(data.mainEntity.name).toBe('Karan Kapur');
     expect(data.mainEntity.sameAs).toEqual(['https://github.com/karank2512', 'https://www.linkedin.com/in/karankapur5']);
+    // the job title belongs to the employer in worksFor, whichever role is listed first
+    expect(data.mainEntity.jobTitle).toBe('Co-founder and cloud storage engineer, thaw');
+    expect(data.mainEntity.worksFor.name).toBe('thaw');
     // no number is claimed in structured data; the bullets on the page carry them
     expect(JSON.stringify(data)).not.toMatch(/\d+(\.\d+)?\s?(GB\/s|s\b|×|x\b)/);
 
@@ -113,20 +116,26 @@ test.describe('home page', () => {
     expect(await hrefs(0)).toEqual(['https://github.com/thaw-ai/thaw', 'https://thaw.sh']);
     expect(await hrefs(1)).toEqual(['https://github.com/karank2512/RelayIQ']);
     expect(await hrefs(2)).toEqual(['https://github.com/karank2512/Foreman']);
-    await expect(posters.nth(3).locator('.foot a')).toHaveCount(0);
-    await expect(posters.nth(3).locator('.foot')).toHaveText('Repo opens soon');
-    // the thaw fork number carries its receipt
+    expect(await hrefs(3)).toEqual(['https://github.com/karank2512/tell-ai', 'https://github.com/karank2512/tell-data']);
+    // the thaw fork number carries its receipt, and so do tell's measured numbers
     await expect(posters.nth(0).getByRole('link', { name: 'Receipt' })).toHaveAttribute('href', /thaw-ai\/thaw\/blob\/main\/site\/receipts/);
+    const tellReceipts = posters.nth(3).getByRole('link', { name: 'Receipt' });
+    expect(await tellReceipts.evaluateAll((as) => as.map((a) => a.getAttribute('href')))).toEqual([
+      'https://github.com/karank2512/tell-ai/blob/main/README.md#methods-and-numbers',
+      'https://github.com/karank2512/tell-ai/blob/main/docs/methods/snapshot-2026-10-14.md',
+    ]);
   });
 
   test('every role and leadership entry is a row with dates, org and at least one bullet', async ({ page }) => {
     await page.goto('/');
     const rows = page.locator('#experience .roles > li');
-    await expect(rows).toHaveCount(7);
-    await expect(rows.nth(0).locator('.r .d')).toHaveText('Co-founder and cloud storage engineer');
-    await expect(rows.nth(1).locator('.r .d')).toHaveText('Software engineer, senior capstone');
-    await expect(rows.nth(1).locator('.o')).toContainText('Eurofins Scientific');
-    await expect(rows.nth(5).locator('.r .d')).toHaveText('VP, National Executive Council');
+    await expect(rows).toHaveCount(8);
+    await expect(rows.nth(0).locator('.r .d')).toHaveText('Data analyst');
+    await expect(rows.nth(0).locator('.o')).toContainText('Wisconsin Union');
+    await expect(rows.nth(1).locator('.r .d')).toHaveText('Co-founder and cloud storage engineer');
+    await expect(rows.nth(2).locator('.r .d')).toHaveText('Software engineer, senior capstone');
+    await expect(rows.nth(2).locator('.o')).toContainText('Eurofins Scientific');
+    await expect(rows.nth(6).locator('.r .d')).toHaveText('VP, National Executive Council');
     for (const row of await rows.all()) {
       await expect(row.locator('.w')).toHaveText(/\w+ \d{4} to (\w+ \d{4}|Present)/);
       await expect(row.locator('.bul li')).not.toHaveCount(0);

@@ -1,0 +1,16 @@
+{
+  "order": 0,
+  "role": "Data analyst",
+  "org": "Wisconsin Union",
+  "location": "Madison, WI",
+  "start": "Aug 2026",
+  "end": "Present",
+  "bullets": [
+    {
+      "text": "Replaced the team's old scheduling software with an app I shipped in 2 days, used daily by 250+ employees: 4,400+ shifts, self-serve accounts, and work chat; built on TypeScript, MySQL, Docker, and AWS."
+    },
+    {
+      "text": "Forecasted weekly food demand and staffing from sales and shift data in Excel to guide orders and schedules."
+    }
+  ]
+}
