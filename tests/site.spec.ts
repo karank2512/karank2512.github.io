@@ -104,11 +104,14 @@ test.describe('home page', () => {
     expect(await posters.evaluateAll((els) => els.map((el) => el.id))).toEqual(['thaw', 'relayiq', 'foreman', 'tell', 'delivery-doctor']);
     const tones = await posters.evaluateAll((els) => els.map((el) => [...el.classList].filter((c) => c !== 'poster').join('')));
     expect(new Set(tones).size, `tones ${tones.join(', ')} are all different`).toBe(5);
-    // no poster is wider than another, and in two columns no poster is taller than its row mate
+    // the four paired posters share one width; the odd fifth spans the row so the grid has no hole
     const boxes = (await Promise.all((await posters.all()).map((p) => p.boundingBox()))) as Box[];
-    const widths = new Set(boxes.map((b) => Math.round(b.width)));
-    expect(widths.size, boxes.map(fmt).join('\n')).toBe(1);
-    if (testInfo.project.name !== 'mobile-390') {
+    const widths = boxes.map((b) => Math.round(b.width));
+    if (testInfo.project.name === 'mobile-390') {
+      expect(new Set(widths).size, boxes.map(fmt).join('\n')).toBe(1);
+    } else {
+      expect(new Set(widths.slice(0, 4)).size, boxes.map(fmt).join('\n')).toBe(1);
+      expect(widths[4]!, boxes.map(fmt).join('\n')).toBeGreaterThan(widths[0]!);
       expect(Math.round(boxes[0]!.height)).toBe(Math.round(boxes[1]!.height));
       expect(Math.round(boxes[2]!.height)).toBe(Math.round(boxes[3]!.height));
     }
