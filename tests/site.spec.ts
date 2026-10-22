@@ -71,7 +71,7 @@ test.describe('home page', () => {
     await expect(page.locator('#hero .targets li')).toHaveText(['Founding engineer', 'Forward deployed', 'GTM engineering']);
     const acts = page.locator('#hero .acts a');
     await expect(acts).toHaveText(['Email me', 'Resume', 'GitHub', 'LinkedIn']);
-    await expect(acts.nth(0)).toHaveAttribute('href', 'mailto:kkapur5@wisc.edu');
+    await expect(acts.nth(0)).toHaveAttribute('href', 'mailto:kapur04karan@gmail.com');
     await expect(acts.nth(1)).toHaveAttribute('href', '/resume.pdf');
     await expect(acts.nth(2)).toHaveAttribute('href', 'https://github.com/karank2512');
     await expect(acts.nth(3)).toHaveAttribute('href', 'https://www.linkedin.com/in/karankapur5');
@@ -98,6 +98,8 @@ test.describe('home page', () => {
   });
 
   test('five posters on equal footing, in order, each in its own tone, with real repo links', async ({ page }, testInfo) => {
+    // the drum and the reveals are flourishes; measure the plain grid everyone gets under reduced motion
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     const posters = page.locator('#projects .poster');
     await expect(posters).toHaveCount(5);
@@ -121,9 +123,8 @@ test.describe('home page', () => {
     expect(await hrefs(2)).toEqual(['https://github.com/karank2512/Foreman']);
     expect(await hrefs(3)).toEqual(['https://github.com/karank2512/tell-ai', 'https://github.com/karank2512/tell-data']);
     expect(await hrefs(4)).toEqual(['https://github.com/karank2512/delivery-doctor']);
-    // the thaw fork number and tell's job-board finding carry their public receipts
+    // the thaw fork number carries its public receipt; tell's current bullets make no dated-snapshot claim, so they hold no receipt link
     await expect(posters.nth(0).getByRole('link', { name: 'Receipt' })).toHaveAttribute('href', /thaw-ai\/thaw\/blob\/main\/site\/receipts/);
-    await expect(posters.nth(3).getByRole('link', { name: 'Receipt' })).toHaveAttribute('href', 'https://github.com/karank2512/tell-ai/blob/main/docs/methods/snapshot-2026-10-14.md');
   });
 
   test('every role and leadership entry is a row with dates, org and at least one bullet', async ({ page }) => {
@@ -165,14 +166,14 @@ test.describe('home page', () => {
   test('contact links are real', async ({ page }) => {
     await page.goto('/');
     const links = page.locator('#contact a');
-    await expect(links).toHaveText(['kkapur5@wisc.edu', 'GitHub', 'LinkedIn', 'Resume, PDF']);
-    await expect(links.nth(0)).toHaveAttribute('href', 'mailto:kkapur5@wisc.edu');
+    await expect(links).toHaveText(['kapur04karan@gmail.com', 'GitHub', 'LinkedIn', 'Resume, PDF']);
+    await expect(links.nth(0)).toHaveAttribute('href', 'mailto:kapur04karan@gmail.com');
     await expect(links.nth(3)).toHaveAttribute('href', '/resume.pdf');
     const pdf = await page.request.get('/resume.pdf');
     expect(pdf.ok()).toBe(true);
   });
 
-  test('loads no script, no third-party request, no iframe, no audio, ever', async ({ page }) => {
+  test('only the one first-party motion script, still no third-party request, no iframe, no audio, ever', async ({ page }) => {
     const requests: string[] = [];
     page.on('request', (r) => requests.push(r.url()));
     await page.goto('/');
@@ -180,8 +181,9 @@ test.describe('home page', () => {
     const origin = new URL(page.url()).origin;
     const foreign = () => requests.filter((u) => !u.startsWith(origin) && !u.startsWith('data:'));
     expect(foreign(), 'nothing off-origin on load').toEqual([]);
-    expect(requests.filter((u) => /\.js(\?|$)/.test(u)), 'no script on the wire').toEqual([]);
-    await expect(page.locator('script:not([type="application/ld+json"])')).toHaveCount(0);
+    // the motion preview ships exactly one same-origin script (gsap + the signature effects)
+    expect(requests.filter((u) => /\.js(\?|$)/.test(u)), 'one same-origin script on the wire').toHaveLength(1);
+    await expect(page.locator('script:not([type="application/ld+json"])')).toHaveCount(1);
     await expect(page.locator('iframe, audio, video, embed, object')).toHaveCount(0);
     const html = await page.content();
     for (const re of [/soundcloud/i, /<iframe/i, /<audio/i, /auto_play/i]) {
