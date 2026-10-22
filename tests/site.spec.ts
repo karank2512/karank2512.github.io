@@ -97,13 +97,13 @@ test.describe('home page', () => {
     await expect(nav.getByRole('link')).toHaveText(['Projects', 'Experience', 'Skills', 'Off the clock', 'Contact']);
   });
 
-  test('four posters on equal footing, in order, each in its own tone, with real repo links', async ({ page }, testInfo) => {
+  test('five posters on equal footing, in order, each in its own tone, with real repo links', async ({ page }, testInfo) => {
     await page.goto('/');
     const posters = page.locator('#projects .poster');
-    await expect(posters).toHaveCount(4);
-    expect(await posters.evaluateAll((els) => els.map((el) => el.id))).toEqual(['thaw', 'relayiq', 'foreman', 'tell']);
+    await expect(posters).toHaveCount(5);
+    expect(await posters.evaluateAll((els) => els.map((el) => el.id))).toEqual(['thaw', 'relayiq', 'foreman', 'tell', 'delivery-doctor']);
     const tones = await posters.evaluateAll((els) => els.map((el) => [...el.classList].filter((c) => c !== 'poster').join('')));
-    expect(new Set(tones).size, `tones ${tones.join(', ')} are all different`).toBe(4);
+    expect(new Set(tones).size, `tones ${tones.join(', ')} are all different`).toBe(5);
     // no poster is wider than another, and in two columns no poster is taller than its row mate
     const boxes = (await Promise.all((await posters.all()).map((p) => p.boundingBox()))) as Box[];
     const widths = new Set(boxes.map((b) => Math.round(b.width)));
@@ -117,6 +117,7 @@ test.describe('home page', () => {
     expect(await hrefs(1)).toEqual(['https://github.com/karank2512/RelayIQ']);
     expect(await hrefs(2)).toEqual(['https://github.com/karank2512/Foreman']);
     expect(await hrefs(3)).toEqual(['https://github.com/karank2512/tell-ai', 'https://github.com/karank2512/tell-data']);
+    expect(await hrefs(4)).toEqual(['https://github.com/karank2512/delivery-doctor']);
     // the thaw fork number and tell's job-board finding carry their public receipts
     await expect(posters.nth(0).getByRole('link', { name: 'Receipt' })).toHaveAttribute('href', /thaw-ai\/thaw\/blob\/main\/site\/receipts/);
     await expect(posters.nth(3).getByRole('link', { name: 'Receipt' })).toHaveAttribute('href', 'https://github.com/karank2512/tell-ai/blob/main/docs/methods/snapshot-2026-10-14.md');
