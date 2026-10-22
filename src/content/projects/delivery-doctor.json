@@ -1,0 +1,22 @@
+{
+  "title": "Delivery Doctor",
+  "order": 4,
+  "tone": "ink",
+  "eyebrow": "Agent telemetry transport verifier, solo build",
+  "when": "Oct 2026",
+  "sub": "Your agent sent the event. Your dashboard never got it. This names the hop it died at.",
+  "bullets": [
+    {
+      "text": "Named the exact hop where agent telemetry dies in transit across 9 reproduced failure modes, from buffer drops and expired keys to 429s and queue overflows: replayed tagged canary events through the SDK and read each one back from intake."
+    },
+    {
+      "text": "Turned client-side diagnosis into a lookup, not a guess: a delivery ledger recording every event state change, lined up against the server's intake log. Zero runtime dependencies, one local command."
+    }
+  ],
+  "links": [
+    {
+      "label": "github.com/karank2512/delivery-doctor",
+      "href": "https://github.com/karank2512/delivery-doctor"
+    }
+  ]
+}

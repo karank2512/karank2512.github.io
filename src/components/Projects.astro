@@ -86,6 +86,19 @@ const count = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'][projects.leng
     --c: var(--paper);
     --fg: var(--ink);
   }
+  .ink {
+    --c: var(--ink);
+    --fg: var(--paper);
+  }
+  /* Five posters: the odd one out spans the row so the grid has no hole. */
+  .posters li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+  @media (max-width: 640px) {
+    .posters li:last-child:nth-child(odd) {
+      grid-column: auto;
+    }
+  }
   .when {
     position: absolute;
     top: 1.2rem;
