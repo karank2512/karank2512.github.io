@@ -20,9 +20,10 @@
 <script>
   // Preview branch: DOM handles are loosely typed; the repo's `astro check`
   // runs strict, and this experiment ships behind a branch, not main.
+  // No animation library: reveals run on IntersectionObserver and the drum
+  // tweens one number with a small rAF helper, so the whole script stays
+  // inside main's 12 KB first-load budget.
   // @ts-nocheck
-  import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = window.matchMedia('(pointer: fine)').matches;
@@ -181,21 +182,25 @@
     }
   }
 
-  /* 4. Scroll reveals: sections rise once as they enter. Initial state is
-     set from script, so without it nothing is ever hidden. Opacity only,
-     never visibility: hidden content would leave the accessibility tree
-     and keyboard focus would land on invisible links. */
-  if (!reduced) {
-    gsap.registerPlugin(ScrollTrigger);
-    document.querySelectorAll('main section:not(.hero) .wrap > *:not(.posters)').forEach((el) => {
-      gsap.from(el, {
-        y: 26,
-        opacity: 0,
-        duration: 0.55,
-        ease: 'power2.out',
-        scrollTrigger: { trigger: el, start: 'top 88%', once: true },
-      });
-    });
+  /* 4. Scroll reveals: sections rise once as they enter. The hiding class
+     is added from script, so without it nothing is ever hidden. Opacity
+     only, never visibility: hidden content would leave the accessibility
+     tree and keyboard focus would land on invisible links. */
+  if (!reduced && 'IntersectionObserver' in window) {
+    const els = document.querySelectorAll('main section:not(.hero) .wrap > *:not(.posters)');
+    els.forEach((el) => el.classList.add('reveal'));
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const en of entries) {
+          if (en.isIntersecting) {
+            en.target.classList.add('in');
+            io.unobserve(en.target);
+          }
+        }
+      },
+      { rootMargin: '0px 0px -12% 0px' },
+    );
+    els.forEach((el) => io.observe(el));
   }
 
   /* 5. The drum: the five posters on a curved wall you can drag or arrow
@@ -227,11 +232,28 @@
           const z = (Math.cos(rad) - 1) * 24; // rem back
           const rot = -d * 0.85;
           li.style.transform = `translateX(${x}rem) translateZ(${z}rem) rotateY(${rot}deg)`;
-          li.classList.toggle('front', Math.abs((((d % 360) + 540) % 360) - 180) > 180 - step / 2);
+          const nd = ((d % 360) + 540) % 360 - 180; // signed offset from the front, in [-180, 180)
+          li.classList.toggle('front', Math.abs(nd) < step / 2);
         });
       };
       setAngle(0);
       cards[0].classList.add('front');
+
+      /* One-number tween, power3.out, restartable - the only motion helper
+         the drum needs. */
+      const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+      let spinRaf = 0;
+      const spinTo = (target, duration) => {
+        cancelAnimationFrame(spinRaf);
+        const from = angle;
+        const start = performance.now();
+        const tick = (now) => {
+          const t = Math.min(1, (now - start) / duration);
+          setAngle(from + (target - from) * easeOutCubic(t));
+          if (t < 1) spinRaf = requestAnimationFrame(tick);
+        };
+        spinRaf = requestAnimationFrame(tick);
+      };
 
       let dragging = false;
       let startX = 0;
@@ -242,10 +264,9 @@
         moved = 0;
         startX = e.clientX;
         startA = angle;
-        gsap.killTweensOf(proxy);
+        cancelAnimationFrame(spinRaf);
         list.setPointerCapture(e.pointerId);
       });
-      const proxy = { a: 0 };
       list.addEventListener('pointermove', (e) => {
         if (!dragging) return;
         const da = ((e.clientX - startX) / list.clientWidth) * step * 2.2;
@@ -256,13 +277,7 @@
         if (!dragging) return;
         dragging = false;
         const snapped = Math.round(angle / step) * step;
-        proxy.a = angle;
-        gsap.to(proxy, {
-          a: snapped,
-          duration: 0.5,
-          ease: 'power3.out',
-          onUpdate: () => setAngle(proxy.a),
-        });
+        spinTo(snapped, 500);
       };
       list.addEventListener('pointerup', end);
       list.addEventListener('pointercancel', end);
@@ -276,15 +291,10 @@
           e.preventDefault();
           return;
         }
-        if (180 - Math.abs((((i * step - angle) % 360) + 540) % 360 - 180) >= step / 2) return;
+        const nd = (((i * step - angle) % 360) + 540) % 360 - 180;
+        if (Math.abs(nd) < step / 2) return; // already front: let its links work
         e.preventDefault();
-        proxy.a = angle;
-        gsap.to(proxy, {
-          a: i * step,
-          duration: 0.5,
-          ease: 'power3.out',
-          onUpdate: () => setAngle(proxy.a),
-        });
+        spinTo(i * step, 500);
       });
       list.tabIndex = 0;
       list.addEventListener('keydown', (e) => {
@@ -292,14 +302,32 @@
         e.preventDefault();
         const dir = e.key === 'ArrowRight' ? 1 : -1;
         const target = Math.round(angle / step) * step + dir * step;
-        proxy.a = angle;
-        gsap.to(proxy, { a: target, duration: 0.45, ease: 'power3.out', onUpdate: () => setAngle(proxy.a) });
+        spinTo(target, 450);
       });
     }
   }
 </script>
 
 <style is:global>
+  .reveal {
+    opacity: 0;
+    transform: translateY(26px);
+    transition:
+      opacity 0.55s ease-out,
+      transform 0.55s ease-out;
+  }
+  .reveal.in {
+    opacity: 1;
+    transform: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+
   canvas.trail {
     position: fixed;
     inset: 0;
