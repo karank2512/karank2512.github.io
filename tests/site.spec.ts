@@ -71,7 +71,7 @@ test.describe('home page', () => {
     await expect(page.locator('#hero .targets li')).toHaveText(['Founding engineer', 'Forward deployed', 'GTM engineering']);
     const acts = page.locator('#hero .acts a');
     await expect(acts).toHaveText(['Email me', 'Resume', 'GitHub', 'LinkedIn']);
-    await expect(acts.nth(0)).toHaveAttribute('href', 'mailto:kkapur5@wisc.edu');
+    await expect(acts.nth(0)).toHaveAttribute('href', 'mailto:kapur04karan@gmail.com');
     await expect(acts.nth(1)).toHaveAttribute('href', '/resume.pdf');
     await expect(acts.nth(2)).toHaveAttribute('href', 'https://github.com/karank2512');
     await expect(acts.nth(3)).toHaveAttribute('href', 'https://www.linkedin.com/in/karankapur5');
@@ -121,9 +121,8 @@ test.describe('home page', () => {
     expect(await hrefs(2)).toEqual(['https://github.com/karank2512/Foreman']);
     expect(await hrefs(3)).toEqual(['https://github.com/karank2512/tell-ai', 'https://github.com/karank2512/tell-data']);
     expect(await hrefs(4)).toEqual(['https://github.com/karank2512/delivery-doctor']);
-    // the thaw fork number and tell's job-board finding carry their public receipts
+    // the thaw fork number carries its public receipt; tell's current bullets make no dated-snapshot claim, so they hold no receipt link
     await expect(posters.nth(0).getByRole('link', { name: 'Receipt' })).toHaveAttribute('href', /thaw-ai\/thaw\/blob\/main\/site\/receipts/);
-    await expect(posters.nth(3).getByRole('link', { name: 'Receipt' })).toHaveAttribute('href', 'https://github.com/karank2512/tell-ai/blob/main/docs/methods/snapshot-2026-10-14.md');
   });
 
   test('every role and leadership entry is a row with dates, org and at least one bullet', async ({ page }) => {
@@ -165,8 +164,8 @@ test.describe('home page', () => {
   test('contact links are real', async ({ page }) => {
     await page.goto('/');
     const links = page.locator('#contact a');
-    await expect(links).toHaveText(['kkapur5@wisc.edu', 'GitHub', 'LinkedIn', 'Resume, PDF']);
-    await expect(links.nth(0)).toHaveAttribute('href', 'mailto:kkapur5@wisc.edu');
+    await expect(links).toHaveText(['kapur04karan@gmail.com', 'GitHub', 'LinkedIn', 'Resume, PDF']);
+    await expect(links.nth(0)).toHaveAttribute('href', 'mailto:kapur04karan@gmail.com');
     await expect(links.nth(3)).toHaveAttribute('href', '/resume.pdf');
     const pdf = await page.request.get('/resume.pdf');
     expect(pdf.ok()).toBe(true);
