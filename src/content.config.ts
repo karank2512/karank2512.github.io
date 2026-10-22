@@ -29,7 +29,7 @@ const projects = defineCollection({
   schema: z.object({
     title: z.string().min(1),
     order: z.number().int().nonnegative(),
-    tone: z.enum(['red', 'blue', 'yellow', 'paper']),
+    tone: z.enum(['red', 'blue', 'yellow', 'paper', 'ink']),
     /** Mono eyebrow over the title, e.g. the resume's category. */
     eyebrow: z.string().min(1),
     /** The date stamp in the corner. For an unreleased project, its status. */

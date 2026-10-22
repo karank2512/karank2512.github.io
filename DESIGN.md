@@ -4,7 +4,7 @@ This is the design contract for the site. Code that disagrees with this file is 
 
 ## 1. Visual theme and atmosphere
 
-A screen-printed poster. One warm paper sheet, flat ink, three pure pigments (red, blue, yellow), and condensed uppercase display type at billboard size. Everything is cut by thick rules; nothing is rounded, blurred, shadowed softly or gradient. The only shadows are hard ink offsets that appear when a poster or a button lifts. One photograph in the hero, untreated, in a yellow frame with a corner stamp; four more photographs in paper frames on a blue field, tilted a degree or two, with no captions. The four projects are four posters of the same size and the same parts, each in its own pigment: no project is featured and none has a section of its own.
+A screen-printed poster. One warm paper sheet, flat ink, three pure pigments (red, blue, yellow), and condensed uppercase display type at billboard size. Everything is cut by thick rules; nothing is rounded, blurred, shadowed softly or gradient. The only shadows are hard ink offsets that appear when a poster or a button lifts. One photograph in the hero, untreated, in a yellow frame with a corner stamp; four more photographs in paper frames on a blue field, tilted a degree or two, with no captions. The five projects are five posters with the same parts, each in its own pigment or the ink fill: no project is featured and none has a section of its own. With five, the odd poster spans the full row so the grid has no hole.
 
 Audience: a recruiter skimming for 30 seconds, then a hiring manager reading the bullets. The hero names the target roles as three stamps under the intro. Every bullet on the page is the resume wording.
 
@@ -19,6 +19,7 @@ Audience: a recruiter skimming for 30 seconds, then a hiring manager reading the
 | Red fill | `#C62914` | The fill of the thaw poster, which carries Paper text. | 4.9:1 with Paper |
 | Blue | `#1B3FD6` | The RelayIQ poster fill, the "Off the clock" field, the intro bullet markers, focus rings, button hover shadows. | 6.8:1 with Paper |
 | Yellow | `#FFD21E` | The Foreman poster fill, the photo frame, the three role stamps, selection, contact link underlines. Ink text only. | 13.0:1 with Ink |
+| Ink fill | `#121212` | The Delivery Doctor poster fill, which carries Paper text. | 15.7:1 with Paper |
 
 Every text pairing is at least 4.5:1; Red is never used for text under 24px. No other colors, no gradients, no transparency.
 
@@ -86,7 +87,7 @@ When asked to change the site:
 - Read this file, then `CLAUDE.md`, then the content in `src/content`. Bullets are resume wording; the hero tagline and intro are approved verbatim. Do not add a number that is not on the resume or in a receipt.
 - Add copy in sentence case with periods. No em dashes, no emoji, no "elevate" or "seamless", no puns.
 - Use only the seven colors in section 2 and the three typefaces in section 3. No radius, no soft shadow, no gradient, no blur, no new font.
-- Keep the page order in section 5 and the four posters equal: same parts, same size, one tone each. A fifth project needs a fifth tone decision here before it ships.
+- Keep the page order in section 5 and the posters equal: same parts, one tone each. The fifth poster (Delivery Doctor) uses the ink fill, recorded in section 2.
 - No script on the page, no third-party request, no iframe, no audio. The only thing about music is the playlist link in "Off the clock".
 - Search engines: the build writes `sitemap-index.xml` (the `@astrojs/sitemap` integration) and `public/robots.txt` points at it. The home page carries one `application/ld+json` block, a `ProfilePage` whose `mainEntity` is a `Person`, built in `index.astro` from the profile and experience content: no number goes in it. The 404 page is `noindex` and has no canonical link.
 - Run `npm run check`, `npm run build`, `npm run test:e2e` and `npm run lhci` before calling work done. The budgets in `lighthouserc.cjs` are the exit criteria.
