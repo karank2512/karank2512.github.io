@@ -182,13 +182,15 @@
   }
 
   /* 4. Scroll reveals: sections rise once as they enter. Initial state is
-     set from script, so without it nothing is ever hidden. */
+     set from script, so without it nothing is ever hidden. Opacity only,
+     never visibility: hidden content would leave the accessibility tree
+     and keyboard focus would land on invisible links. */
   if (!reduced) {
     gsap.registerPlugin(ScrollTrigger);
     document.querySelectorAll('main section:not(.hero) .wrap > *:not(.posters)').forEach((el) => {
       gsap.from(el, {
         y: 26,
-        autoAlpha: 0,
+        opacity: 0,
         duration: 0.55,
         ease: 'power2.out',
         scrollTrigger: { trigger: el, start: 'top 88%', once: true },

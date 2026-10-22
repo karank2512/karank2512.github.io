@@ -98,6 +98,8 @@ test.describe('home page', () => {
   });
 
   test('five posters on equal footing, in order, each in its own tone, with real repo links', async ({ page }, testInfo) => {
+    // the drum and the reveals are flourishes; measure the plain grid everyone gets under reduced motion
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/');
     const posters = page.locator('#projects .poster');
     await expect(posters).toHaveCount(5);
@@ -171,7 +173,7 @@ test.describe('home page', () => {
     expect(pdf.ok()).toBe(true);
   });
 
-  test('loads no script, no third-party request, no iframe, no audio, ever', async ({ page }) => {
+  test('only the one first-party motion script, still no third-party request, no iframe, no audio, ever', async ({ page }) => {
     const requests: string[] = [];
     page.on('request', (r) => requests.push(r.url()));
     await page.goto('/');
@@ -179,8 +181,9 @@ test.describe('home page', () => {
     const origin = new URL(page.url()).origin;
     const foreign = () => requests.filter((u) => !u.startsWith(origin) && !u.startsWith('data:'));
     expect(foreign(), 'nothing off-origin on load').toEqual([]);
-    expect(requests.filter((u) => /\.js(\?|$)/.test(u)), 'no script on the wire').toEqual([]);
-    await expect(page.locator('script:not([type="application/ld+json"])')).toHaveCount(0);
+    // the motion preview ships exactly one same-origin script (gsap + the signature effects)
+    expect(requests.filter((u) => /\.js(\?|$)/.test(u)), 'one same-origin script on the wire').toHaveLength(1);
+    await expect(page.locator('script:not([type="application/ld+json"])')).toHaveCount(1);
     await expect(page.locator('iframe, audio, video, embed, object')).toHaveCount(0);
     const html = await page.content();
     for (const re of [/soundcloud/i, /<iframe/i, /<audio/i, /auto_play/i]) {

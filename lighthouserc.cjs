@@ -52,8 +52,10 @@ module.exports = {
         // rasterizer, which the page treats as no WebGL, so they are outside
         // this run on purpose. The two small motion modules (cards, tiles)
         // hold no three.js and load on approach, after the first load this
-        // budget measures.
-        'resource-summary:script:size': ['error', { maxNumericValue: 12288 }],
+        // budget measures. On the motion preview branch the first-load script
+        // also carries gsap and ScrollTrigger (about 48.7 KB over the wire),
+        // so this branch's budget is 50 KB; main stays at 12 KB.
+        'resource-summary:script:size': ['error', { maxNumericValue: 51200 }],
         'resource-summary:total:size': ['error', { maxNumericValue: 614400 }],
         'resource-summary:third-party:count': ['error', { maxNumericValue: 0 }],
       },
