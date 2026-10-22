@@ -1,0 +1,374 @@
+---
+/**
+ * Preview branch experiment: reel-style signature moments layered on the v4
+ * Poster design, in the site's own palette and type. Everything here is
+ * progressive enhancement: with no script, or with prefers-reduced-motion,
+ * the page is exactly v4 plus the Delivery Doctor poster.
+ *
+ * Moments: an ink-square cursor trail, a screen-print misregistration on the
+ * hero name, one generative flow-field band, scroll reveals, and a 3D drum
+ * for the posters (desktop pointers only).
+ */
+---
+
+<canvas class="trail" aria-hidden="true"></canvas>
+
+<div class="flowband" aria-hidden="true">
+  <canvas class="flow"></canvas>
+</div>
+
+<script>
+  // Preview branch: DOM handles are loosely typed; the repo's `astro check`
+  // runs strict, and this experiment ships behind a branch, not main.
+  // @ts-nocheck
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(pointer: fine)').matches;
+
+  const INK = '#121212';
+  const RED = '#e8321e';
+  const BLUE = '#1b3fd6';
+
+  /* 1. Cursor trail: small pigment squares, the same shape as the site's
+     bullet markers. No glow, no blur. */
+  if (!reduced && finePointer) {
+    const canvas = document.querySelector('canvas.trail');
+    const ctx = canvas.getContext('2d');
+    const colors = [INK, INK, INK, RED, BLUE];
+    let parts = [];
+    let raf = 0;
+    const fit = () => {
+      canvas.width = innerWidth * devicePixelRatio;
+      canvas.height = innerHeight * devicePixelRatio;
+    };
+    fit();
+    addEventListener('resize', fit);
+    let last = 0;
+    addEventListener('pointermove', (e) => {
+      const now = performance.now();
+      if (now - last < 24 || parts.length > 70) return;
+      last = now;
+      parts.push({
+        x: e.clientX * devicePixelRatio,
+        y: e.clientY * devicePixelRatio,
+        vx: (Math.random() - 0.5) * 1.6 * devicePixelRatio,
+        vy: (Math.random() - 0.9) * 1.6 * devicePixelRatio,
+        s: (3 + Math.random() * 4) * devicePixelRatio,
+        r: Math.random() * Math.PI,
+        vr: (Math.random() - 0.5) * 0.12,
+        life: 1,
+        decay: 0.02 + Math.random() * 0.02,
+        c: colors[(Math.random() * colors.length) | 0],
+      });
+      if (!raf) raf = requestAnimationFrame(tick);
+    });
+    function tick() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      parts = parts.filter((p) => (p.life -= p.decay) > 0);
+      for (const p of parts) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.03 * devicePixelRatio;
+        p.r += p.vr;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.r);
+        ctx.globalAlpha = Math.min(1, p.life) * 0.85;
+        ctx.fillStyle = p.c;
+        ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s);
+        ctx.restore();
+      }
+      raf = parts.length ? requestAnimationFrame(tick) : 0;
+    }
+  }
+
+  /* 2. Misregistration: the name picks up hard red and blue offsets that
+     follow the cursor and settle back to flat, like a misprinted screen
+     print. Hard offsets only, no blur. */
+  if (!reduced && finePointer) {
+    const h1 = document.querySelector('.hero h1');
+    if (h1) {
+      let target = 0;
+      let cur = 0;
+      let raf = 0;
+      const amp = 4;
+      addEventListener('pointermove', (e) => {
+        target = ((e.clientX / innerWidth) * 2 - 1) * amp;
+        if (!raf) raf = requestAnimationFrame(settle);
+      });
+      function settle() {
+        cur += (target - cur) * 0.12;
+        if (Math.abs(target - cur) < 0.02) cur = target;
+        h1.style.textShadow = `${-cur}px 0 0 ${BLUE}, ${cur}px 0 0 ${RED}`;
+        raf = cur === target ? 0 : requestAnimationFrame(settle);
+      }
+    }
+  }
+
+  /* 3. One generative accent: a flow-field band between the hero and the
+     posters, ink strands with red and blue runs on the paper. */
+  {
+    const band = document.querySelector('.flowband');
+    const canvas = band.querySelector('canvas.flow');
+    const ctx = canvas.getContext('2d');
+    let w = 0;
+    let h = 0;
+    const fit = () => {
+      w = band.clientWidth;
+      h = band.clientHeight;
+      canvas.width = w * devicePixelRatio;
+      canvas.height = h * devicePixelRatio;
+      ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      ctx.fillStyle = '#f4f0e6';
+      ctx.fillRect(0, 0, w, h);
+    };
+    fit();
+    addEventListener('resize', fit);
+    // Smooth trig flow field: slow sine currents, so strands bend in long arcs.
+    let seed = 7;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const angle = (x, y) =>
+      Math.sin(x * 0.006 + y * 0.004) * 1.9 + Math.cos(y * 0.005 - x * 0.002) * 1.1 + 0.35;
+    const strands = [];
+    const palette = [INK, INK, INK, INK, INK, INK, RED, BLUE];
+    for (let i = 0; i < 42; i++) {
+      strands.push({
+        x: rnd() * 1400,
+        y: rnd() * 300,
+        c: palette[(rnd() * palette.length) | 0],
+        steps: 0,
+        max: 90 + rnd() * 160,
+        done: false,
+      });
+    }
+    function drawSome(n) {
+      ctx.lineWidth = 1.4;
+      for (const s of strands) {
+        if (s.done) continue;
+        ctx.strokeStyle = s.c;
+        ctx.globalAlpha = 0.55;
+        ctx.beginPath();
+        ctx.moveTo(s.x, s.y);
+        for (let i = 0; i < n; i++) {
+          const a = angle(s.x, s.y);
+          s.x += Math.cos(a) * 2.1;
+          s.y += Math.sin(a) * 2.1;
+          ctx.lineTo(s.x, s.y);
+          if (++s.steps > s.max || s.x < -10 || s.x > w + 10 || s.y < -10 || s.y > h + 10) {
+            s.done = true;
+            break;
+          }
+        }
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+    }
+    if (reduced) {
+      drawSome(400);
+    } else {
+      let visible = false;
+      let raf = 0;
+      const loop = () => {
+        drawSome(2);
+        raf = strands.every((s) => s.done) ? 0 : requestAnimationFrame(loop);
+      };
+      new IntersectionObserver((entries) => {
+        visible = entries[0].isIntersecting;
+        if (visible && !raf) raf = requestAnimationFrame(loop);
+      }).observe(band);
+    }
+  }
+
+  /* 4. Scroll reveals: sections rise once as they enter. Initial state is
+     set from script, so without it nothing is ever hidden. */
+  if (!reduced) {
+    gsap.registerPlugin(ScrollTrigger);
+    document.querySelectorAll('main section:not(.hero) .wrap > *:not(.posters)').forEach((el) => {
+      gsap.from(el, {
+        y: 26,
+        autoAlpha: 0,
+        duration: 0.55,
+        ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true },
+      });
+    });
+  }
+
+  /* 5. The drum: the five posters on a curved wall you can drag or arrow
+     through. Desktop pointers only; everyone else keeps the grid. */
+  if (!reduced && finePointer && matchMedia('(min-width: 900px)').matches) {
+    const list = document.querySelector('.posters');
+    if (list) {
+      const cards = [...list.children];
+      const n = cards.length;
+      const step = 34; // degrees between cards
+      list.classList.add('drum-on');
+      cards.forEach((li, i) => li.style.setProperty('--ai', i * step));
+      requestAnimationFrame(() => {
+        const maxH = Math.max(...cards.map((li) => li.scrollHeight));
+        if (maxH > list.clientHeight) list.style.height = `${maxH + 8}px`;
+      });
+      const hint = document.createElement('p');
+      hint.className = 'drum-hint mono';
+      hint.textContent = 'Drag to spin the posters';
+      list.after(hint);
+
+      let angle = 0;
+      const setAngle = (a) => {
+        angle = a;
+        cards.forEach((li, i) => {
+          const d = i * step - a; // degrees from the front
+          const rad = (d * Math.PI) / 180;
+          const x = Math.sin(rad) * 30; // rem across
+          const z = (Math.cos(rad) - 1) * 24; // rem back
+          const rot = -d * 0.85;
+          li.style.transform = `translateX(${x}rem) translateZ(${z}rem) rotateY(${rot}deg)`;
+          li.classList.toggle('front', Math.abs((((d % 360) + 540) % 360) - 180) > 180 - step / 2);
+        });
+      };
+      setAngle(0);
+      cards[0].classList.add('front');
+
+      let dragging = false;
+      let startX = 0;
+      let startA = 0;
+      let moved = 0;
+      list.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        moved = 0;
+        startX = e.clientX;
+        startA = angle;
+        gsap.killTweensOf(proxy);
+        list.setPointerCapture(e.pointerId);
+      });
+      const proxy = { a: 0 };
+      list.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const da = ((e.clientX - startX) / list.clientWidth) * step * 2.2;
+        moved = Math.abs(e.clientX - startX);
+        setAngle(startA - da);
+      });
+      const end = () => {
+        if (!dragging) return;
+        dragging = false;
+        const snapped = Math.round(angle / step) * step;
+        proxy.a = angle;
+        gsap.to(proxy, {
+          a: snapped,
+          duration: 0.5,
+          ease: 'power3.out',
+          onUpdate: () => setAngle(proxy.a),
+        });
+      };
+      list.addEventListener('pointerup', end);
+      list.addEventListener('pointercancel', end);
+      // Clicking a side card brings it to the front; clicking the front card's
+      // links still works because drags under 6px never rotate.
+      list.addEventListener('click', (e) => {
+        const li = e.target.closest('li.poster');
+        if (!li) return;
+        const i = cards.indexOf(li);
+        if (moved > 6) {
+          e.preventDefault();
+          return;
+        }
+        if (180 - Math.abs((((i * step - angle) % 360) + 540) % 360 - 180) >= step / 2) return;
+        e.preventDefault();
+        proxy.a = angle;
+        gsap.to(proxy, {
+          a: i * step,
+          duration: 0.5,
+          ease: 'power3.out',
+          onUpdate: () => setAngle(proxy.a),
+        });
+      });
+      list.tabIndex = 0;
+      list.addEventListener('keydown', (e) => {
+        if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+        e.preventDefault();
+        const dir = e.key === 'ArrowRight' ? 1 : -1;
+        const target = Math.round(angle / step) * step + dir * step;
+        proxy.a = angle;
+        gsap.to(proxy, { a: target, duration: 0.45, ease: 'power3.out', onUpdate: () => setAngle(proxy.a) });
+      });
+    }
+  }
+</script>
+
+<style is:global>
+  canvas.trail {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 80;
+  }
+  .flowband {
+    height: clamp(8rem, 18vw, 13rem);
+    border-bottom: var(--rule) solid var(--ink);
+    overflow: hidden;
+  }
+  canvas.flow {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Drum mode: replaces the grid on wide, fine-pointer, motion-ok screens.
+     The posters keep their own fills, borders and parts; only placement
+     changes. */
+  .posters.drum-on {
+    display: block;
+    position: relative;
+    height: 42rem;
+    perspective: 110rem;
+    transform-style: preserve-3d;
+    cursor: grab;
+    touch-action: pan-y;
+    outline-offset: 6px;
+  }
+  .posters.drum-on:active {
+    cursor: grabbing;
+  }
+  .posters.drum-on li.poster {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(50% - min(64%, 46rem) / 2);
+    width: min(64%, 46rem);
+    margin: 0;
+    backface-visibility: hidden;
+    transition: none;
+    overflow-y: auto;
+  }
+  .posters.drum-on li.poster:hover {
+    box-shadow: none;
+  }
+  .posters.drum-on li.poster.front {
+    box-shadow: 8px 8px 0 var(--ink);
+  }
+  .drum-hint {
+    text-align: center;
+    color: var(--mute);
+    margin-top: 1rem;
+  }
+  @media (max-width: 900px), (prefers-reduced-motion: reduce), (pointer: coarse) {
+    .posters.drum-on {
+      display: grid;
+      height: auto;
+      perspective: none;
+      cursor: auto;
+    }
+    .posters.drum-on li.poster {
+      position: static;
+      transform: none;
+      overflow: visible;
+    }
+    .drum-hint {
+      display: none;
+    }
+  }
+</style>

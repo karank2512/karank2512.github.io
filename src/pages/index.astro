@@ -9,6 +9,7 @@ import Skills from '../components/Skills.astro';
 import Life from '../components/Life.astro';
 import Contact from '../components/Contact.astro';
 import Footer from '../components/Footer.astro';
+import Signature from '../components/effects/Signature.astro';
 
 const profile = await getEntry('profile', 'main');
 if (!profile) throw new Error('src/content/profile/main.json is missing');
@@ -79,6 +80,7 @@ const sections = [
   <Header name={name} sections={sections} />
   <main id="main">
     <Hero name={name} tagline={tagline} intro={intro} targets={targets} photo={photo} contact={contact} />
+    <Signature />
     <Projects projects={projects} />
     <Experience roles={roles} leadership={leadership} education={education} coursework={coursework} />
     <Skills skills={skills} />
