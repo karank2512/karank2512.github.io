@@ -94,4 +94,11 @@ const { name, sections } = Astro.props;
       gap: 0.6rem 1rem;
     }
   }
+  /* Short landscape viewports (folded-phone landscape): a sticky two-row header
+     would pin ~40% of the screen height, so let it scroll away. */
+  @media (max-height: 480px) {
+    .top {
+      position: static;
+    }
+  }
 </style>
