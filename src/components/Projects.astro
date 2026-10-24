@@ -50,12 +50,13 @@ const count = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'][projects.leng
 <style>
   .posters {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 1.25rem;
   }
   .poster {
     display: flex;
     flex-direction: column;
+    min-width: 0;
     gap: 0.8rem;
     position: relative;
     border: var(--rule) solid var(--ink);
@@ -143,9 +144,22 @@ const count = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six'][projects.leng
     text-decoration: none;
     border-bottom: 3px solid currentColor;
     padding-block: 0.2rem;
+    overflow-wrap: anywhere;
   }
   .foot a:hover {
     border-bottom-color: transparent;
+  }
+  @media (min-width: 641px) and (max-width: 800px) {
+    .when {
+      position: static;
+      align-self: flex-start;
+    }
+    .eyebrow {
+      padding-right: 0;
+    }
+    .foot {
+      font-size: 0.85rem;
+    }
   }
   @media (max-width: 640px) {
     .posters {
