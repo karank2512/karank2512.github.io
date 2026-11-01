@@ -33,10 +33,16 @@ const description =
 // does not start with thaw.
 const current = roles.find((r) => r.data.org === 'thaw')?.data;
 if (!current) throw new Error('No thaw role in src/content/experience; the structured data names it.');
+// When the profile content was last edited by a person: a full ISO 8601
+// DateTime with offset, as Google's ProfilePage docs type dateModified.
+// Not the build time; a deploy does not change the profile. Update this
+// whenever the visible profile content (src/content/profile, experience,
+// projects, leadership) changes.
+const profileLastModified = '2026-10-22T17:33:09-05:00';
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'ProfilePage',
-  dateModified: new Date().toISOString().slice(0, 10),
+  dateModified: profileLastModified,
   mainEntity: {
     '@type': 'Person',
     '@id': `${Astro.site}#karan-kapur`,
