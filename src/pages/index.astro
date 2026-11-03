@@ -1,44 +1,61 @@
 ---
-import { getCollection, getEntry } from 'astro:content';
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 import Base from '../layouts/Base.astro';
-import Header from '../components/Header.astro';
-import Hero from '../components/Hero.astro';
-import Projects from '../components/Projects.astro';
-import Experience from '../components/Experience.astro';
-import Skills from '../components/Skills.astro';
-import Life from '../components/Life.astro';
-import Contact from '../components/Contact.astro';
-import Footer from '../components/Footer.astro';
-import Signature from '../components/effects/Signature.astro';
 
-const profile = await getEntry('profile', 'main');
-if (!profile) throw new Error('src/content/profile/main.json is missing');
+const photoFiles = import.meta.glob<{ default: ImageMetadata }>('../assets/photos/*.png', { eager: true });
+const pick = (file: string): ImageMetadata => {
+  const hit = photoFiles[`../assets/photos/${file}.png`];
+  if (!hit) throw new Error(`No photo src/assets/photos/${file}.png for the photos row.`);
+  return hit.default;
+};
 
-const projects = (await getCollection('projects')).sort((a, b) => a.data.order - b.data.order);
-const roles = (await getCollection('experience')).sort((a, b) => a.data.order - b.data.order);
-const leadership = (await getCollection('leadership')).sort((a, b) => a.data.order - b.data.order);
-if (projects.length === 0) throw new Error('No projects in src/content/projects.');
-if (roles.length === 0) throw new Error('No roles in src/content/experience.');
+const photos: { file: string; alt: string; cap: string; focus: string }[] = [
+  { file: 'graduation', alt: 'Karan popping champagne in a graduation gown in front of Bascom Hall', cap: 'graduation day.', focus: '50% 70%' },
+  { file: 'atv-trail', alt: 'Karan riding an ATV down a dusty desert trail', cap: 'off trail.', focus: '50% 50%' },
+  { file: 'christkindlmarket', alt: 'Karan smiling in the snow at Christkindlmarket Chicago', cap: 'christkindlmarket, chicago.', focus: '50% 30%' },
+  { file: 'bar-night', alt: 'Karan at a neon-lit bar, mid gesture', cap: 'a good night.', focus: '50% 35%' },
+];
+const workFiles = import.meta.glob<{ default: ImageMetadata }>('../assets/work/*.png', { eager: true });
+const workShot = (file: string): ImageMetadata => {
+  const hit = workFiles[`../assets/work/${file}.png`];
+  if (!hit) throw new Error(`No shot src/assets/work/${file}.png for Selected work.`);
+  return hit.default;
+};
+const playlist = { label: 'The full playlist on Spotify', url: 'https://open.spotify.com/playlist/3RQb1MUtERqcwUlZdncPRN' };
 
-const { name, tagline, intro, targets, education, coursework, contact, music, photo, skills, life } = profile.data;
-const title = `${name}. Engineer, co-founder of thaw.`;
-const description =
-  'Karan Kapur co-founded thaw, open-source LLM inference infrastructure in Rust and CUDA, and owns its cloud storage layer. Looking for founding engineer, forward deployed or GTM engineering roles at AI startups.';
+type Track = { id: string; artist: string; title: string; def?: boolean };
 
+const tracks: Track[] = [
+  { id: 'pretty-green-eyes', artist: 'KETTAMA', title: 'Pretty Green Eyes (Sunset Ibiza Mix)' },
+  { id: 'on2nite', artist: 'Silva Bumpa', title: 'On2nite', def: true },
+  { id: 'talk-to-you', artist: 'ANOTR', title: 'Talk To You (ft. 54 Ultra)' },
+  { id: 'relax-my-eyes', artist: 'ANOTR, Abel Balder', title: 'Relax My Eyes' },
+  { id: 'miracle-maker', artist: 'Dom Dolla', title: 'Miracle Maker (feat. Clementine Douglas)' },
+  { id: 'left-to-right', artist: 'Odd Mob', title: 'Left To Right' },
+  { id: 'if-u-need-it', artist: 'Sammy Virji', title: 'If U Need It' },
+  { id: 'this-rhythm', artist: 'Prospa (feat. RAHH)', title: 'This Rhythm' },
+];
+const defaultTrack = Math.max(0, tracks.findIndex((t) => t.def));
+
+const title = 'Karan Kapur. Engineer, co-founder of thaw.';
+const description = 'Karan Kapur builds software with AI agents and the tooling around them. Co-founder of thaw, with projects in agent tooling, data systems and sports analytics.';
+
+const name = 'Karan Kapur';
+const contact = { email: 'kapur04karan@gmail.com', github: 'https://github.com/karank2512', linkedin: 'https://www.linkedin.com/in/karankapur5' };
 // Structured data: the page is a profile page whose main entity is Karan,
 // so a search engine can tie the name to the role, the employer, the school
 // and the GitHub and LinkedIn profiles. Facts come from the profile and
 // experience content only; no number appears here. The job title pairs with
 // worksFor below, so it is the thaw role; the role list runs newest first and
 // does not start with thaw.
-const current = roles.find((r) => r.data.org === 'thaw')?.data;
-if (!current) throw new Error('No thaw role in src/content/experience; the structured data names it.');
+const current = { role: 'Co-founder and cloud storage engineer', org: 'thaw' };
 // When the profile content was last edited by a person: a full ISO 8601
 // DateTime with offset, as Google's ProfilePage docs type dateModified.
 // Not the build time; a deploy does not change the profile. Update this
 // whenever the visible profile content (src/content/profile, experience,
 // projects, leadership) changes.
-const profileLastModified = '2026-10-22T17:33:09-05:00';
+const profileLastModified = '2026-11-03T15:02:48+13:00';
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'ProfilePage',
@@ -69,29 +86,1040 @@ const schema = {
   },
 };
 
-const sections = [
-  { href: '#projects', label: 'Projects' },
-  { href: '#experience', label: 'Experience' },
-  { href: '#skills', label: 'Skills' },
-  { href: '#life', label: 'Off the clock' },
-  { href: '#contact', label: 'Contact' },
-];
----
 
+const gh = (repo: string): string => `https://github.com/karank2512/${repo}`;
+const receipt = 'https://github.com/thaw-ai/thaw/blob/main/site/receipts/2026-04-20_h100_fork_pool_rl.json';
+const resultsMd = 'https://github.com/karank2512/RelayIQ/blob/main/docs/benchmarks/results.md';
+
+type Project = { id: string; name: string; desc: string; shot: string; shotAlt: string; side: number; links: { text: string; href: string }[] };
+
+const FULL_PAN = 0.212; // the whole travel, as a fraction of the shot's height (about 27% of a 2:1 frame)
+function fitShot(w: number, h: number, frame: number, side: number): { width: string; travel: string } {
+  const a = w / h;
+  const full = (a / frame) / (1 - FULL_PAN); // the width that gives the full pan
+  const width = Math.max(1, a / frame, Math.min(1 + 2 * side, full));
+  const hr = (width * frame) / a; // shot height over frame height, at least 1
+  const travel = Math.min(FULL_PAN, (hr - 1) / hr);
+  return { width: `${(width * 100).toFixed(2)}%`, travel: `${(-travel * 100).toFixed(2)}%` };
+}
+const FRAME_DESKTOP = 2; // 2:1, every width above 767px
+const FRAME_MOBILE = 16 / 9; // 16:9 at phone widths
+const shotVars = (p: Project): string => {
+  const m = workShot(p.shot);
+  const d = fitShot(m.width, m.height, FRAME_DESKTOP, p.side);
+  const mo = fitShot(m.width, m.height, FRAME_MOBILE, p.side);
+  return `--wd: ${d.width}; --td: ${d.travel}; --wm: ${mo.width}; --tm: ${mo.travel}`;
+};
+
+const selected: Project[] = [
+  {
+    id: 'thaw',
+    name: 'thaw',
+    desc: "Our team took a running LLM session from about 340 seconds to boot on an H100 to a 0.885 s median fork. I own the storage layer that makes it possible: it saves and restores the live state - weights, KV cache, prefix-cache metadata, scheduler state. Open source, built with N. Matteson and M. Yu, and the fork time has a public receipt.",
+    shot: 'thaw',
+    shotAlt: "The thaw.sh homepage: Snapshot, branch, and diff a running LLM session.",
+    side: 0.05,
+    links: [
+      { text: 'Code', href: 'https://github.com/thaw-ai/thaw' },
+      { text: 'Receipt', href: receipt },
+    ],
+  },
+  {
+    id: 'relayiq',
+    name: 'RelayIQ',
+    desc: 'RelayIQ decides whether a lead is worth enriching before a credit gets spent: on its own 495-submission benchmark with simulated providers, static field-level routing cut cost per usable lead 3.3x (13.24 to 4.07 credits). A calibrated confidence score (precision 0.682 to 0.784 across six strategies) holds low-confidence writes back from HubSpot and hands them to a human.',
+    shot: 'relayiq-entity',
+    shotAlt: "RelayIQ's entity detail screen: a contact's canonical fields with confidence scores, staleness chips, and a per-field lineage view.",
+    side: 0.008,
+    links: [
+      { text: 'Code', href: gh('RelayIQ') },
+      { text: 'Benchmark', href: resultsMd },
+    ],
+  },
+  {
+    id: 'foreman',
+    name: 'Foreman',
+    desc: "Foreman designs an AI worker from a plain-English job description: a pipeline of agent steps and plain-code steps, versioned at first run so two versions can be compared on the same job. Postgres is the queue, the lease manager and the ledger - the worker heartbeats, and a crashed run gets recovered, not silently rerun. Every tool call sits behind server-side permissions, and approval-gated actions wait for a person. Bring your own keys; with none, a simulated mode runs the whole thing free.",
+    shot: 'foreman',
+    shotAlt: "Foreman's demo poster: the Meet your new hire screen proposing an AI Market Researcher at $0.13 per run.",
+    side: 0.15,
+    links: [{ text: 'Code', href: gh('Foreman') }],
+  },
+  {
+    id: 'tell',
+    name: 'Tell',
+    desc: "Tell reads public job boards, SEC filings and news, and turns them into buying signals where every score is a list of dated events, each linked to the posting or filing behind it. Collectors poll once a day on a free GitHub Actions schedule, and sha256 event IDs mean a rerun inserts zero rows.",
+    shot: 'tell-weekly',
+    shotAlt: "Tell's live public data page: this week's top movers with scores, changes, and linked Form D signals.",
+    side: 0.03,
+    links: [
+      { text: 'Live', href: 'https://karankapur.com/tell-data/' },
+      { text: 'Code', href: gh('tell-ai') },
+    ],
+  },
+  {
+    id: 'delivery-doctor',
+    name: 'Delivery Doctor',
+    desc: "This names the hop it died at. Nine failure modes reproduced, from buffer drops and expired keys to 429s and queue overflows, by replaying tagged canary events and reading each one back from intake. The answer comes from a delivery ledger lined up against the server's own log, and the whole thing is one local command.",
+    shot: 'delivery-doctor',
+    shotAlt: "Delivery Doctor's own demo: one check command names the hop - 10 of 12 canary events landed, 2 never left the SDK buffer, with the fix.",
+    side: 0.02,
+    links: [{ text: 'Code', href: gh('delivery-doctor') }],
+  },
+];
+
+
+type Row = { id: string; name: string; meta: string; line: string; links: { text: string; href: string }[] };
+type Group = { id: string; title: string; rows: Row[] };
+const catalog: Group[] = [
+  {
+    id: 'agent-tooling',
+    title: 'AI and data tooling',
+    rows: [
+      { id: 'all-thaw', name: 'thaw', meta: 'co-founder · Apr 2026 to present · Rust and CUDA', line: 'Snapshot, branch, and diff a running LLM session. I own the storage layer.', links: [{ text: 'Code', href: 'https://github.com/thaw-ai/thaw' }] },
+      { id: 'all-relayiq', name: 'RelayIQ', meta: 'solo build · Jul 2026', line: 'Decides whether a lead is worth enriching before a credit gets spent.', links: [{ text: 'Code', href: gh('RelayIQ') }] },
+      { id: 'all-foreman', name: 'Foreman', meta: 'solo build · Sep 2026 · open source', line: 'Describe a job in plain English and Foreman designs a worker for it.', links: [{ text: 'Code', href: gh('Foreman') }] },
+      { id: 'all-tell', name: 'Tell', meta: 'solo build · Oct 2026 · live data page', line: 'Public job boards, filings and news turned into dated, linked buying signals.', links: [{ text: 'Code', href: gh('tell-ai') }] },
+      { id: 'all-delivery-doctor', name: 'Delivery Doctor', meta: 'solo build · Oct 2026', line: 'Names the hop where agent telemetry died in transit.', links: [{ text: 'Code', href: gh('delivery-doctor') }] },
+
+      {
+        id: 'more-postmaster',
+        name: 'Postmaster',
+        meta: '7 scenarios · 154 checks per run',
+        line: "Reproduces the ways an agent's email send fails - schema rejections, dead tokens, inboxes that aren't ready - and reruns the whole suite every time.",
+        links: [{ text: 'Code', href: gh('postmaster') }],
+      },
+      {
+        id: 'more-sports',
+        name: 'sports-data-mcp',
+        meta: 'MLB first · public stats APIs',
+        line: 'An MCP server that gives an agent players, teams, schedules, box scores and standings as tools.',
+        links: [{ text: 'Code', href: gh('sports-data-mcp') }],
+      },
+      {
+        id: 'more-imessage',
+        name: 'imessage-mcp',
+        meta: 'BlueBubbles · allowlist-only sending',
+        line: 'An MCP server for iMessage: search and read threads, send only to approved contacts.',
+        links: [{ text: 'Code', href: gh('imessage-mcp') }],
+      },
+    ],
+  },
+  {
+    id: "in-progress",
+    title: "In progress",
+    rows: [{ id: "more-ledgewood", name: "Ledgewood", meta: "in progress · vendor evaluation", line: "Comparing data vendors field by field, starting with company data, to test which source fits a job at what cost.", links: [] }],
+  },
+  {
+    id: 'in-use',
+    title: 'Shipped and used',
+    rows: [
+      {
+        id: 'more-union',
+        name: 'Wisconsin Union',
+        meta: 'Data Analyst · Aug 2026 to present · 250+ employees daily · 4,400+ shifts',
+        line: "I shipped the Union's scheduling app in 2 days, and it runs their daily scheduling now.",
+        links: [],
+      },
+      {
+        id: 'more-eurofins',
+        name: 'Eurofins',
+        meta: 'senior capstone · 10,000+ records · 4+ business units · Jan to May 2026',
+        line: 'A forecasting product lab technicians used daily: messy records in, forecasts with confidence scores out.',
+        links: [],
+      },
+      {
+        id: 'more-sail',
+        name: 'OpenAI x UW-Madison SAIL',
+        meta: 'Summer of AI Laboratory · Software Engineer · summer 2025 · 60+ users',
+        line: "UW IT's GPT-4 retrieval assistant, built over one summer: manual lookup time down 40% and cloud cost down 25%.",
+        links: [],
+      },
+    ],
+  },
+  {
+    id: 'sports',
+    title: 'Sports analytics',
+    rows: [
+      {
+        id: 'more-pitchsmith',
+        name: 'pitchsmith',
+        meta: 'public release and spin data · uncertainty-aware',
+        line: 'Pitch-quality models grade pitches that already exist. pitchsmith asks what a pitcher might test next, how it fits his arsenal, and how uncertain the recommendation is.',
+        links: [{ text: 'Code', href: gh('pitchsmith') }],
+      },
+      {
+        id: 'more-refball',
+        name: 'Ref Ball',
+        meta: 'NBA playoffs · Bayesian · observational',
+        line: 'Asks whether certain referees are associated with playoff foul patterns, with full uncertainty and no claim of intent.',
+        links: [{ text: 'Code', href: gh('refball') }],
+      },
+      {
+        id: 'more-scoutboard',
+        name: 'Illini ScoutBoard',
+        meta: 'Streamlit · public college basketball data',
+        line: 'Pick Illinois and an opponent and get a four-factor comparison, a transparent matchup advantage score, and game-plan bullets.',
+        links: [{ text: 'Code', href: gh('illini-scoutboard') }],
+      },
+    ],
+  },
+  {
+    id: 'prototypes',
+    title: 'Prototypes',
+    rows: [
+      {
+        id: 'more-torqueseal',
+        name: 'TorqueSeal',
+        meta: 'working prototype · synthetic data',
+        line: 'Trace-before-bid: pass, hold or block every RFQ line on its certifications before a defense quote ships.',
+        links: [{ text: 'Code', href: gh('torqueseal') }],
+      },
+    ],
+  },
+];
+
+const experience = [
+  'UW-Madison ECE Computer Support, Jan 2025 to May 2026: 1,000+ time-sensitive issues resolved at 98% satisfaction.',
+  'HCLSoftware, Noida: Automation and Compliance Engineering Intern, summer 2024.',
+  'Kappa Eta Kappa: VP on the National Executive Council; before that, President of the Delta Chapter in Madison.',
+];
+const education = 'B.S. Computer Science and Data Science, Minor in Entrepreneurship. University of Wisconsin-Madison, May 2026. Coursework: Artificial Intelligence, Big Data Systems, Operating Systems, Algorithms.';
+---
 <Base title={title} description={description}>
   <Fragment slot="head">
     <meta name="author" content={name} />
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
   </Fragment>
-  <Header name={name} sections={sections} />
-  <main id="main">
-    <Hero name={name} tagline={tagline} intro={intro} targets={targets} photo={photo} contact={contact} />
-    <Signature />
-    <Projects projects={projects} />
-    <Experience roles={roles} leadership={leadership} education={education} coursework={coursework} />
-    <Skills skills={skills} />
-    <Life photos={life.photos} line={life.line} playlist={music.playlist} />
-    <Contact {...contact} />
+  <main id="main" class="v16">
+    <header class="chrome" aria-label="Site">
+      <a class="chrome-name" href="#top">Karan Kapur</a>
+      <nav class="chrome-nav" aria-label="Quick links">
+        <a href="https://github.com/karank2512">GitHub</a>
+        <a href="https://www.linkedin.com/in/karankapur5">LinkedIn</a>
+        <a href="/resume.pdf">Resume</a>
+      </nav>
+      {/* The player's transport. One audio element on the page (#player-audio,
+          in Off the clock); these buttons and the track list there drive it.
+          Disabled in the HTML, enabled by the script. */}
+      <div class="bar" id="bar" data-state="idle" role="group" aria-label="Player">
+        <button type="button" class="bbtn" id="bar-prev" aria-label="Previous track" disabled><span aria-hidden="true">&larr;</span></button>
+        <button type="button" class="bbtn bbtn-play" id="bar-play" aria-pressed="false" disabled>Play</button>
+        <button type="button" class="bbtn" id="bar-next" aria-label="Next track" disabled><span aria-hidden="true">&rarr;</span></button>
+        <span class="bar-now" id="bar-status">No track loaded</span>
+      </div>
+      <p class="stamp"><span class="stamp-dot" aria-hidden="true"></span>Open to work</p>
+    </header>
+
+    <section class="first" id="top" aria-label="Introduction">
+      <h1 class="first-name" id="hero-name" data-ink data-hero><span class="fn-a">Karan</span> <span class="fn-b">Kapur</span></h1>
+      <p class="first-line" id="hero-line" data-ink data-hero>I build software with AI agents and the tooling around them.</p>
+      <a class="to-work" href="#work"><span>See all work</span><span aria-hidden="true">&darr;</span></a>
+    </section>
+
+    <section class="state" aria-label="How I work">
+      {/* DRAFT wording, 3 Nov, for review. */}
+      <p class="state-p" id="method-line" data-ink>I take a rough idea, build the tool, and test it against real numbers before I trust it.</p>
+    </section>
+
+    <section class="about" id="about" aria-labelledby="h-about">
+      <h2 class="label" id="h-about"><span class="label-rule" aria-hidden="true"></span><span class="label-t" data-ink>About</span><span class="label-rule" aria-hidden="true"></span></h2>
+      <div class="about-t">
+        {/* DRAFT wording, 3 Nov, for review; facts checked against src/content. */}
+        <p id="about-1" data-ink>I build tools that make people&rsquo;s lives easier and better. Lately that means systems that read messy public data, prove what they did, and know when to stop and ask a person.</p>
+        <p id="about-2" data-ink>Right now I&rsquo;m a Data Analyst at the Wisconsin Union, and I build my own projects on the side. I graduated from UW-Madison in May with a B.S. in Computer Science and Data Science. I started coding to settle an argument with my dad about an IPL match. My first project was a match predictor.</p>
+      </div>
+      <p class="about-links" id="about-links">
+        <a href="https://github.com/karank2512">GitHub</a>
+        <a href="https://www.linkedin.com/in/karankapur5">LinkedIn</a>
+        <a href="/resume.pdf">Resume</a>
+        <a href="mailto:kapur04karan@gmail.com">Email</a>
+      </p>
+    </section>
+
+    <section class="life" id="life" aria-labelledby="h-life">
+      <h2 class="label" id="h-life"><span class="label-rule" aria-hidden="true"></span><span class="label-t" data-ink>Off the clock</span><span class="label-rule" aria-hidden="true"></span></h2>
+      <p class="life-line" id="life-line" data-ink>Before Madison I played table tennis at the national level in India. These days I cook, DJ, golf, and follow F1 closely.</p>
+      <div class="photos" id="photos">
+        {photos.map((ph) => (
+          <figure data-vis style={`--fp: ${ph.focus}`}>
+            <div class="vis"><Image src={pick(ph.file)} alt={ph.alt} width={480} densities={[1, 1.5]} format="webp" quality={78} loading="lazy" decoding="async" /></div>
+            <figcaption>{ph.cap}</figcaption>
+          </figure>
+        ))}
+      </div>
+      {/* Listening lately: the song tiles, status and seek bar. Native
+          audio, preload none, no src until a play gesture. Play, pause,
+          previous and next sit in the top bar (#bar); the same script
+          drives both. Controls start disabled in the HTML; the script
+          enables them. */}
+      <div class="player" id="player" data-player data-base="/audio/" data-state="idle">
+        <p class="player-k" id="player-k">Listening lately</p>
+        <p class="player-now" id="player-status" aria-live="polite">No track loaded</p>
+        <p class="player-hint">Tap a song to play it. Pause and skip from the top bar.</p>
+        <div class="player-seek">
+          <span class="ptime" id="player-cur">0:00</span>
+          <input type="range" id="player-range" min="0" max="1000" value="0" step="1" aria-label="Seek" aria-valuetext="No track loaded" disabled />
+          <span class="ptime" id="player-dur">--:--</span>
+        </div>
+        {/* Song tiles: one tile per local file, each a real button. A
+            click loads that song and plays it, whatever the player was
+            doing. The pressed tile is the one selected or playing. */}
+        <ul class="tiles" id="player-tracks" aria-label="Listening lately" data-default={defaultTrack}>
+          {tracks.map((t, i) => (
+            <li>
+              <button type="button" class="track tile" data-track={t.id} data-i={i} aria-pressed="false" disabled>
+                <span class="tile-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                <span class="tile-a">{t.artist}</span>
+                <span class="tile-t">{t.title}</span>
+                <span class="tile-go" aria-hidden="true">Play</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+        <audio id="player-audio" preload="none"></audio>
+        {/* The playlist: one link out, nothing embedded, no third-party request from this page. */}
+        <p class="music"><a class="music-a" href={playlist.url} target="_blank" rel="noopener">{playlist.label}</a></p>
+      </div>
+    </section>
+
+    <section class="work" id="work" aria-labelledby="work-h">
+      <h2 class="label" id="work-h"><span class="label-rule" aria-hidden="true"></span><span class="label-t" data-ink>Selected work</span><span class="label-rule" aria-hidden="true"></span></h2>
+      <div class="projs">
+        {selected.map((p) => (
+          <article class="proj" id={`proj-${p.id}`}>
+            <figure class="proj-media" data-vis data-side={p.side} style={shotVars(p)}>
+              <div class="vis"><Image src={workShot(p.shot)} alt={p.shotAlt} width={800} densities={[1, 1.5]} format="webp" quality={80} loading="lazy" decoding="async" /></div>
+            </figure>
+            <div class="proj-cap">
+              <p class="proj-name" data-ink>{p.name}</p>
+              <p class="proj-d" data-ink>{p.desc}</p>
+              <p class="proj-l">
+                {p.links.map((l) => <a href={l.href}>{l.text}</a>)}
+              </p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="more" id="all-work" aria-labelledby="more-h">
+      <h2 class="label" id="more-h"><span class="label-rule" aria-hidden="true"></span><span class="label-t" data-ink>All work</span><span class="label-rule" aria-hidden="true"></span></h2>
+      <nav class="cats" id="all-work-cats" aria-label="All work categories">
+        {catalog.map((g) => <a href={`#grp-${g.id}`}>{g.title}</a>)}
+      </nav>
+      {catalog.map((g) => (
+        <div class="grp" id={`grp-${g.id}`}>
+          <h3 class="grp-t" data-ink>{g.title}</h3>
+          {g.rows.map((r) => (
+            <div class="row" id={r.id}>
+              <p class="row-h" data-ink><span class="row-n">{r.name}</span> <span class="row-m">{r.meta}</span></p>
+              <p class="row-l" data-ink>{r.line}</p>
+              {r.links.length > 0 && (
+                <p class="row-links">
+                  {r.links.map((l) => <a href={l.href}>{l.text}</a>)}
+                </p>
+              )}
+            </div>
+          ))}
+        </div>
+      ))}
+    </section>
+
+    <section class="exp" id="experience" aria-labelledby="exp-h">
+      <h2 class="label" id="exp-h"><span class="label-rule" aria-hidden="true"></span><span class="label-t" data-ink>Experience</span><span class="label-rule" aria-hidden="true"></span></h2>
+      {experience.map((line, i) => <p class="exp-line" id={`exp-${i}`} data-ink>{line}</p>)}
+      <p class="exp-edu" id="exp-edu" data-ink>{education}</p>
+    </section>
+
+    <footer class="foot" aria-label="Contact">
+      <p class="foot-mail" data-ink><a href="mailto:kapur04karan@gmail.com">kapur04karan@gmail.com</a></p>
+      <p class="foot-links">
+        <a href="https://github.com/karank2512">GitHub</a>
+        <a href="https://www.linkedin.com/in/karankapur5">LinkedIn</a>
+        <a href="/resume.pdf">Resume</a>
+      </p>
+    </footer>
   </main>
-  <Footer />
+
+  <style is:inline>
+    /* v16: the v4 "Poster" system (DESIGN.md) carrying the v14 writing,
+       with timed ink reveals; the hero and Selected work use two columns. Fonts are self-hosted sitewide by
+       Base.astro: Anton display, Archivo body, JetBrains Mono labels. */
+    .v16 {
+      --paper: #F4F0E6;
+      --ink: #121212;
+      --mute: #5E5A52;
+      --red: #E8321E;
+      --blue: #1B3FD6;
+      --yellow: #FFD21E;
+      --display: "Anton", "Arial Narrow", Impact, sans-serif;
+      --bodyf: "Archivo", "Helvetica Neue", Arial, sans-serif;
+      --mono: "JetBrains Mono", Menlo, monospace;
+      --pad: clamp(16px, 4vw, 48px);
+      --col: 1120px;
+      background: var(--paper);
+      color: var(--ink);
+      font: 400 17px/1.5 var(--bodyf);
+      -webkit-font-smoothing: antialiased;
+    }
+    .v16 a { color: inherit; }
+    .v16 :where(h1, h2, h3, p, figure) { margin: 0; padding: 0; font-weight: 400; }
+    .v16 ::selection { background: var(--yellow); color: var(--ink); }
+    /* Every anchor clears the fixed bar: --chrome-h is measured by the
+       script; the fallback is the bar's resting height. */
+    .v16 [id] { scroll-margin-top: calc(var(--chrome-h, 60px) + 24px); }
+    .v16 a:focus-visible, .v16 button:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+
+    .chrome {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 20;
+      display: flex; align-items: center; gap: 28px;
+      padding: 14px var(--pad);
+      background: var(--paper); border-bottom: 4px solid var(--ink);
+    }
+    .chrome-name {
+      font: 400 22px/1 var(--display); text-transform: uppercase; letter-spacing: -0.005em;
+      text-decoration: none; opacity: 0; transition: opacity .4s linear;
+    }
+    .v16.past-first .chrome-name { opacity: 1; }
+    .chrome-nav { display: flex; gap: 22px; margin-left: auto; }
+    .chrome-nav a {
+      font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
+      text-decoration: none; position: relative; padding: 6px 0;
+    }
+    .chrome-nav a::after {
+      content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: 0;
+      background: var(--red); transition: width .25s linear;
+    }
+    .chrome-nav a:hover::after { width: 100%; }
+    .stamp {
+      display: flex; align-items: center; gap: 8px;
+      font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
+      border: 3px solid var(--ink); padding: 8px 10px; margin: 0;
+    }
+    .stamp-dot { width: 9px; height: 9px; background: var(--red); animation: v16blink 1.6s steps(1) infinite; }
+    @keyframes v16blink { 50% { opacity: 0; } }
+    /* The transport in the bar: three small buttons and a one-line state,
+       in the bar's own mono. State lives on data-state, mirrored from the
+       player box. */
+    .bar { display: flex; align-items: center; gap: 8px; }
+    .bbtn {
+      font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
+      color: var(--ink); background: var(--paper); border: 3px solid var(--ink); cursor: pointer;
+      min-width: 34px; height: 34px; padding: 0 8px;
+    }
+    .bbtn-play { min-width: 62px; }
+    .bbtn[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+    .bbtn:hover:not(:disabled) { background: var(--yellow); color: var(--ink); }
+    .bbtn:disabled { cursor: not-allowed; color: var(--mute); border-color: var(--mute); }
+    .bar-now {
+      font: 600 11px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .02em; color: var(--mute);
+      max-width: 26ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .bar[data-state="playing"] .bar-now, .bar[data-state="loading"] .bar-now { color: var(--ink); }
+    .bar[data-state="error"] .bar-now { color: var(--red); }
+
+    /* Every section is a centered column with centered text; hierarchy
+       comes from size and the rules. */
+    .v16 section, .v16 .foot { padding-left: var(--pad); padding-right: var(--pad); text-align: center; }
+    .v16 section > *, .v16 .foot > * { margin-left: auto; margin-right: auto; }
+
+    /* Hero: the name on the left, two lines; the tagline on the right,
+       centered vertically against the whole name block (v17: it sat on the
+       name's last line in v16); "See all work" bottom-left. */
+    .v16 .first { text-align: left; }
+    .first {
+      min-height: 100svh; position: relative;
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-content: center;
+      column-gap: clamp(24px, 4vw, 64px); row-gap: clamp(22px, 3.5vh, 44px);
+      padding-top: 96px; padding-bottom: 120px;
+    }
+    .v16 .first > * { margin-left: 0; margin-right: 0; }
+    .first-name {
+      grid-column: 1; grid-row: 1; justify-self: start; display: grid;
+      font: 400 clamp(3.4rem, 11vw, 10.5rem)/0.9 var(--display);
+      text-transform: uppercase; letter-spacing: -0.005em; white-space: nowrap;
+    }
+    .fn-b { color: var(--red); }
+    .first-line {
+      grid-column: 2; grid-row: 1; align-self: center; justify-self: start; max-width: 24ch;
+      font: 800 clamp(1.5rem, 2.8vw, 2.6rem)/1.14 var(--bodyf);
+      letter-spacing: -0.01em;
+    }
+    .to-work {
+      position: absolute; left: var(--pad); bottom: 28px;
+      display: flex; gap: 8px; align-items: center;
+      font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
+      text-decoration: none; border-bottom: 3px solid var(--red); padding-bottom: 6px;
+      color: var(--ink); white-space: nowrap;
+    }
+
+    .label { display: flex; align-items: center; gap: 18px; margin-bottom: clamp(48px, 7vw, 88px); max-width: var(--col); }
+    .label-t { font: 600 13px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em; white-space: nowrap; }
+    .label-rule { flex: 1; height: 4px; background: var(--ink); }
+
+    .state { padding-top: 10vh; padding-bottom: 14vh; }
+    .state-p { max-width: 30ch; font: 600 clamp(1.5rem, 2.6vw, 2.3rem)/1.32 var(--bodyf); letter-spacing: 0; }
+
+    /* One divider per section (v17): the label's own rules cut the page,
+       so the labeled sections carry no full-width border of their own. The
+       footer has no label and keeps its rule. */
+    .about { padding-top: 8vh; padding-bottom: 12vh; }
+    .about-t { max-width: 58ch; font-size: clamp(18px, 1.6vw, 22px); line-height: 1.45; display: grid; gap: 1.2em; }
+    .about-links { margin-top: 48px; display: flex; justify-content: center; gap: 26px; flex-wrap: wrap; }
+    .about-links a, .foot-links a, .proj-l a, .row-links a {
+      font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
+      text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 3px; text-underline-offset: 5px;
+    }
+    .about-links a:hover, .proj-l a:hover, .row-links a:hover { text-decoration-color: var(--blue); }
+
+    /* Off the clock: its own section, roomy. Four photos, one aspect, one
+       gap, each with its own focal crop; captions under each. */
+    .life { padding-top: 10vh; padding-bottom: 12vh; }
+    .life-line { max-width: 56ch; font-size: clamp(18px, 1.6vw, 22px); line-height: 1.45; }
+    .photos {
+      margin-top: 72px; max-width: var(--col);
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(16px, 2.4vw, 32px);
+    }
+    .photos figure { display: grid; gap: 12px; justify-items: center; }
+    .photos .vis { width: 100%; aspect-ratio: 4 / 5; overflow: hidden; border: 4px solid var(--ink); background: #e3ded1; }
+    .photos img { width: 100%; height: 100%; object-fit: cover; object-position: var(--fp, 50% 50%); display: block; transition: transform .25s linear; }
+    .photos figure:hover img { transform: scale(1.03); }
+    .photos figcaption { color: var(--mute); font: 600 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .02em; }
+    /* The playlist link: one small mono line under the tiles (v18; the
+       separate list of outside links is gone). */
+    .music { margin: 4px 0 0; }
+    .music-a {
+      font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em; color: var(--ink);
+      text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 3px; text-underline-offset: 5px;
+    }
+    .music-a:hover { text-decoration-color: var(--blue); }
+
+    /* Selected work: two columns, the visual on one side and the writeup
+       on the other, swapping sides project by project (odd: visual left;
+       even: visual right). The visual keeps its 2:1 frame; the shot sits
+       inside at its own width (--wd on desktop, --wm on phones, from
+       fitShot above), top edge to the frame's top, with the pan travel
+       (--td / --tm) never more than the overflow, so the frame never
+       shows through. Under 900px the pair stacks, centered, as in v15. */
+    .work { padding-top: 10vh; padding-bottom: 4vh; }
+    .projs { display: grid; gap: 14vh; max-width: var(--col); }
+    .proj { display: grid; grid-template-columns: 7fr 5fr; column-gap: clamp(28px, 4vw, 56px); row-gap: 34px; align-items: center; text-align: left; }
+    .proj:nth-child(even) { grid-template-columns: 5fr 7fr; }
+    .proj-media { grid-column: 1; grid-row: 1; }
+    .proj-cap { grid-column: 2; grid-row: 1; }
+    .proj:nth-child(even) .proj-media { grid-column: 2; }
+    .proj:nth-child(even) .proj-cap { grid-column: 1; }
+    .proj-media {
+      position: relative; width: 100%; aspect-ratio: 2 / 1; overflow: hidden; background: #e3ded1;
+      border: 4px solid var(--ink);
+      transition: transform .18s linear, box-shadow .18s linear;
+    }
+    .proj-media:hover { transform: translate(-3px, -3px); box-shadow: 6px 6px 0 var(--ink); }
+    .proj-media .vis { position: absolute; inset: 0; overflow: hidden; }
+    .proj-media img {
+      position: absolute; left: 50%; top: 0; width: var(--wd, 100%); height: auto; max-width: none;
+      transform: translate(-50%, 0); display: block; --travel: var(--td, 0%);
+    }
+    .proj-cap { display: grid; gap: 18px; justify-items: start; max-width: 46ch; }
+    .proj-name { font: 400 clamp(2.2rem, 3.4vw, 3.4rem)/0.9 var(--display); text-transform: uppercase; letter-spacing: -0.005em; }
+    .proj:nth-child(even) .proj-name { color: var(--red); }
+    .proj-d { font-size: clamp(16px, 1.3vw, 19px); line-height: 1.45; }
+    .proj-l { display: flex; gap: 22px; justify-content: flex-start; }
+
+    /* All work: centered groups, rows cut by rules, text only. Under the
+       heading, one row of the categories, each an anchor to its group,
+       with a rule beneath. Every inventory row belongs to its category;
+       the five upper feature projects are included under tooling. */
+    .more { padding-top: 10vh; padding-bottom: 4vh; }
+    .more .label { margin-bottom: 30px; }
+    .cats {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 28px;
+      max-width: var(--col); margin-bottom: 72px; padding-bottom: 16px; border-bottom: 3px solid var(--ink);
+    }
+    .cats a {
+      font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
+      text-decoration: none; position: relative; padding: 6px 0;
+    }
+    .cats a::after {
+      content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: 0;
+      background: var(--red); transition: width .25s linear;
+    }
+    .cats a:hover::after, .cats a:focus-visible::after { width: 100%; }
+    .grp { margin-bottom: 72px; max-width: 64ch; }
+    .grp-t { font: 400 clamp(1.8rem, 3vw, 2.6rem)/0.9 var(--display); text-transform: uppercase; margin-bottom: 36px; }
+    .row { padding: 24px 0; border-top: 3px solid var(--ink); display: grid; gap: 8px; justify-items: center; }
+    .grp .row:last-child { border-bottom: 3px solid var(--ink); }
+    .row-h { font-size: 17px; font-weight: 700; }
+    .row-n { margin-right: 10px; }
+    .row-m { color: var(--mute); font: 600 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .02em; }
+    .row-l { max-width: 56ch; font-size: 16px; line-height: 1.45; }
+    .row-links { display: flex; gap: 22px; justify-content: center; }
+
+    .exp { padding-top: 10vh; padding-bottom: 4vh; display: grid; gap: 26px; justify-items: center; }
+    .exp-line, .exp-edu { max-width: 62ch; font-size: 18px; line-height: 1.45; }
+    .exp-edu { color: var(--mute); font: 600 13px/1.6 var(--mono); text-transform: uppercase; letter-spacing: .02em; margin-top: 18px; }
+
+    .foot { padding-top: 18vh; padding-bottom: 64px; border-top: 4px solid var(--ink); display: grid; justify-items: center; gap: 44px; }
+    .foot-mail a {
+      font: 400 clamp(2.4rem, 6.5vw, 7rem)/0.95 var(--display); text-transform: uppercase;
+      color: var(--red); text-decoration: none; letter-spacing: -0.005em;
+    }
+    .foot-mail a:hover { text-decoration: underline; text-decoration-thickness: 6px; text-underline-offset: 10px; }
+    .foot-links { display: flex; gap: 26px; }
+    .foot-links a { text-decoration-color: var(--yellow); }
+    .foot-links a:hover { text-decoration-color: var(--blue); }
+
+    /* Timed ink. The script splits each [data-ink] into letters and gives
+       every letter two delays: --d for inking in (spread across the block
+       with a little deterministic jitter) and --ds for smearing out. The
+       block's class says what the letters do: .on inks, .off smears, .set
+       is settled at once (a flick, or a repeat visit's hero). Without the
+       script nothing is split and everything is visible. */
+    .ink-js [data-ink] .iw { display: inline-block; white-space: nowrap; }
+    .ink-js [data-ink] .il {
+      display: inline-block; opacity: 0; transform-origin: 0 50%;
+      transform: translateX(-.06em) scaleX(1.5);
+    }
+    .ink-js [data-ink].on .il { animation: v16ink .9s cubic-bezier(.2, 0, 0, 1) both; animation-delay: var(--d, 0ms); }
+    .ink-js [data-ink].off .il { animation: v16smear .45s cubic-bezier(.2, 0, 0, 1) both; animation-delay: var(--ds, 0ms); }
+    .ink-js [data-ink].set .il { animation: none; opacity: 1; transform: none; }
+    @keyframes v16ink {
+      0% { opacity: 0; transform: translateX(-.06em) scaleX(1.5); }
+      45% { opacity: .35; }
+      100% { opacity: 1; transform: none; }
+    }
+    @keyframes v16smear {
+      0% { opacity: 1; transform: none; }
+      100% { opacity: 0; transform: translateX(.06em) scaleX(1.5); }
+    }
+
+    /* Motion inside the visuals: a sink-in entrance (the clip opens and
+       the shot settles from 108% to 100% over 2 s), then a slow vertical
+       pan, back and forth, from the shot's top edge down over its overflow
+       (the whole travel is --travel of the shot's height: 21.2% where the
+       side band allows the full pan, less where it does not). */
+    .ink-js .proj-media .vis { clip-path: inset(9% 9%); transform: scale(1.08); transition: clip-path 2s cubic-bezier(.2, 0, 0, 1), transform 2s cubic-bezier(.2, 0, 0, 1); }
+    .ink-js .proj-media.in .vis { clip-path: inset(0 0); transform: none; }
+    .ink-js .proj-media.in img { animation: v16pan 16s cubic-bezier(.45, 0, .55, 1) infinite alternate; }
+    @keyframes v16pan {
+      from { transform: translate(-50%, 0); }
+      to { transform: translate(-50%, var(--travel, 0%)); }
+    }
+    .ink-js .photos figure .vis { clip-path: inset(9% 9%); transition: clip-path 2s cubic-bezier(.2, 0, 0, 1); }
+    .ink-js .photos figure.in .vis { clip-path: inset(0 0); }
+
+    /* Section titles: the two rules draw out from the title as its letters
+       ink, and smear back with them, so a title is never a blank gap
+       between two finished rules. Where :has() is unsupported the rules
+       are simply always drawn. */
+    @supports selector(:has(a)) {
+      .ink-js .label-rule { transform: scaleX(0); transition: transform .9s cubic-bezier(.2, 0, 0, 1); }
+      .ink-js .label-rule:first-child { transform-origin: 100% 50%; }
+      .ink-js .label-rule:last-child { transform-origin: 0 50%; }
+      .ink-js .label:has(.label-t.on) .label-rule, .ink-js .label:has(.label-t.set) .label-rule { transform: none; }
+      .ink-js .label:has(.label-t.off) .label-rule { transform: scaleX(0); transition-duration: .45s; }
+    }
+
+    /* The player: the Poster system's rules and mono labels, nothing that
+       looks like a third-party widget. State lives on data-state. */
+    .player { margin-top: 88px; max-width: 560px; display: grid; gap: 18px; justify-items: center; border: 4px solid var(--ink); padding: 28px clamp(16px, 4vw, 36px) 24px; }
+    .player-k { font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em; color: var(--mute); }
+    .player-now { font: 800 clamp(1.05rem, 1.5vw, 1.25rem)/1.3 var(--bodyf); max-width: 34ch; min-height: 2.6em; display: grid; align-content: center; }
+    .player[data-state="error"] .player-now { color: var(--red); }
+    .player-hint { font: 600 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .02em; color: var(--mute); margin-top: -6px; }
+    .player-ctl { display: flex; gap: 12px; align-items: center; }
+    .pbtn {
+      font: 600 13px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
+      color: var(--ink); background: var(--paper); border: 3px solid var(--ink); cursor: pointer;
+      min-width: 52px; height: 48px; padding: 0 14px;
+    }
+    .pbtn-play { min-width: 112px; }
+    .pbtn[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+    .pbtn:hover:not(:disabled) { background: var(--yellow); color: var(--ink); }
+    .pbtn:disabled { cursor: not-allowed; color: var(--mute); border-color: var(--mute); }
+    .player-seek { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; width: 100%; }
+    .ptime { font: 600 12px/1 var(--mono); letter-spacing: .02em; min-width: 3.2em; }
+    #player-range { width: 100%; height: 28px; margin: 0; accent-color: var(--red); cursor: pointer; }
+    #player-range:disabled { cursor: not-allowed; accent-color: var(--mute); opacity: .55; }
+    /* Song tiles: one bordered tile per local file, two across (eight
+       tiles, four rows), each a button in the Poster system's own rules;
+       the pressed tile is the selected or playing one, and a playing tile
+       says so. */
+    .tiles { list-style: none; margin: 6px 0 0; padding: 0; width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .tile {
+      width: 100%; height: 100%; display: grid; grid-template-rows: auto auto 1fr auto; gap: 10px; align-items: start; justify-items: start; text-align: left;
+      font: 400 16px/1.3 var(--bodyf); color: var(--ink); background: var(--paper); border: 3px solid var(--ink); padding: 14px 14px 12px; cursor: pointer;
+      transition: transform .18s linear, box-shadow .18s linear;
+    }
+    .tile:hover:not(:disabled), .tile:focus-visible { transform: translate(-3px, -3px); box-shadow: 6px 6px 0 var(--ink); }
+    .tile:disabled { cursor: not-allowed; color: var(--mute); border-color: var(--mute); }
+    .tile[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+    .tile[aria-pressed="true"] .tile-n, .tile[aria-pressed="true"] .tile-t { color: var(--paper); opacity: .72; }
+    .tile[aria-pressed="true"] .tile-go { color: var(--yellow); border-color: var(--yellow); }
+    .tile-n { font: 600 12px/1 var(--mono); color: var(--mute); }
+    .tile-a { font-weight: 800; font-size: clamp(1rem, 1.3vw, 1.15rem); }
+    .tile-t { color: var(--mute); font-size: 15px; }
+    .tile-go { font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em; border-bottom: 3px solid var(--red); padding-bottom: 4px; margin-top: 6px; align-self: end; }
+    .player[data-state="playing"] .tile[aria-pressed="true"] .tile-go::after { content: "ing"; }
+
+    @media (max-width: 900px) {
+      .photos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      /* The pair stacks: visual, then writeup, centered. */
+      .proj, .proj:nth-child(even) { grid-template-columns: minmax(0, 1fr); text-align: center; justify-items: center; }
+      .proj-media, .proj:nth-child(even) .proj-media { grid-column: 1; grid-row: 1; width: min(100%, 960px); }
+      .proj-cap, .proj:nth-child(even) .proj-cap { grid-column: 1; grid-row: 2; justify-items: center; max-width: 60ch; }
+      .proj-l { justify-content: center; }
+    }
+    @media (max-width: 767px) {
+      .v16 { --pad: 20px; --chrome-h: 104px; }
+      /* The bar wraps to two rows: links and the stamp, then the transport. */
+      .chrome { flex-wrap: wrap; gap: 10px 14px; padding: 12px 16px; }
+      .chrome-name { display: none; }
+      .chrome-nav { margin-left: 0; gap: 16px; }
+      .bar { flex-basis: 100%; order: 3; }
+      .bar-now { max-width: none; flex: 1; min-width: 0; }
+      .first { grid-template-columns: minmax(0, 1fr); padding-top: 136px; padding-bottom: 96px; row-gap: 26px; }
+      .first-name { white-space: normal; }
+      .first-line { grid-column: 1; grid-row: 2; align-self: start; }
+      .to-work { bottom: 20px; }
+      .proj-media { aspect-ratio: 16 / 9; }
+      .proj-media img { width: var(--wm, 100%); --travel: var(--tm, 0%); }
+      .projs { gap: 12vh; }
+      .stamp { padding: 6px 8px; }
+      /* The address is one unbreakable word: size it to the width so the
+         mobile layout never grows past the screen (v14 overflowed here). */
+      .foot-mail a { font-size: 8vw; }
+      .player { padding: 22px 14px 18px; }
+      .cats { gap: 10px 20px; }
+      .tiles { gap: 10px; }
+      .tile { padding: 12px 12px 10px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .stamp-dot { animation: none; }
+      .photos img, .proj-media, .tile, .chrome-nav a::after, .chrome-name { transition: none; }
+    }
+  </style>
+
+  <script is:inline>
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var root = document.documentElement;
+      root.classList.add('ink-js');
+      var main = document.querySelector('.v16');
+      var KEY = 'kk-v16-entrance';
+      var firstVisit = true;
+      try {
+        firstVisit = !sessionStorage.getItem(KEY);
+        sessionStorage.setItem(KEY, '1');
+      } catch (e) { firstVisit = true; }
+
+      // Deterministic jitter in [-amp, amp] from the letter index alone.
+      function jitter(i, amp) {
+        var x = ((i + 1) * 9301 + 49297) % 233280;
+        return (x / 233280 - 0.5) * 2 * amp;
+      }
+      var idx = 0;
+      function splitNode(node) {
+        if (node.nodeType === 3) {
+          var frag = document.createDocumentFragment();
+          node.textContent.split(/(\s+)/).forEach(function (piece) {
+            if (!piece) return;
+            if (/^\s+$/.test(piece)) { frag.appendChild(document.createTextNode(' ')); return; }
+            var w = document.createElement('span');
+            w.className = 'iw';
+            for (var i = 0; i < piece.length; i++) {
+              var c = document.createElement('span');
+              c.className = 'il';
+              c.textContent = piece[i];
+              w.appendChild(c);
+              idx++;
+            }
+            frag.appendChild(w);
+          });
+          node.parentNode.replaceChild(frag, node);
+        } else if (node.nodeType === 1) {
+          Array.prototype.slice.call(node.childNodes).forEach(splitNode);
+        }
+      }
+      var inkEls = Array.prototype.slice.call(document.querySelectorAll('[data-ink]'));
+      inkEls.forEach(function (el) {
+        var hero = el.hasAttribute('data-hero');
+        var len = el.textContent.replace(/\s+/g, '').length;
+        idx = 0;
+        Array.prototype.slice.call(el.childNodes).forEach(splitNode);
+        var n = idx;
+        // Hero: 500 ms spread, small jitter. Everything else: 0.4 s plus
+        // 1 s per 400 characters, capped at 1.2 s, jitter a tenth of that.
+        var spread = hero ? 500 : Math.min(1200, 400 + len * 2.5);
+        var amp = hero ? 30 : spread / 10;
+        var letters = el.querySelectorAll('.il');
+        for (var i = 0; i < letters.length; i++) {
+          var f = n > 1 ? i / (n - 1) : 0;
+          letters[i].style.setProperty('--d', Math.max(0, Math.round(f * spread + jitter(i, amp))) + 'ms');
+          letters[i].style.setProperty('--ds', Math.max(0, Math.round(f * 250 + jitter(i, 25))) + 'ms');
+        }
+      });
+      function ink(el) { el.classList.remove('off', 'set'); el.classList.add('on'); }
+      function settle(el) { el.classList.remove('off', 'on'); el.classList.add('set'); }
+      function smear(el) { el.classList.remove('on', 'set'); el.classList.add('off'); }
+      function shown(el) { return el.classList.contains('on') || el.classList.contains('set'); }
+
+      // Scroll velocity over the last 150 to 250 ms, in pixels per second.
+      // Over about two screens a second the page is being flicked and
+      // whatever is on screen settles at once. A small wheel step after a
+      // pause reads as slow (the window never shrinks under 150 ms); a jump
+      // of a screen or more reads as fast however long the pause before it
+      // (the window never grows past 250 ms).
+      var samples = [{ t: performance.now(), y: window.scrollY }], vel = 0;
+      function fast() { return vel > 2 * window.innerHeight; }
+      function atEnd() { return window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 8; }
+
+      var visible = [];
+      var pending = inkEls.filter(function (el) { return el.hasAttribute('data-hero'); });
+      // Hero on a repeat visit: settled, with no ink, at its first sighting.
+      var heroSettles = !firstVisit;
+      function has(list, el) { return list.indexOf(el) !== -1; }
+      function drop(list, el) { var k = list.indexOf(el); if (k !== -1) list.splice(k, 1); }
+
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          var el = e.target;
+          if (e.isIntersecting) {
+            if (!has(visible, el)) visible.push(el);
+            if (has(pending, el)) {
+              if (heroSettles) { drop(pending, el); settle(el); }
+              return;
+            }
+            if (fast()) settle(el); else ink(el);
+          } else {
+            drop(visible, el);
+            drop(pending, el);
+            // At the foot of the page what is on screen stays inked even
+            // outside the band: there is no more scroll to bring it in.
+            if (shown(el) && !(atEnd() && el.getBoundingClientRect().top < window.innerHeight)) smear(el);
+          }
+        });
+      }, { rootMargin: '-10% 0px -25% 0px', threshold: 0 });
+      inkEls.forEach(function (el) { io.observe(el); });
+
+      // The hero: a 250 ms beat after load on the first visit of a session,
+      // then the name and the tagline ink together. Later visits start inked.
+      if (firstVisit) {
+        setTimeout(function () {
+          pending.slice().forEach(function (el) {
+            drop(pending, el);
+            if (has(visible, el)) ink(el);
+          });
+        }, 250);
+      }
+
+      // Visuals: the sink-in entrance runs once, when the frame comes up.
+      var visEls = Array.prototype.slice.call(document.querySelectorAll('[data-vis]'));
+      var vio = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          e.target.classList.add('in');
+          vio.unobserve(e.target);
+        });
+      }, { rootMargin: '0px 0px -10% 0px', threshold: 0.1 });
+      visEls.forEach(function (el) { vio.observe(el); });
+
+      function onScroll() {
+        var y = window.scrollY, t = performance.now();
+        while (samples.length > 1 && t - samples[1].t >= 150) samples.shift();
+        var base = samples[0];
+        vel = Math.abs(y - base.y) / Math.min(250, Math.max(150, t - base.t)) * 1000;
+        samples.push({ t: t, y: y });
+        if (fast()) {
+          // A flick: everything on screen settles at once, band or not, so
+          // nothing sits blank in the bottom quarter when the flick stops.
+          inkEls.forEach(function (el) {
+            if (has(pending, el)) return;
+            var r = el.getBoundingClientRect();
+            if (r.top < window.innerHeight && r.bottom > 0) settle(el);
+          });
+        }
+        // At the foot of the page nothing may stay un-inked for want of
+        // band: whatever is on screen inks.
+        if (atEnd()) {
+          inkEls.forEach(function (el) {
+            if (shown(el)) return;
+            if (el.getBoundingClientRect().top < window.innerHeight) ink(el);
+          });
+        }
+        main.classList.toggle('past-first', y > window.innerHeight * 0.6);
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+    })();
+  </script>
+
+  <script is:inline>
+    // The fixed bar's height, so every anchor jump clears it (scroll-margin-top).
+    (function () {
+      var main = document.querySelector('.v16'), bar = document.querySelector('.chrome');
+      if (!main || !bar) return;
+      function measure() { main.style.setProperty('--chrome-h', bar.offsetHeight + 'px'); }
+      measure();
+      window.addEventListener('resize', measure);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    })();
+  </script>
+
+  <script is:inline>
+    // The local player. Nothing here loads a file until a play gesture:
+    // the audio element starts with no src, preload none, and the only
+    // place a src is set is start(), called from a click. Changing track
+    // while stopped only changes the selection. The transport (play,
+    // previous, next, state) is in the top bar; the track list, status and
+    // seek bar are in the Off the clock box; one audio element for both.
+    (function () {
+      var box = document.getElementById('player');
+      var bar = document.getElementById('bar');
+      if (!box || !bar) return;
+      var audio = document.getElementById('player-audio');
+      var base = box.getAttribute('data-base');
+      var status = document.getElementById('player-status');
+      var bstatus = document.getElementById('bar-status');
+      var play = document.getElementById('bar-play');
+      var prev = document.getElementById('bar-prev');
+      var next = document.getElementById('bar-next');
+      var range = document.getElementById('player-range');
+      var cur = document.getElementById('player-cur');
+      var dur = document.getElementById('player-dur');
+      var tracks = Array.prototype.slice.call(box.querySelectorAll('.track'));
+      var list = document.getElementById('player-tracks');
+      // The default: what the bar's Play starts when nothing was picked
+      // (On2nite). Nothing is loaded for it until that press.
+      var DEF = Math.min(tracks.length - 1, Math.max(0, parseInt(list && list.getAttribute('data-default') || '0', 10) || 0));
+      var sel = -1, loaded = -1, seeking = false, want = false;
+
+      function fmt(s) { if (!isFinite(s) || s < 0) return '--:--'; s = Math.floor(s); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+      function name(i) { return tracks[i].querySelector('.tile-a').textContent + ' - ' + tracks[i].querySelector('.tile-t').textContent; }
+      function state(kind, text) {
+        box.setAttribute('data-state', kind); bar.setAttribute('data-state', kind);
+        status.textContent = text; bstatus.textContent = text;
+      }
+      function playing(on) {
+        play.textContent = on ? 'Pause' : 'Play';
+        play.setAttribute('aria-pressed', on ? 'true' : 'false');
+      }
+      function resetTime() {
+        range.disabled = true; range.value = 0; range.setAttribute('aria-valuetext', 'No track loaded');
+        cur.textContent = '0:00'; dur.textContent = '--:--';
+      }
+      function select(i) {
+        sel = i;
+        tracks.forEach(function (b, k) { b.setAttribute('aria-pressed', k === i ? 'true' : 'false'); });
+        prev.disabled = i <= 0;
+        next.disabled = i >= tracks.length - 1;
+      }
+      function unload() {
+        if (loaded === -1) return;
+        loaded = -1;
+        audio.removeAttribute('src');
+        resetTime();
+      }
+      // Only from a gesture (play, a tile, or next/previous while playing).
+      // A tile click on the song already playing restarts it from the top
+      // (fromTop); play and next/previous resume where it was.
+      function start(i, fromTop) {
+        select(i);
+        if (loaded !== i) {
+          unload();
+          loaded = i;
+          audio.src = base + tracks[i].getAttribute('data-track') + '.mp3';
+        } else if (fromTop) {
+          try { audio.currentTime = 0; } catch (e) {}
+        }
+        want = true;
+        state('loading', 'Loading: ' + name(i));
+        var p = audio.play();
+        if (p && p.catch) p.catch(function (err) {
+          if (err && err.name === 'AbortError') return;
+          if (err && err.name === 'NotAllowedError') { state('error', 'The browser blocked playback. Press play again.'); playing(false); return; }
+          fail();
+        });
+      }
+      function fail() {
+        var i = loaded !== -1 ? loaded : sel;
+        want = false;
+        unload();
+        playing(false);
+        state('error', 'Could not load ' + (i !== -1 ? name(i) : 'the track') + '. Try again, or choose another track.');
+      }
+      function isPlaying() { return want; }
+
+      audio.addEventListener('loadedmetadata', function () {
+        range.disabled = false;
+        dur.textContent = fmt(audio.duration);
+      });
+      audio.addEventListener('durationchange', function () { dur.textContent = fmt(audio.duration); });
+      audio.addEventListener('timeupdate', function () {
+        if (seeking || !isFinite(audio.duration) || audio.duration <= 0) return;
+        range.value = Math.round(audio.currentTime / audio.duration * 1000);
+        cur.textContent = fmt(audio.currentTime);
+        range.setAttribute('aria-valuetext', fmt(audio.currentTime) + ' of ' + fmt(audio.duration));
+      });
+      audio.addEventListener('playing', function () { state('playing', 'Playing: ' + name(loaded)); playing(true); });
+      audio.addEventListener('waiting', function () { if (loaded !== -1) state('loading', 'Buffering: ' + name(loaded)); });
+      audio.addEventListener('pause', function () {
+        if (audio.ended || loaded === -1 || want) return;
+        state('paused', 'Paused: ' + name(loaded));
+        playing(false);
+      });
+      // The end of a track is not a gesture: nothing loads on its own. The
+      // next track is selected and waits for play.
+      audio.addEventListener('ended', function () {
+        want = false;
+        playing(false);
+        var done = loaded;
+        if (done < tracks.length - 1) {
+          unload();
+          select(done + 1);
+          state('ended', 'Finished: ' + name(done) + '. Next: ' + name(done + 1) + '. Press play.');
+          return;
+        }
+        state('ended', 'Finished: ' + name(done) + '. End of the list.');
+      });
+      audio.addEventListener('error', fail);
+
+      play.addEventListener('click', function () {
+        if (isPlaying()) { want = false; audio.pause(); return; }
+        start(sel === -1 ? DEF : sel);
+      });
+      function step(d) {
+        var i = Math.min(tracks.length - 1, Math.max(0, (sel === -1 ? DEF : sel) + d));
+        if (isPlaying()) { start(i); return; }
+        if (i !== loaded) unload();
+        select(i);
+        playing(false);
+        state(loaded === i ? 'paused' : 'selected', (loaded === i ? 'Paused: ' : 'Selected: ') + name(i) + (loaded === i ? '' : '. Press play.'));
+      }
+      prev.addEventListener('click', function () { step(-1); });
+      next.addEventListener('click', function () { step(1); });
+      // A tile: load and play that song, idle or paused or mid-song; the
+      // same one audio element, so nothing can play twice over.
+      tracks.forEach(function (b, i) { b.addEventListener('click', function () { start(i, loaded === i && isPlaying()); }); });
+
+      range.addEventListener('input', function () {
+        if (!isFinite(audio.duration)) return;
+        seeking = true;
+        cur.textContent = fmt(range.value / 1000 * audio.duration);
+      });
+      range.addEventListener('change', function () {
+        seeking = false;
+        if (!isFinite(audio.duration)) return;
+        audio.currentTime = range.value / 1000 * audio.duration;
+      });
+
+      // Ready: the buttons work, the seek bar waits for a loaded track.
+      // Previous and next step from the default when nothing is picked.
+      play.disabled = false;
+      prev.disabled = DEF <= 0;
+      next.disabled = DEF >= tracks.length - 1;
+      tracks.forEach(function (b) { b.disabled = false; });
+    })();
+  </script>
 </Base>
