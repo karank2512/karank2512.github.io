@@ -843,7 +843,12 @@ const education = 'B.S. Computer Science and Data Science, Minor in Entrepreneur
         }
       }
       var inkEls = Array.prototype.slice.call(document.querySelectorAll('[data-ink]'));
-      inkEls.forEach(function (el) {
+      // Split only blocks entering the viewport. The old eager pass created
+      // thousands of offscreen spans before the first paint on slower CPUs.
+      // Each block keeps the same per-letter timing when it comes into view.
+      function prepare(el) {
+        if (el.dataset.inkPrepared) return;
+        el.dataset.inkPrepared = '1';
         var hero = el.hasAttribute('data-hero');
         var len = el.textContent.replace(/\s+/g, '').length;
         idx = 0;
@@ -859,9 +864,9 @@ const education = 'B.S. Computer Science and Data Science, Minor in Entrepreneur
           letters[i].style.setProperty('--d', Math.max(0, Math.round(f * spread + jitter(i, amp))) + 'ms');
           letters[i].style.setProperty('--ds', Math.max(0, Math.round(f * 250 + jitter(i, 25))) + 'ms');
         }
-      });
-      function ink(el) { el.classList.remove('off', 'set'); el.classList.add('on'); }
-      function settle(el) { el.classList.remove('off', 'on'); el.classList.add('set'); }
+      }
+      function ink(el) { prepare(el); el.classList.remove('off', 'set'); el.classList.add('on'); }
+      function settle(el) { prepare(el); el.classList.remove('off', 'on'); el.classList.add('set'); }
       function smear(el) { el.classList.remove('on', 'set'); el.classList.add('off'); }
       function shown(el) { return el.classList.contains('on') || el.classList.contains('set'); }
 
@@ -886,6 +891,7 @@ const education = 'B.S. Computer Science and Data Science, Minor in Entrepreneur
         entries.forEach(function (e) {
           var el = e.target;
           if (e.isIntersecting) {
+            prepare(el);
             if (!has(visible, el)) visible.push(el);
             if (has(pending, el)) {
               if (heroSettles) { drop(pending, el); settle(el); }
