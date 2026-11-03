@@ -20,7 +20,7 @@ module.exports = {
         // no, and the run measures what every first load fetches, which is
         // also what CI (no GPU) and the Playwright run see. The budget itself
         // is unchanged.
-        chromeFlags: '--no-sandbox --headless=new --disable-gpu --use-angle=swiftshader',
+        chromeFlags: '--headless=new --disable-gpu --use-angle=swiftshader',
       },
     },
     assert: {

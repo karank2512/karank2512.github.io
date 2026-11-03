@@ -72,7 +72,10 @@ jobs:
         with:
           name: dist
           path: dist
-      - run: npx playwright install --with-deps chromium
+      # Hosted Ubuntu runners already provide Chrome. Fail closed if absent.
+      # Never disable the sandbox to make CI pass.
+      - name: Verify installed Chrome
+        run: google-chrome --version
       - run: npm run test:e2e
         env:
           CI: 'true'

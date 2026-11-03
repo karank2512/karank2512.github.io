@@ -1,6 +1,9 @@
 import { defineConfig } from '@playwright/test';
 
-const port = 4321;
+const port = Number(process.env.PORTFOLIO_TEST_PORT || 4321);
+if (!Number.isInteger(port) || port < 1024 || port > 65535) {
+  throw new Error('PORTFOLIO_TEST_PORT must be an integer from 1024 to 65535');
+}
 
 export default defineConfig({
   testDir: './tests',
@@ -10,12 +13,15 @@ export default defineConfig({
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: `http://127.0.0.1:${port}`,
+    // Use the independently updated browser, not Playwright's bundled Chromium.
+    channel: 'chrome',
+    launchOptions: { chromiumSandbox: true },
     trace: 'retain-on-failure',
   },
   webServer: {
-    command: 'npm run preview',
+    command: `node node_modules/astro/astro.js preview --host 127.0.0.1 --port ${port}`,
     url: `http://127.0.0.1:${port}`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 60_000,
   },
   projects: [
