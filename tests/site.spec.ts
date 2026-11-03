@@ -355,7 +355,7 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     // 1. the first press of Play: On2nite by Silva Bumpa, the default, with no pick
     await page.locator('#bar-play').click();
     await expect(page.locator('#bar')).toHaveAttribute('data-state', 'playing', { timeout: 15000 });
-    await page.waitForTimeout(1500);
+    await expect.poll(() => page.locator('#player-audio').evaluate((a) => (a as HTMLAudioElement).currentTime), { timeout: 10000 }).toBeGreaterThan(0.8);
     let s = await snap();
     expect(s.audios).toBe(1);
     expect(s.src).toBe(AUDIO + 'on2nite.mp3');
@@ -461,7 +461,10 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     await tile.focus();
     await page.keyboard.press('Enter');
     await expect(page.locator('#bar')).toHaveAttribute('data-state', 'playing', { timeout: 15000 });
-    await page.waitForTimeout(1500);
+    // Wait for actual playback and its rendered clock, not a fixed 1.5s sleep.
+    // Slow CI scheduling can update currentTime before the next UI timeupdate.
+    await expect.poll(() => page.locator('#player-cur').textContent(), { timeout: 10000 }).not.toBe('0:00');
+    await expect.poll(() => page.locator('#player-audio').evaluate((a) => (a as HTMLAudioElement).currentTime), { timeout: 10000 }).toBeGreaterThan(0.8);
     const s = await page.evaluate(() => {
       const a = document.getElementById('player-audio') as HTMLAudioElement;
       return { audios: document.querySelectorAll('audio').length, src: a.getAttribute('src'), t: a.currentTime, paused: a.paused, bar: document.getElementById('bar-status')!.textContent, box: document.getElementById('player-status')!.textContent, play: document.getElementById('bar-play')!.textContent, pressed: Array.from(document.querySelectorAll('.tile')).map((b) => b.getAttribute('aria-pressed')), dur: document.getElementById('player-dur')!.textContent, cur: document.getElementById('player-cur')!.textContent };
@@ -498,7 +501,8 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
       const t = TRACKS[i];
       await page.locator(`#player-tracks .tile[data-track="${t.id}"]`).click();
       await expect(page.locator('#bar-status')).toHaveText(`Playing: ${t.artist} - ${t.title}`, { timeout: 15000 });
-      await page.waitForTimeout(1300);
+      await expect.poll(() => page.locator('#player-cur').textContent(), { timeout: 10000 }).not.toBe('0:00');
+      await expect.poll(() => page.locator('#player-audio').evaluate((a) => (a as HTMLAudioElement).currentTime), { timeout: 10000 }).toBeGreaterThan(0.6);
       const s = await snap();
       expect(s.audios, t.id).toBe(1);
       expect(s.src, t.id).toBe(AUDIO + t.id + '.mp3');
