@@ -798,3 +798,22 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     await ctx.close();
   });
 });
+
+test('confirmed metrics: current Eurofins scale, Tell outcomes and ECE computers and servers', async ({ page }, testInfo) => {
+  await open18(page);
+  await expect(page.locator('#more-eurofins .row-m')).toContainText('100,000+ records');
+  await expect(page.locator('#more-eurofins .row-l')).toContainText('lab technicians still use');
+  const outcome = '40+ clients tracked funded companies and found customers with it and reported closing deals.';
+  await expect(page.locator('#proj-tell .proj-d')).toContainText(outcome);
+  await expect(page.locator('#all-tell .row-l')).toContainText(outcome);
+  await expect(page.locator('body')).toContainText('1,500+ computers and servers');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBeTruthy();
+  await page.locator('#proj-tell').scrollIntoViewIfNeeded();
+  await page.locator('#proj-tell').screenshot({ path: `/tmp/metrics-${testInfo.project.name}-tell.png` });
+  await page.locator('#grp-in-use').scrollIntoViewIfNeeded();
+  await page.locator('#grp-in-use').screenshot({ path: `/tmp/metrics-${testInfo.project.name}-eurofins.png` });
+  await page.locator('#all-tell').scrollIntoViewIfNeeded();
+  await page.locator('#all-tell').screenshot({ path: `/tmp/metrics-${testInfo.project.name}-all-tell.png` });
+  await page.locator('#experience').scrollIntoViewIfNeeded();
+  await page.locator('#experience').screenshot({ path: `/tmp/metrics-${testInfo.project.name}-footer.png` });
+});
