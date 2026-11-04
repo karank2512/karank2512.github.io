@@ -7,10 +7,10 @@
   "end": "May 2026",
   "bullets": [
     {
-      "text": "Shipped a forecasting product lab technicians used daily: partnered with Eurofins as a client through UW-Madison, interviewed technicians and chemists across 4+ business units, and took it to production."
+      "text": "Shipped a forecasting product lab technicians still use: partnered with Eurofins as a client through UW-Madison, interviewed technicians and chemists across 4+ business units, and took it to production."
     },
     {
-      "text": "Turned 10K+ messy records into forecasts with confidence scores: built the ETL pipelines, PostgreSQL schema, FastAPI backend, and React front end; ran sprints as Scrum Master."
+      "text": "Built the ETL pipelines, PostgreSQL schema, FastAPI backend, and React front end for a forecasting product now used with 100K+ records; ran sprints as Scrum Master."
     }
   ]
 }
