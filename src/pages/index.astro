@@ -435,20 +435,19 @@ const experience = [
     </footer>
   </main>
   <style is:inline>
-    /* v17 "Calm": the writing and structure of abhaymettu.com carried into
-       Karan's content. One serif everywhere (STIX Two Text, self-hosted by
-       fonts.css), warm paper and near-black ink, hairline rules instead of
-       poster borders, generous whitespace. The ink letter reveals, photo and
-       visual entrances, and the local player carry over unchanged in
-       behavior; only their look is quieter. */
+    /* v18 "Dawn": the v17 structure in its own visual identity. One serif
+       everywhere (EB Garamond, self-hosted by fonts.css), first-light paper
+       and deep-space ink, hairline rules, generous whitespace. The ink
+       letter reveals, photo and visual entrances, and the local player
+       carry over unchanged in behavior. */
     .v17 {
-      --paper: #ece9e2;
-      --ink: #1a1815;
-      --mute: rgba(26, 24, 21, .66);
-      --hair: rgba(26, 24, 21, .16);
+      --paper: #eceef4;
+      --ink: #161827;
+      --mute: rgba(22, 24, 39, .62);
+      --hair: rgba(22, 24, 39, .16);
       --plate: #dde1ea;
-      --wash: rgba(26, 24, 21, .045);
-      --serif: "STIX Two Text", "Times New Roman", Times, serif;
+      --wash: rgba(22, 24, 39, .045);
+      --serif: "EB Garamond", Georgia, "Times New Roman", serif;
       /* The type scale: every text role is one of these steps. */
       --t-sm: 400 14px/1.45 var(--serif);
       --t-ui: 400 15px/1.25 var(--serif);
@@ -463,15 +462,15 @@ const experience = [
       font: var(--t-body);
       -webkit-font-smoothing: antialiased;
     }
-    /* Night: the same structure on a dark sheet. html carries data-theme
+    /* Night: the same structure after dark. html carries data-theme
        (bootstrap in Base.astro, toggle below); only the palette turns. */
     html[data-theme="dark"] .v17 {
-      --paper: #131210;
-      --ink: #e8e5dc;
-      --mute: rgba(232, 229, 220, .62);
-      --hair: rgba(232, 229, 220, .16);
+      --paper: #0a0d19;
+      --ink: #dde3ef;
+      --mute: rgba(221, 227, 239, .6);
+      --hair: rgba(221, 227, 239, .16);
       --plate: #161a2b;
-      --wash: rgba(232, 229, 220, .055);
+      --wash: rgba(221, 227, 239, .055);
     }
     .v17 a { color: inherit; }
     .v17 :where(h1, h2, h3, h4, p, figure) { margin: 0; padding: 0; font-weight: 400; }
@@ -790,7 +789,7 @@ const experience = [
       function stored() { try { return localStorage.getItem('kk-theme'); } catch (e) { return null; } }
       function apply(theme, save) {
         d.dataset.theme = theme;
-        if (meta) meta.content = theme === 'dark' ? '#131210' : '#ece9e2';
+        if (meta) meta.content = theme === 'dark' ? '#0a0d19' : '#eceef4';
         if (btn) {
           btn.setAttribute('aria-pressed', String(theme === 'dark'));
           btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');

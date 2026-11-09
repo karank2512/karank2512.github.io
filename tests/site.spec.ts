@@ -53,11 +53,11 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     await open18(page);
     await expect(page.locator('#hero-name')).toHaveText('Karan Kapur');
     await expect(page.locator('#hero-line')).toHaveText('I build software with AI agents and the tooling around them.');
-    // v17: the method and origin lines live in the hero's second paragraph;
-    // the interests stay with it, and Off the clock keeps the table tennis line.
-    await expect(page.locator('#hero-p')).toContainText('checking whether a number holds up');
+    // v18: the hero's second paragraph is Karan's own final wording: current
+    // work, how he learns, the IPL origin, and the off-the-clock line.
+    await expect(page.locator('#hero-p')).toContainText('comparing data vendors to see which ones actually get company data right');
     await expect(page.locator('#hero-p')).toContainText('IPL');
-    await expect(page.locator('#hero-p')).toContainText('DJ sets, the NBA and Manchester United');
+    await expect(page.locator('#hero-p')).toContainText('DJing, watching the NBA, soccer and supporting RedBull in Formula 1');
     await expect(page.locator('#about-1')).toContainText('Data Analyst at the Wisconsin Union');
     await expect(page.locator('#life-line')).toContainText('table tennis');
     await expect(page.locator('#photos figure')).toHaveCount(4);
@@ -85,8 +85,8 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', 'https://karankapur.com/');
     await expect(page).toHaveTitle('Karan Kapur. Engineer, co-founder of thaw.');
     const colors = await page.evaluate(() => { const cs = getComputedStyle(document.querySelector('.v17') as HTMLElement); return { paper: cs.getPropertyValue('--paper').trim(), ink: cs.getPropertyValue('--ink').trim(), font: cs.fontFamily }; });
-    expect(colors).toMatchObject({ paper: '#ece9e2', ink: '#1a1815' });
-    expect(colors.font).toContain('STIX Two Text');
+    expect(colors).toMatchObject({ paper: '#eceef4', ink: '#161827' });
+    expect(colors.font).toContain('EB Garamond');
   });
 
   test('hero: name left, tagline right and centered on the name block (desktop) or stacked (phone), See all work bottom-left', async ({ page }, testInfo) => {
