@@ -713,7 +713,6 @@ const experience = [
     .ink-js [data-ink] .iw { display: inline-block; white-space: nowrap; }
     .ink-js [data-ink] .il {
       display: inline-block; opacity: 0; transform: translateY(.35em);
-      will-change: opacity, transform;
     }
     .ink-js [data-ink].on .il { animation: v17ink .9s cubic-bezier(.2, 0, 0, 1) both; animation-delay: var(--d, 0ms); }
     .ink-js [data-ink].off .il { animation: v17smear .45s cubic-bezier(.2, 0, 0, 1) both; animation-delay: var(--ds, 0ms); }
@@ -806,6 +805,15 @@ const experience = [
       var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       var gl = cv.getContext('webgl', { antialias: false, alpha: false, depth: false, stencil: false, preserveDrawingBuffer: true });
       if (!gl) { cv.remove(); return; }
+      // A software rasterizer (CI, remote desktops) gets the still frame:
+      // the drift is ambient, not content, and animating it there costs the
+      // main thread on every frame. Hardware GL keeps the loop.
+      var soft = false;
+      try {
+        var dbg = gl.getExtension('WEBGL_debug_renderer_info');
+        var ren = dbg ? gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+        soft = /swiftshader|llvmpipe|softpipe|software|basic render/i.test(String(ren));
+      } catch (e) {}
       var VS = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
       var FS = [
         'precision highp float;',
@@ -847,7 +855,7 @@ const experience = [
       gl.enableVertexAttribArray(a);
       gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
       var ur = gl.getUniformLocation(pr, 'r'), ut = gl.getUniformLocation(pr, 't'), up = gl.getUniformLocation(pr, 'p'), udk = gl.getUniformLocation(pr, 'dk');
-      var scale = window.innerWidth < 760 ? 0.22 : 0.28;
+      var scale = window.innerWidth < 760 ? 0.10 : 0.10;
       function resize() {
         cv.width = Math.max(2, Math.round(cv.clientWidth * scale));
         cv.height = Math.max(2, Math.round(cv.clientHeight * scale));
@@ -865,8 +873,8 @@ const experience = [
         gl.drawArrays(gl.TRIANGLES, 0, 3);
       }
       resize();
-      frame(reduce ? 12 : 0);
-      if (reduce) {
+      frame(reduce || soft ? 12 : 0);
+      if (reduce || soft) {
         window.addEventListener('resize', function () { resize(); frame(12); });
         document.documentElement.addEventListener('themechange', function () { frame(12); });
         return;
@@ -874,7 +882,7 @@ const experience = [
       var start = performance.now(), tick = 0;
       function loop(now) {
         if (document.hidden) { requestAnimationFrame(loop); return; }
-        if (++tick % 3 === 0) frame((now - start) / 1000);
+        if (++tick % 12 === 0) frame((now - start) / 1000);
         requestAnimationFrame(loop);
       }
       requestAnimationFrame(loop);
@@ -967,10 +975,19 @@ const experience = [
       function has(list, el) { return list.indexOf(el) !== -1; }
       function drop(list, el) { var k = list.indexOf(el); if (k !== -1) list.splice(k, 1); }
 
+      var ioq = [], ioBusy = false;
+      function ioDrain() {
+        var item = ioq.shift();
+        if (item) ioStep(item[0], item[1]);
+        if (ioq.length) { requestAnimationFrame(ioDrain); return; }
+        ioBusy = false;
+      }
       var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          var el = e.target;
-          if (e.isIntersecting) {
+        entries.forEach(function (e) { ioq.push([e.target, e.isIntersecting]); });
+        if (!ioBusy) { ioBusy = true; requestAnimationFrame(ioDrain); }
+      }, { rootMargin: '-10% 0px -25% 0px', threshold: 0 });
+      function ioStep(el, isIntersecting) {
+          if (isIntersecting) {
             prepare(el);
             if (!has(visible, el)) visible.push(el);
             if (has(pending, el)) {
@@ -985,8 +1002,7 @@ const experience = [
             // outside the band: there is no more scroll to bring it in.
             if (shown(el) && !(atEnd() && el.getBoundingClientRect().top < window.innerHeight)) smear(el);
           }
-        });
-      }, { rootMargin: '-10% 0px -25% 0px', threshold: 0 });
+      }
       inkEls.forEach(function (el) { io.observe(el); });
 
       // The hero: a 250 ms beat after load on the first visit of a session,

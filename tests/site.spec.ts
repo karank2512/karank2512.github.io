@@ -25,7 +25,9 @@ async function creepTo(page: Page, y: number) {
     const step = Math.round(window.innerHeight * 0.06);
     while (Math.abs(window.scrollY - target) > step) {
       window.scrollBy({ top: window.scrollY < target ? step : -step, behavior: 'instant' });
-      await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 16)));
+      // A slow creep: 60 ms between steps keeps the measured velocity well
+      // under the two-screens-a-second flick line on every viewport.
+      await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 60)));
     }
     window.scrollTo({ top: target, behavior: 'instant' });
   }, y);
@@ -85,8 +87,16 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', 'https://karankapur.com/');
     await expect(page).toHaveTitle('Karan Kapur. Engineer, co-founder of thaw.');
     const colors = await page.evaluate(() => { const cs = getComputedStyle(document.querySelector('.v17') as HTMLElement); return { paper: cs.getPropertyValue('--paper').trim(), ink: cs.getPropertyValue('--ink').trim(), font: cs.fontFamily }; });
-    expect(colors).toMatchObject({ paper: '#eceef4', ink: '#161827' });
+    // Night is the default theme; dawn comes only from the toggle.
+    expect(colors).toMatchObject({ paper: '#0a0d19', ink: '#dde3ef' });
     expect(colors.font).toContain('EB Garamond');
+    expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe('dark');
+    await page.locator('#theme-toggle').click();
+    await expect.poll(() => page.evaluate(() => getComputedStyle(document.querySelector('.v17') as HTMLElement).getPropertyValue('--paper').trim())).toBe('#eceef4');
+    expect(await page.evaluate(() => localStorage.getItem('kk-theme'))).toBe('light');
+    await page.reload({ waitUntil: 'networkidle' });
+    expect(await page.evaluate(() => document.documentElement.dataset.theme)).toBe('light');
+    expect(await page.evaluate(() => getComputedStyle(document.querySelector('.v17') as HTMLElement).getPropertyValue('--ink').trim())).toBe('#161827');
   });
 
   test('hero: name left, tagline right and centered on the name block (desktop) or stacked (phone), See all work bottom-left', async ({ page }, testInfo) => {
