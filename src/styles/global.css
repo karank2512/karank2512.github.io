@@ -1,18 +1,18 @@
-/* karankapur.com, direction "Calm" (v17). Fonts: src/styles/fonts.css. */
+/* karankapur.com, direction "Dawn" (v18). Fonts: src/styles/fonts.css. */
 
 :root {
-  /* The sheet and the ink: warm paper, near-black ink, hairline tints. */
-  --paper: #ece9e2;
-  --ink: #1a1815;
-  --mute: rgba(26, 24, 21, .66);
+  /* The sheet and the ink: first light, deep-space ink, hairline tints. */
+  --paper: #eceef4;
+  --ink: #161827;
+  --mute: rgba(22, 24, 39, .62);
   /* Kept for the 404 page's remaining poster classes. */
-  --red: #1a1815;
-  --red-fill: #1a1815;
-  --blue: #1a1815;
-  --yellow: #ece9e2;
+  --red: #161827;
+  --red-fill: #161827;
+  --blue: #161827;
+  --yellow: #eceef4;
 
-  --display: 'STIX Two Text', 'Times New Roman', Times, serif;
-  --body: 'STIX Two Text', 'Times New Roman', Times, serif;
+  --display: 'EB Garamond', Georgia, 'Times New Roman', serif;
+  --body: 'EB Garamond', Georgia, 'Times New Roman', serif;
   --mono: 'JetBrains Mono', 'Mono Fallback', ui-monospace, Menlo, monospace;
 
   --rule: 1px;
@@ -22,12 +22,12 @@
   color-scheme: light;
 }
 
-/* Night: the same sheet, turned down. The toggle persists kk-theme; the
+/* Night: the same air, after dark. The toggle persists kk-theme; the
    bootstrap in Base.astro sets data-theme before the first paint. */
 :root[data-theme="dark"] {
-  --paper: #131210;
-  --ink: #e8e5dc;
-  --mute: rgba(232, 229, 220, .62);
+  --paper: #0a0d19;
+  --ink: #dde3ef;
+  --mute: rgba(221, 227, 239, .6);
   color-scheme: dark;
 }
 
