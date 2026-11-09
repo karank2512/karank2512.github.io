@@ -1,26 +1,34 @@
-/* karankapur.com, direction "Poster", v4. Contract: DESIGN.md. Fonts: src/styles/fonts.css. */
+/* karankapur.com, direction "Calm" (v17). Fonts: src/styles/fonts.css. */
 
 :root {
-  /* The sheet and the ink. */
-  --paper: #f4f0e6;
-  --ink: #121212;
-  --mute: #5e5a52;
-  /* Three pigments. --red is for display type and marks on paper; --red-fill is the
-     poster fill that carries paper text at 4.9:1. */
-  --red: #e8321e;
-  --red-fill: #c62914;
-  --blue: #1b3fd6;
-  --yellow: #ffd21e;
+  /* The sheet and the ink: warm paper, near-black ink, hairline tints. */
+  --paper: #ece9e2;
+  --ink: #1a1815;
+  --mute: rgba(26, 24, 21, .66);
+  /* Kept for the 404 page's remaining poster classes. */
+  --red: #1a1815;
+  --red-fill: #1a1815;
+  --blue: #1a1815;
+  --yellow: #ece9e2;
 
-  --display: 'Anton', 'Anton Fallback', Impact, 'Arial Narrow', sans-serif;
-  --body: 'Archivo', 'Archivo Fallback', 'Helvetica Neue', Arial, sans-serif;
+  --display: 'STIX Two Text', 'Times New Roman', Times, serif;
+  --body: 'STIX Two Text', 'Times New Roman', Times, serif;
   --mono: 'JetBrains Mono', 'Mono Fallback', ui-monospace, Menlo, monospace;
 
-  --rule: 4px;
+  --rule: 1px;
   --gut: clamp(1rem, 4vw, 3rem);
   --wrap: 1280px;
   --ease: cubic-bezier(0.2, 0.7, 0.1, 1);
   color-scheme: light;
+}
+
+/* Night: the same sheet, turned down. The toggle persists kk-theme; the
+   bootstrap in Base.astro sets data-theme before the first paint. */
+:root[data-theme="dark"] {
+  --paper: #131210;
+  --ink: #e8e5dc;
+  --mute: rgba(232, 229, 220, .62);
+  color-scheme: dark;
 }
 
 *,
@@ -34,9 +42,8 @@ html {
   background: var(--paper);
 }
 body {
-  background: var(--paper);
   color: var(--ink);
-  font: 400 1.05rem/1.5 var(--body);
+  font: 400 1.05rem/1.55 var(--body);
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }

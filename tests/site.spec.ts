@@ -24,8 +24,8 @@ async function creepTo(page: Page, y: number) {
   await page.evaluate(async (target) => {
     const step = Math.round(window.innerHeight * 0.06);
     while (Math.abs(window.scrollY - target) > step) {
-      window.scrollBy(0, window.scrollY < target ? step : -step);
-      await new Promise((r) => setTimeout(r, 40));
+      window.scrollBy({ top: window.scrollY < target ? step : -step, behavior: 'instant' });
+      await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 16)));
     }
     window.scrollTo({ top: target, behavior: 'instant' });
   }, y);
@@ -53,10 +53,13 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     await open18(page);
     await expect(page.locator('#hero-name')).toHaveText('Karan Kapur');
     await expect(page.locator('#hero-line')).toHaveText('I build software with AI agents and the tooling around them.');
-    await expect(page.locator('#method-line')).toHaveText('I take a rough idea, build the tool, and test it against real numbers before I trust it.');
-    await expect(page.locator('#about-2')).toContainText('Data Analyst at the Wisconsin Union');
-    await expect(page.locator('#about-2')).toContainText('IPL');
-    await expect(page.locator('#life-line')).toContainText('cook, DJ, golf, and follow F1');
+    // v17: the method and origin lines live in the hero's second paragraph;
+    // the interests stay with it, and Off the clock keeps the table tennis line.
+    await expect(page.locator('#hero-p')).toContainText('checking whether a number holds up');
+    await expect(page.locator('#hero-p')).toContainText('IPL');
+    await expect(page.locator('#hero-p')).toContainText('DJ sets, the NBA and Manchester United');
+    await expect(page.locator('#about-1')).toContainText('Data Analyst at the Wisconsin Union');
+    await expect(page.locator('#life-line')).toContainText('table tennis');
     await expect(page.locator('#photos figure')).toHaveCount(4);
     for (const id of ['proj-thaw', 'proj-relayiq', 'proj-foreman', 'proj-tell', 'proj-delivery-doctor']) await expect(page.locator(`#${id}`)).toHaveCount(1);
     await expect(page.locator('#proj-thaw .proj-l a').nth(0)).toHaveAttribute('href', 'https://github.com/thaw-ai/thaw');
@@ -81,9 +84,9 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://karankapur.com/');
     await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', 'https://karankapur.com/');
     await expect(page).toHaveTitle('Karan Kapur. Engineer, co-founder of thaw.');
-    const colors = await page.evaluate(() => { const cs = getComputedStyle(document.querySelector('.v16') as HTMLElement); return { paper: cs.getPropertyValue('--paper').trim(), ink: cs.getPropertyValue('--ink').trim(), red: cs.getPropertyValue('--red').trim(), font: cs.fontFamily }; });
-    expect(colors).toMatchObject({ paper: '#F4F0E6', ink: '#121212', red: '#E8321E' });
-    expect(colors.font).toContain('Archivo');
+    const colors = await page.evaluate(() => { const cs = getComputedStyle(document.querySelector('.v17') as HTMLElement); return { paper: cs.getPropertyValue('--paper').trim(), ink: cs.getPropertyValue('--ink').trim(), font: cs.fontFamily }; });
+    expect(colors).toMatchObject({ paper: '#ece9e2', ink: '#1a1815' });
+    expect(colors.font).toContain('STIX Two Text');
   });
 
   test('hero: name left, tagline right and centered on the name block (desktop) or stacked (phone), See all work bottom-left', async ({ page }, testInfo) => {
@@ -102,10 +105,10 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     expect(cta.bottom, 'See all work sits at the foot of the hero').toBeGreaterThan(hero.bottom - 60);
     expect(cta.y, 'See all work is below the name and the line').toBeGreaterThan(Math.max(name.bottom, line.bottom));
     const align = await page.evaluate(() => ['#hero-name', '#hero-line'].map((s) => getComputedStyle(document.querySelector(s) as HTMLElement).textAlign));
-    expect(align).toEqual(['left', 'left']);
-    // the name is two lines, Karan over Kapur
-    const nameRows = await page.evaluate(() => { const a = document.querySelector('.fn-a')!.getBoundingClientRect(); const b = document.querySelector('.fn-b')!.getBoundingClientRect(); return { stacked: b.top >= a.bottom - 2, sameLeft: Math.abs(a.left - b.left) < 2 }; });
-    expect(nameRows).toEqual({ stacked: true, sameLeft: true });
+    expect(align.map((a) => (a === 'start' ? 'left' : a))).toEqual(['left', 'left']);
+    // v17: the name is one calm serif line, not stacked display type
+    const nameLines = await page.evaluate(() => (document.querySelector('#hero-name') as HTMLElement).getClientRects().length);
+    expect(nameLines).toBe(1);
     if (phone) {
       expect(Math.abs(line.x - pad), 'line starts at the left padding').toBeLessThan(2);
       expect(line.y, 'line below the name').toBeGreaterThan(name.bottom - 2);
@@ -113,11 +116,11 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
       expect(name.right, 'name stays in the left half').toBeLessThan(vw / 2);
       expect(line.x, 'line starts past the centerline').toBeGreaterThan(vw * 0.45);
       expect(line.right, 'line stays inside the right padding').toBeLessThanOrEqual(vw - pad + 1);
-      // v17: the line's vertical center is the name block's vertical center, within 2 px
-      const nameMid = name.y + name.h / 2, lineMid = line.y + line.h / 2;
-      expect(Math.abs(lineMid - nameMid), `line center ${lineMid} vs name center ${nameMid}`).toBeLessThanOrEqual(2);
-      expect(line.y, 'line starts below the name top').toBeGreaterThan(name.y);
-      expect(line.bottom, 'line ends above the name bottom').toBeLessThan(name.bottom);
+      // v17: the name's vertical center is the right-hand block's vertical center, within 2 px
+      const block = await rect(page, '.first-r');
+      const nameMid = name.y + name.h / 2, blockMid = block.y + block.h / 2;
+      expect(Math.abs(blockMid - nameMid), `block center ${blockMid} vs name center ${nameMid}`).toBeLessThanOrEqual(2);
+      expect(line.x, 'line starts at the right block').toBeGreaterThanOrEqual(block.x - 1);
     }
     await expect(page.locator('.to-work')).toHaveAttribute('href', '#work');
     await expect(page.locator('.to-work')).toContainText('See all work');
@@ -149,7 +152,7 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
         // both in one row
         expect(p.c.y, `${p.id}: writeup within the visual's row`).toBeLessThan(p.m.bottom);
         expect(p.c.bottom, `${p.id}: writeup within the visual's row`).toBeGreaterThan(p.m.y);
-        expect(p.align, `${p.id}: writeup set left`).toBe('left');
+        expect(p.align === 'start' ? 'left' : p.align, `${p.id}: writeup set left`).toBe('left');
         expect(p.m.w, `${p.id}: the visual is the wider column`).toBeGreaterThan(p.c.w);
         expect(p.aspect, `${p.id}: 2:1 frame`).toBeCloseTo(2, 1);
       }
@@ -191,12 +194,14 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     });
     expect(pos.underHeading).toBe(true);
     expect(pos.aboveGroups).toBe(true);
-    expect(parseFloat(pos.rule)).toBeGreaterThanOrEqual(2);
+    // v17: the jump links carry 1 px hairline underlines, not a thick rule
+    expect(parseFloat(pos.rule)).toBeGreaterThanOrEqual(0);
+    expect(await page.evaluate(() => parseFloat(getComputedStyle(document.querySelector('#all-work-cats a') as HTMLElement).borderBottomWidth))).toBeGreaterThanOrEqual(1);
     expect(pos.centerOff).toBeLessThan(2);
-    const sels = ['#grp-agent-tooling', '#grp-sports .row-l', '.exp-line', '.foot-mail', '#method-line', '.about-t', '#photos'];
+    const sels = ['#grp-agent-tooling', '#grp-sports .row-l', '.exp-line', '.foot-mail', '#life-line', '.about-t', '#photos'];
     const offs = await page.evaluate((list) => list.map((s) => { const r = (document.querySelector(s) as HTMLElement).getBoundingClientRect(); return { s, off: Math.abs(r.x + r.width / 2 - window.innerWidth / 2) }; }), sels);
     for (const o of offs) expect(o.off, `${o.s} off center`).toBeLessThan(2);
-    const align = await page.evaluate(() => ['#about-1', '#method-line', '.row-l', '.row-h'].map((s) => getComputedStyle(document.querySelector(s) as HTMLElement).textAlign));
+    const align = await page.evaluate(() => ['#about-1', '#life-line', '.row-l', '.row-h'].map((s) => getComputedStyle(document.querySelector(s) as HTMLElement).textAlign));
     for (const a of align) expect(a).toBe('center');
   });
 
@@ -273,13 +278,11 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
       await expect(tiles.nth(i)).toHaveAttribute('aria-pressed', 'false');
     }
     expect(await tiles.evaluateAll((els) => els.map((e) => (e as HTMLButtonElement).getAttribute('data-track')))).toEqual(TRACKS.map((t) => t.id));
-    const tileGeom = await tiles.evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height), border: getComputedStyle(e).borderTopWidth }; }));
-    for (const g of tileGeom) { expect(g.w).toBeGreaterThan(100); expect(g.h).toBeGreaterThan(60); expect(parseFloat(g.border)).toBeGreaterThanOrEqual(2); }
-    // two across, four rows: each pair shares a row, the next pair sits below; every tile inside the box
-    for (let k = 0; k < 8; k += 2) {
-      expect(Math.abs(tileGeom[k].y - tileGeom[k + 1].y), `row ${k / 2} level`).toBeLessThan(2);
-      expect(tileGeom[k + 1].x, `row ${k / 2} second tile to the right`).toBeGreaterThan(tileGeom[k].x + tileGeom[k].w - 1);
-      if (k >= 2) expect(tileGeom[k].y, `row ${k / 2} below the row above`).toBeGreaterThanOrEqual(tileGeom[k - 2].y + tileGeom[k - 2].h);
+    const tileGeom = await tiles.evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height), border: getComputedStyle(e).borderBottomWidth }; }));
+    for (const g of tileGeom) { expect(g.w).toBeGreaterThan(100); expect(g.h).toBeGreaterThan(40); expect(parseFloat(g.border)).toBeGreaterThanOrEqual(1); }
+    // v17: one tile per row, eight quiet rows; each row sits below the last and inside the box
+    for (let k = 0; k < 8; k++) {
+      if (k >= 1) expect(tileGeom[k].y, `tile ${k} below the row above`).toBeGreaterThanOrEqual(tileGeom[k - 1].y + tileGeom[k - 1].h - 1); // 1px slack for fractional-height rounding
     }
     const boxR = await rect(page, '#player');
     for (const g of tileGeom) { expect(g.x).toBeGreaterThanOrEqual(boxR.x); expect(g.x + g.w).toBeLessThanOrEqual(boxR.right + 1); }
@@ -307,7 +310,7 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     await expect(music).toHaveAttribute('href', 'https://open.spotify.com/playlist/3RQb1MUtERqcwUlZdncPRN');
     await expect(music).toHaveAttribute('rel', 'noopener');
     await expect(page.locator('a[href*="open.spotify.com"]')).toHaveCount(1);
-    expect(await music.evaluate((e) => parseFloat(getComputedStyle(e).fontSize)), 'playlist line is small').toBeLessThanOrEqual(13);
+    expect(await music.evaluate((e) => parseFloat(getComputedStyle(e).fontSize)), 'playlist line is small').toBeLessThanOrEqual(15);
     const mg = await rect(page, '#player .music-a');
     expect(mg.y, 'playlist line under the last tile').toBeGreaterThan(tileGeom[7].y + tileGeom[7].h);
     const tileText = await tiles.evaluateAll((els) => els.map((e) => e.textContent || ''));
@@ -599,13 +602,14 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     }
     // the rules are drawn (not zero-width) once the label is on screen
     await page.locator('#h-about').scrollIntoViewIfNeeded();
+    await expect(page.locator('#h-about .label-t')).toHaveClass(/on|set/);
     await page.waitForTimeout(1300);
     const rules = await page.evaluate(() => Array.from(document.querySelectorAll('#h-about .label-rule')).map((r) => { const b = r.getBoundingClientRect(); return { w: b.width, h: b.height, t: getComputedStyle(r).transform }; }));
-    for (const r of rules) { expect(r.w).toBeGreaterThan(40); expect(r.h).toBeGreaterThanOrEqual(3); expect(r.t === 'none' || /matrix\(1,/.test(r.t)).toBe(true); }
-    // the footer has no label and keeps its single rule; the state section (no label) is unbordered as in v16
-    expect(parseFloat(await page.evaluate(() => getComputedStyle(document.querySelector('.foot') as HTMLElement).borderTopWidth))).toBeGreaterThanOrEqual(3);
-    // nothing in the page draws a 4 px full-width rule directly above a label (the "double divider")
-    const doubles = await page.evaluate(() => Array.from(document.querySelectorAll('.v16 section')).filter((el) => parseFloat(getComputedStyle(el).borderTopWidth) > 0 && el.querySelector(':scope > .label')).map((el) => el.id));
+    for (const r of rules) { expect(r.w).toBeGreaterThan(40); expect(r.h).toBeGreaterThanOrEqual(1); expect(r.t === 'none' || /matrix\(1,/.test(r.t)).toBe(true); }
+    // v17: the footer has no label and no rule; calm space separates it
+    expect(parseFloat(await page.evaluate(() => getComputedStyle(document.querySelector('.foot') as HTMLElement).borderTopWidth))).toBe(0);
+    // nothing in the page draws a full-width rule directly above a label (the "double divider")
+    const doubles = await page.evaluate(() => Array.from(document.querySelectorAll('.v17 section')).filter((el) => parseFloat(getComputedStyle(el).borderTopWidth) > 0 && el.querySelector(':scope > .label')).map((el) => el.id));
     expect(doubles).toEqual([]);
   });
 
@@ -634,7 +638,7 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     expect(midName.max).toBeGreaterThan(0.05);
     expect(mid).toBeLessThan(1);
     const spec = await page.evaluate(() => { const cs = getComputedStyle(document.querySelector('#hero-name .il') as HTMLElement); return { dur: cs.animationDuration, tf: cs.animationTimingFunction, name: cs.animationName }; });
-    expect(spec).toEqual({ dur: '0.9s', tf: 'cubic-bezier(0.2, 0, 0, 1)', name: 'v16ink' });
+    expect(spec).toEqual({ dur: '0.9s', tf: 'cubic-bezier(0.2, 0, 0, 1)', name: 'v17ink' });
     await page.waitForTimeout(Math.max(0, 1900 - (Date.now() - t0)));
     expect(await minLetterOpacity(page, '#hero-name')).toBeGreaterThan(0.99);
     expect(await minLetterOpacity(page, '#hero-line')).toBeGreaterThan(0.99);
@@ -649,20 +653,20 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
   test('leaving smears, coming back re-inks; a flick settles at once', async ({ page }) => {
     await open18(page);
     const vh = await page.evaluate(() => window.innerHeight);
-    const y = (await topOf(page, '#method-line')) - vh * 0.45;
+    const y = (await topOf(page, '#about-1')) - vh * 0.45;
     await creepTo(page, y);
     await page.waitForTimeout(2200);
-    expect(await minLetterOpacity(page, '#method-line')).toBeGreaterThan(0.99);
-    const h = await page.evaluate(() => (document.querySelector('#method-line') as HTMLElement).getBoundingClientRect().height);
+    expect(await minLetterOpacity(page, '#about-1')).toBeGreaterThan(0.99);
+    const h = await page.evaluate(() => (document.querySelector('#about-1') as HTMLElement).getBoundingClientRect().height);
     await creepTo(page, y + vh * 0.45 + h + 20);
     await page.waitForTimeout(100);
-    expect(await page.locator('#method-line').getAttribute('class')).toContain('off');
-    const smear = await page.evaluate(() => { const cs = getComputedStyle(document.querySelector('#method-line .il') as HTMLElement); return { name: cs.animationName, dur: cs.animationDuration }; });
-    expect(smear).toEqual({ name: 'v16smear', dur: '0.45s' });
+    expect(await page.locator('#about-1').getAttribute('class')).toContain('off');
+    const smear = await page.evaluate(() => { const cs = getComputedStyle(document.querySelector('#about-1 .il') as HTMLElement); return { name: cs.animationName, dur: cs.animationDuration }; });
+    expect(smear).toEqual({ name: 'v17smear', dur: '0.45s' });
     await page.waitForTimeout(800);
-    expect(await minLetterOpacity(page, '#method-line')).toBeLessThan(0.01);
+    expect(await minLetterOpacity(page, '#about-1')).toBeLessThan(0.01);
     await page.evaluate(() => {
-      const el = document.querySelector('#method-line') as HTMLElement;
+      const el = document.querySelector('#about-1') as HTMLElement;
       (window as any).__reink = null;
       new MutationObserver(() => {
         if (!el.classList.contains('on') || (window as any).__reink) return;
@@ -672,12 +676,12 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     });
     await creepTo(page, y);
     await page.waitForTimeout(200);
-    expect(await page.locator('#method-line').getAttribute('class')).toContain('on');
+    expect(await page.locator('#about-1').getAttribute('class')).toContain('on');
     const reink = await page.evaluate(() => (window as any).__reink);
     expect(reink).not.toBeNull();
     expect(reink.min, 'letters mid-ink 120 ms after re-entry').toBeLessThan(1);
     await page.waitForTimeout(2200);
-    expect(await minLetterOpacity(page, '#method-line')).toBeGreaterThan(0.99);
+    expect(await minLetterOpacity(page, '#about-1')).toBeGreaterThan(0.99);
     // flick
     const yy = (await topOf(page, '#grp-agent-tooling')) - 100;
     await page.evaluate((t) => window.scrollTo({ top: t, behavior: 'instant' }), yy);
@@ -704,10 +708,10 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     await page.evaluate((yy) => window.scrollTo({ top: yy, behavior: 'instant' }), y);
     await page.waitForTimeout(150);
     await expect(page.locator('#proj-thaw .proj-media')).toHaveClass(/in/);
-    expect(await page.locator('#proj-thaw .proj-media .vis').evaluate((el) => getComputedStyle(el).transitionDuration)).toContain('2s');
+    expect(await page.locator('#proj-thaw .proj-media .vis').evaluate((el) => getComputedStyle(el).transitionDuration)).toContain('1.8s');
     const img = page.locator('#proj-thaw .proj-media img');
     const anim = await img.evaluate((el) => ({ name: getComputedStyle(el).animationName, dur: getComputedStyle(el).animationDuration }));
-    expect(anim.name).toBe('v16pan');
+    expect(anim.name).toMatch(/^v17panm?$/);
     expect(parseFloat(anim.dur)).toBeGreaterThan(8);
     const t1 = await img.evaluate((el) => getComputedStyle(el).transform);
     await page.waitForTimeout(1200);
@@ -760,9 +764,9 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     const page = await ctx.newPage();
     await page.goto(PATH, { waitUntil: 'networkidle' });
     await expect(page.locator('html.ink-js')).toHaveCount(0);
-    await expect(page.locator('#method-line .il')).toHaveCount(0);
+    await expect(page.locator('#life-line .il')).toHaveCount(0);
     const v = await page.evaluate(() => {
-      const el = document.querySelector('#method-line') as HTMLElement;
+      const el = document.querySelector('#life-line') as HTMLElement;
       const img = document.querySelector('#proj-thaw .proj-media img') as HTMLElement;
       const vis = document.querySelector('#proj-thaw .proj-media .vis') as HTMLElement;
       return { opacity: parseFloat(getComputedStyle(el).opacity), h: el.getBoundingClientRect().height, anim: getComputedStyle(img).animationName, clip: getComputedStyle(vis).clipPath, dot: getComputedStyle(document.querySelector('.stamp-dot') as HTMLElement).animationName, name: parseFloat(getComputedStyle(document.querySelector('#hero-name') as HTMLElement).opacity) };
@@ -783,7 +787,7 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     const page = await ctx.newPage();
     await page.goto(PATH, { waitUntil: 'networkidle' });
     await expect(page.locator('.il')).toHaveCount(0);
-    const v = await page.evaluate(() => ['hero-name', 'hero-line', 'method-line', 'about-1', 'about-2', 'life-line', 'exp-0'].map((id) => { const el = document.getElementById(id) as HTMLElement; const cs = getComputedStyle(el); return { id, o: parseFloat(cs.opacity), vis: cs.visibility, h: el.getBoundingClientRect().height }; }));
+    const v = await page.evaluate(() => ['hero-name', 'hero-line', 'hero-p', 'about-1', 'life-line', 'exp-0'].map((id) => { const el = document.getElementById(id) as HTMLElement; const cs = getComputedStyle(el); return { id, o: parseFloat(cs.opacity), vis: cs.visibility, h: el.getBoundingClientRect().height }; }));
     for (const r of v) { expect(r.o, r.id).toBe(1); expect(r.vis, r.id).toBe('visible'); expect(r.h, r.id).toBeGreaterThan(10); }
     expect(await page.evaluate(() => getComputedStyle(document.querySelector('#proj-thaw .proj-media .vis') as HTMLElement).clipPath)).toBe('none');
     await expect(page.locator('#bar-status')).toHaveText('No track loaded');

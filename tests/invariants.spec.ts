@@ -32,7 +32,7 @@ test.describe('site invariants', () => {
     // dateModified is a full ISO 8601 DateTime with a timezone offset (Google types it DateTime,
     // and a date-only value fails Search Console), and it is when the profile content was last
     // edited, not the build time
-    expect(data.dateModified).toBe('2026-11-03T15:02:48+13:00');
+    expect(data.dateModified).toBe('2026-11-09T15:20:00+13:00');
     expect(data.dateModified).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/);
     expect(data.mainEntity['@type']).toBe('Person');
     expect(data.mainEntity.name).toBe('Karan Kapur');

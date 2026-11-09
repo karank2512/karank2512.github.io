@@ -1,45 +1,41 @@
-/* Self-hosted fonts, latin subsets only, from @fontsource (OFL-1.1). About
-   105 KB in all, under the 160 KB budget in lighthouserc.cjs. Anton is
-   preloaded from the page head (Base.astro) because the name is the largest
-   paint; the others are discovered from the inlined stylesheet. */
+/* Self-hosted fonts, latin subsets only, OFL-1.1. STIX Two Text is the
+   site's one face (v17 "Calm"): 400 for text, 500 for names and headings,
+   400 italic for captions and quiet asides. The three woff2 files are
+   vendored in src/assets/fonts with their license (STIXTwoText-OFL.txt),
+   so the repo gains no new npm dependency; they are the same files
+   @fontsource/stix-two-text ships. STIX is preloaded from the page head
+   (Base.astro) because the hero name is the largest paint. JetBrains Mono
+   remains for the small utilitarian text on the 404 page. */
 
-/* Anton 400: the display face, uppercase only on the site. */
+/* STIX Two Text 400: body and reading text. */
 @font-face {
-  font-family: 'Anton';
+  font-family: 'STIX Two Text';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('@fontsource/anton/files/anton-latin-400-normal.woff2') format('woff2');
+  src: url('../assets/fonts/stix-two-text-latin-400-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
-
-/* Archivo 400, 500, 700: the body face. */
+/* STIX Two Text 500: the name, section names, the closing mail line. */
 @font-face {
-  font-family: 'Archivo';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('@fontsource/archivo/files/archivo-latin-400-normal.woff2') format('woff2');
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: 'Archivo';
+  font-family: 'STIX Two Text';
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url('@fontsource/archivo/files/archivo-latin-500-normal.woff2') format('woff2');
+  src: url('../assets/fonts/stix-two-text-latin-500-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
+/* STIX Two Text 400 italic. */
 @font-face {
-  font-family: 'Archivo';
-  font-style: normal;
-  font-weight: 700;
+  font-family: 'STIX Two Text';
+  font-style: italic;
+  font-weight: 400;
   font-display: swap;
-  src: url('@fontsource/archivo/files/archivo-latin-700-normal.woff2') format('woff2');
+  src: url('../assets/fonts/stix-two-text-latin-400-italic.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* JetBrains Mono 400, 600: labels, dates, stamps. */
+/* JetBrains Mono 400 and 600: small utilitarian text (404 page). */
 @font-face {
   font-family: 'JetBrains Mono';
   font-style: normal;
@@ -55,26 +51,4 @@
   font-display: swap;
   src: url('@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600-normal.woff2') format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-
-/* Fallbacks sized to the real faces so the first paint and the swapped
-   paint line up. Anton is very condensed and tall; Impact is the nearest
-   local face, Arial Narrow next. */
-@font-face {
-  font-family: 'Anton Fallback';
-  src: local('Impact'), local('Arial Narrow Bold'), local('Arial Narrow');
-  size-adjust: 93%;
-  ascent-override: 105%;
-  descent-override: 25%;
-  line-gap-override: 0%;
-}
-@font-face {
-  font-family: 'Archivo Fallback';
-  src: local('Helvetica Neue'), local('Arial');
-  size-adjust: 101%;
-}
-@font-face {
-  font-family: 'Mono Fallback';
-  src: local('Menlo'), local('Consolas'), local('Courier New');
-  size-adjust: 96%;
 }

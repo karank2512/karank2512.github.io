@@ -55,7 +55,7 @@ const current = { role: 'Co-founder and cloud storage engineer', org: 'thaw' };
 // Not the build time; a deploy does not change the profile. Update this
 // whenever the visible profile content (src/content/profile, experience,
 // projects, leadership) changes.
-const profileLastModified = '2026-11-03T15:02:48+13:00';
+const profileLastModified = '2026-11-09T15:20:00+13:00';
 const schema = {
   '@context': 'https://schema.org',
   '@type': 'ProfilePage',
@@ -232,7 +232,7 @@ const catalog: Group[] = [
         id: 'more-sail',
         name: 'OpenAI x UW-Madison SAIL',
         meta: 'Summer of AI Laboratory · Software Engineer · summer 2025 · 60+ users',
-        line: "UW IT's GPT-4 retrieval assistant, built over one summer: manual lookup time down 40% and cloud cost down 25%.",
+        line: "A GPT-4 retrieval assistant built over one summer: manual lookup time down 40% and cloud cost down 25%.",
         links: [],
       },
     ],
@@ -284,14 +284,14 @@ const experience = [
   'HCLSoftware, Noida: Automation and Compliance Engineering Intern, summer 2024.',
   'Kappa Eta Kappa: VP on the National Executive Council; before that, President of the Delta Chapter in Madison.',
 ];
-const education = 'B.S. Computer Science and Data Science, Minor in Entrepreneurship. University of Wisconsin-Madison, May 2026. Coursework: Artificial Intelligence, Big Data Systems, Operating Systems, Algorithms.';
 ---
 <Base title={title} description={description}>
   <Fragment slot="head">
     <meta name="author" content={name} />
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
   </Fragment>
-  <main id="main" class="v16">
+  <main id="main" class="v17">
+    <canvas id="air" aria-hidden="true"></canvas>
     <header class="chrome" aria-label="Site">
       <a class="chrome-name" href="#top">Karan Kapur</a>
       <nav class="chrome-nav" aria-label="Quick links">
@@ -309,37 +309,26 @@ const education = 'B.S. Computer Science and Data Science, Minor in Entrepreneur
         <span class="bar-now" id="bar-status">No track loaded</span>
       </div>
       <p class="stamp"><span class="stamp-dot" aria-hidden="true"></span>Open to work</p>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="false" aria-label="Switch to dark theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </button>
     </header>
 
     <section class="first" id="top" aria-label="Introduction">
-      <h1 class="first-name" id="hero-name" data-ink data-hero><span class="fn-a">Karan</span> <span class="fn-b">Kapur</span></h1>
-      <p class="first-line" id="hero-line" data-ink data-hero>I build software with AI agents and the tooling around them.</p>
+      <h1 class="first-name" id="hero-name" data-ink data-hero>Karan Kapur</h1>
+      <div class="first-r">
+        <p class="first-line" id="hero-line" data-ink data-hero>I build software with AI agents and the tooling around them.</p>
+        <p class="first-p" id="hero-p" data-ink data-hero>Right now that&rsquo;s mostly tools for GTM teams: deciding whether a lead is worth enriching, turning job boards and filings into buying signals, and comparing data vendors to see which ones actually get company data right. I learn most of it by building. I started coding because of the IPL. Off the clock I&rsquo;m DJing, watching the NBA, soccer and supporting RedBull in Formula 1.</p>
+      </div>
       <a class="to-work" href="#work"><span>See all work</span><span aria-hidden="true">&darr;</span></a>
-    </section>
-
-    <section class="state" aria-label="How I work">
-      {/* DRAFT wording, 3 Nov, for review. */}
-      <p class="state-p" id="method-line" data-ink>I take a rough idea, build the tool, and test it against real numbers before I trust it.</p>
     </section>
 
     <section class="about" id="about" aria-labelledby="h-about">
       <h2 class="label" id="h-about"><span class="label-rule" aria-hidden="true"></span><span class="label-t" data-ink>About</span><span class="label-rule" aria-hidden="true"></span></h2>
       <div class="about-t">
-        {/* DRAFT wording, 3 Nov, for review; facts checked against src/content. */}
-        <p id="about-1" data-ink>I build tools that make people&rsquo;s lives easier and better. Lately that means systems that read messy public data, prove what they did, and know when to stop and ask a person.</p>
-        <p id="about-2" data-ink>Right now I&rsquo;m a Data Analyst at the Wisconsin Union, and I build my own projects on the side. I graduated from UW-Madison in May with a B.S. in Computer Science and Data Science. I started coding to settle an argument with my dad about an IPL match. My first project was a match predictor.</p>
+        <p id="about-1" data-ink>I studied Computer Science and Data Science at UW&ndash;Madison. Right now I&rsquo;m a Data Analyst at the Wisconsin Union, where I shipped the app that now runs staff scheduling. Before that I spent my senior capstone at Eurofins, turning messy lab records into forecasts the technicians still use, and a summer at OpenAI x UW&ndash;Madison SAIL building a GPT-4 retrieval assistant.</p>
       </div>
-      <p class="about-links" id="about-links">
-        <a href="https://github.com/karank2512">GitHub</a>
-        <a href="https://www.linkedin.com/in/karankapur5">LinkedIn</a>
-        <a href="/resume.pdf">Resume</a>
-        <a href="mailto:kapur04karan@gmail.com">Email</a>
-      </p>
-    </section>
-
-    <section class="life" id="life" aria-labelledby="h-life">
-      <h2 class="label" id="h-life"><span class="label-rule" aria-hidden="true"></span><span class="label-t" data-ink>Off the clock</span><span class="label-rule" aria-hidden="true"></span></h2>
-      <p class="life-line" id="life-line" data-ink>Before Madison I played table tennis at the national level in India. These days I cook, DJ, golf, and follow F1 closely.</p>
       <div class="photos" id="photos">
         {photos.map((ph) => (
           <figure data-vis style={`--fp: ${ph.focus}`}>
@@ -347,39 +336,6 @@ const education = 'B.S. Computer Science and Data Science, Minor in Entrepreneur
             <figcaption>{ph.cap}</figcaption>
           </figure>
         ))}
-      </div>
-      {/* Listening lately: the song tiles, status and seek bar. Native
-          audio, preload none, no src until a play gesture. Play, pause,
-          previous and next sit in the top bar (#bar); the same script
-          drives both. Controls start disabled in the HTML; the script
-          enables them. */}
-      <div class="player" id="player" data-player data-base="/audio/" data-state="idle">
-        <p class="player-k" id="player-k">Listening lately</p>
-        <p class="player-now" id="player-status" aria-live="polite">No track loaded</p>
-        <p class="player-hint">Tap a song to play it. Pause and skip from the top bar.</p>
-        <div class="player-seek">
-          <span class="ptime" id="player-cur">0:00</span>
-          <input type="range" id="player-range" min="0" max="1000" value="0" step="1" aria-label="Seek" aria-valuetext="No track loaded" disabled />
-          <span class="ptime" id="player-dur">--:--</span>
-        </div>
-        {/* Song tiles: one tile per local file, each a real button. A
-            click loads that song and plays it, whatever the player was
-            doing. The pressed tile is the one selected or playing. */}
-        <ul class="tiles" id="player-tracks" aria-label="Listening lately" data-default={defaultTrack}>
-          {tracks.map((t, i) => (
-            <li>
-              <button type="button" class="track tile" data-track={t.id} data-i={i} aria-pressed="false" disabled>
-                <span class="tile-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-                <span class="tile-a">{t.artist}</span>
-                <span class="tile-t">{t.title}</span>
-                <span class="tile-go" aria-hidden="true">Play</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-        <audio id="player-audio" preload="none"></audio>
-        {/* The playlist: one link out, nothing embedded, no third-party request from this page. */}
-        <p class="music"><a class="music-a" href={playlist.url} target="_blank" rel="noopener">{playlist.label}</a></p>
       </div>
     </section>
 
@@ -426,10 +382,47 @@ const education = 'B.S. Computer Science and Data Science, Minor in Entrepreneur
       ))}
     </section>
 
+    <section class="life" id="life" aria-labelledby="h-life">
+      <h2 class="label" id="h-life"><span class="label-rule" aria-hidden="true"></span><span class="label-t" data-ink>Off the clock</span><span class="label-rule" aria-hidden="true"></span></h2>
+      <p class="life-line" id="life-line" data-ink>Before Madison I played table tennis at the national level in India.</p>
+      {/* Listening lately: the song tiles, status and seek bar. Native
+          audio, preload none, no src until a play gesture. Play, pause,
+          previous and next sit in the top bar (#bar); the same script
+          drives both. Controls start disabled in the HTML; the script
+          enables them. */}
+      <div class="player" id="player" data-player data-base="/audio/" data-state="idle">
+        <p class="player-k" id="player-k">Listening lately</p>
+        <p class="player-now" id="player-status" aria-live="polite">No track loaded</p>
+        <p class="player-hint">Tap a song to play it. Pause and skip from the top bar.</p>
+        <div class="player-seek">
+          <span class="ptime" id="player-cur">0:00</span>
+          <input type="range" id="player-range" min="0" max="1000" value="0" step="1" aria-label="Seek" aria-valuetext="No track loaded" disabled />
+          <span class="ptime" id="player-dur">--:--</span>
+        </div>
+        {/* Song tiles: one tile per local file, each a real button. A
+            click loads that song and plays it, whatever the player was
+            doing. The pressed tile is the one selected or playing. */}
+        <ul class="tiles" id="player-tracks" aria-label="Listening lately" data-default={defaultTrack}>
+          {tracks.map((t, i) => (
+            <li>
+              <button type="button" class="track tile" data-track={t.id} data-i={i} aria-pressed="false" disabled>
+                <span class="tile-n" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                <span class="tile-a">{t.artist}</span>
+                <span class="tile-t">{t.title}</span>
+                <span class="tile-go" aria-hidden="true">Play</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+        <audio id="player-audio" preload="none"></audio>
+        {/* The playlist: one link out, nothing embedded, no third-party request from this page. */}
+        <p class="music"><a class="music-a" href={playlist.url} target="_blank" rel="noopener">{playlist.label}</a></p>
+      </div>
+    </section>
+
     <section class="exp" id="experience" aria-labelledby="exp-h">
       <h2 class="label" id="exp-h"><span class="label-rule" aria-hidden="true"></span><span class="label-t" data-ink>Experience</span><span class="label-rule" aria-hidden="true"></span></h2>
       {experience.map((line, i) => <p class="exp-line" id={`exp-${i}`} data-ink>{line}</p>)}
-      <p class="exp-edu" id="exp-edu" data-ink>{education}</p>
     </section>
 
     <footer class="foot" aria-label="Contact">
@@ -441,373 +434,464 @@ const education = 'B.S. Computer Science and Data Science, Minor in Entrepreneur
       </p>
     </footer>
   </main>
-
   <style is:inline>
-    /* v16: the v4 "Poster" system (DESIGN.md) carrying the v14 writing,
-       with timed ink reveals; the hero and Selected work use two columns. Fonts are self-hosted sitewide by
-       Base.astro: Anton display, Archivo body, JetBrains Mono labels. */
-    .v16 {
-      --paper: #F4F0E6;
-      --ink: #121212;
-      --mute: #5E5A52;
-      --red: #E8321E;
-      --blue: #1B3FD6;
-      --yellow: #FFD21E;
-      --display: "Anton", "Arial Narrow", Impact, sans-serif;
-      --bodyf: "Archivo", "Helvetica Neue", Arial, sans-serif;
-      --mono: "JetBrains Mono", Menlo, monospace;
-      --pad: clamp(16px, 4vw, 48px);
-      --col: 1120px;
-      background: var(--paper);
+    /* v17 "Calm": the writing and structure of abhaymettu.com carried into
+       Karan's content. One serif everywhere (STIX Two Text, self-hosted by
+       fonts.css), warm paper and near-black ink, hairline rules instead of
+       poster borders, generous whitespace. The ink letter reveals, photo and
+       visual entrances, and the local player carry over unchanged in
+       behavior; only their look is quieter. */
+    .v17 {
+      --paper: #ece9e2;
+      --ink: #1a1815;
+      --mute: rgba(26, 24, 21, .66);
+      --hair: rgba(26, 24, 21, .16);
+      --plate: #ddd9d0;
+      --wash: rgba(26, 24, 21, .045);
+      --serif: "STIX Two Text", "Times New Roman", Times, serif;
+      /* The type scale: every text role is one of these steps. */
+      --t-sm: 400 14px/1.45 var(--serif);
+      --t-ui: 400 15px/1.25 var(--serif);
+      --t-body: 400 17px/1.55 var(--serif);
+      --t-read: 400 19px/1.55 var(--serif);
+      --t-md: 400 22px/1.4 var(--serif);
+      --t-lg: 400 28px/1.25 var(--serif);
+      --pad: clamp(20px, 4vw, 48px);
+      --col: 1080px;
+      --ease: cubic-bezier(.2, 0, 0, 1);
       color: var(--ink);
-      font: 400 17px/1.5 var(--bodyf);
+      font: var(--t-body);
       -webkit-font-smoothing: antialiased;
     }
-    .v16 a { color: inherit; }
-    .v16 :where(h1, h2, h3, p, figure) { margin: 0; padding: 0; font-weight: 400; }
-    .v16 ::selection { background: var(--yellow); color: var(--ink); }
+    /* Night: the same structure on a dark sheet. html carries data-theme
+       (bootstrap in Base.astro, toggle below); only the palette turns. */
+    html[data-theme="dark"] .v17 {
+      --paper: #131210;
+      --ink: #e8e5dc;
+      --mute: rgba(232, 229, 220, .62);
+      --hair: rgba(232, 229, 220, .16);
+      --plate: #22211e;
+      --wash: rgba(232, 229, 220, .055);
+    }
+    .v17 a { color: inherit; }
+    .v17 :where(h1, h2, h3, h4, p, figure) { margin: 0; padding: 0; font-weight: 400; }
+    .v17 ::selection { background: var(--ink); color: var(--paper); }
     /* Every anchor clears the fixed bar: --chrome-h is measured by the
        script; the fallback is the bar's resting height. */
-    .v16 [id] { scroll-margin-top: calc(var(--chrome-h, 60px) + 24px); }
-    .v16 a:focus-visible, .v16 button:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+    .v17 [id] { scroll-margin-top: calc(var(--chrome-h, 60px) + 24px); }
+    .v17 a:focus-visible, .v17 button:focus-visible { outline: 1px solid var(--ink); outline-offset: 4px; }
 
+    /* The fixed bar: quiet paper with a hairline under it once the page
+       moves, the name fading in after the hero. */
+    #air {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      z-index: 0; pointer-events: none;
+    }
+    .v17 > section, .v17 > .foot { position: relative; z-index: 1; }
     .chrome {
       position: fixed; top: 0; left: 0; right: 0; z-index: 20;
-      display: flex; align-items: center; gap: 28px;
-      padding: 14px var(--pad);
-      background: var(--paper); border-bottom: 4px solid var(--ink);
+      display: flex; align-items: center; gap: clamp(16px, 2.5vw, 32px);
+      padding: 16px var(--pad);
+      background: var(--paper);
+      border-bottom: 1px solid transparent;
+      transition: border-color .4s var(--ease);
     }
+    .v17.past-first .chrome { border-bottom-color: var(--hair); }
     .chrome-name {
-      font: 400 22px/1 var(--display); text-transform: uppercase; letter-spacing: -0.005em;
+      font: 500 19px/1.1 var(--serif); letter-spacing: -0.005em;
       text-decoration: none; opacity: 0; transition: opacity .4s linear;
     }
-    .v16.past-first .chrome-name { opacity: 1; }
-    .chrome-nav { display: flex; gap: 22px; margin-left: auto; }
+    .v17.past-first .chrome-name { opacity: 1; }
+    .chrome-nav { display: flex; gap: clamp(14px, 2vw, 24px); margin-left: auto; }
     .chrome-nav a {
-      font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
-      text-decoration: none; position: relative; padding: 6px 0;
+      font: var(--t-ui); color: var(--mute);
+      text-decoration: none; position: relative; padding: 4px 0;
+      transition: color .2s linear;
     }
     .chrome-nav a::after {
-      content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: 0;
-      background: var(--red); transition: width .25s linear;
+      content: ""; position: absolute; left: 0; bottom: 0; height: 1px; width: 0;
+      background: var(--ink); transition: width .25s var(--ease);
     }
+    .chrome-nav a:hover { color: var(--ink); }
     .chrome-nav a:hover::after { width: 100%; }
     .stamp {
       display: flex; align-items: center; gap: 8px;
-      font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
-      border: 3px solid var(--ink); padding: 8px 10px; margin: 0;
+      font: var(--t-sm); color: var(--mute);
+      border: 1px solid var(--hair); border-radius: 999px; padding: 6px 12px; margin: 0;
+      white-space: nowrap;
     }
-    .stamp-dot { width: 9px; height: 9px; background: var(--red); animation: v16blink 1.6s steps(1) infinite; }
-    @keyframes v16blink { 50% { opacity: 0; } }
-    /* The transport in the bar: three small buttons and a one-line state,
-       in the bar's own mono. State lives on data-state, mirrored from the
-       player box. */
-    .bar { display: flex; align-items: center; gap: 8px; }
+    .stamp-dot { width: 7px; height: 7px; border-radius: 50%; background: #3d7a4a; }
+    /* The transport in the bar: three quiet buttons and a one-line state. */
+    .bar { display: flex; align-items: center; gap: 6px; }
     .bbtn {
-      font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
-      color: var(--ink); background: var(--paper); border: 3px solid var(--ink); cursor: pointer;
-      min-width: 34px; height: 34px; padding: 0 8px;
+      font: var(--t-sm);
+      color: var(--ink); background: transparent; border: 1px solid var(--hair); border-radius: 999px; cursor: pointer;
+      min-width: 32px; height: 32px; padding: 0 10px;
+      transition: border-color .2s linear, background .2s linear;
     }
-    .bbtn-play { min-width: 62px; }
-    .bbtn[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-    .bbtn:hover:not(:disabled) { background: var(--yellow); color: var(--ink); }
-    .bbtn:disabled { cursor: not-allowed; color: var(--mute); border-color: var(--mute); }
+    .bbtn-play { min-width: 58px; }
+    .bbtn[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .bbtn:hover:not(:disabled) { border-color: var(--ink); }
+    .bbtn:disabled { cursor: not-allowed; color: var(--mute); }
     .bar-now {
-      font: 600 11px/1.2 var(--mono); text-transform: uppercase; letter-spacing: .02em; color: var(--mute);
-      max-width: 26ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font: var(--t-sm); color: var(--mute);
+      max-width: 24ch; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .bar[data-state="playing"] .bar-now, .bar[data-state="loading"] .bar-now { color: var(--ink); }
-    .bar[data-state="error"] .bar-now { color: var(--red); }
+    /* The light/dark turn: one quiet button in the bar. */
+    .theme-toggle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; padding: 0;
+      color: var(--ink); background: transparent; border: 1px solid var(--hair); border-radius: 999px; cursor: pointer;
+      transition: border-color .2s linear;
+    }
+    .theme-toggle:hover { border-color: var(--ink); }
+    .theme-toggle .icon-moon { display: none; }
+    html[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    html[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
 
-    /* Every section is a centered column with centered text; hierarchy
-       comes from size and the rules. */
-    .v16 section, .v16 .foot { padding-left: var(--pad); padding-right: var(--pad); text-align: center; }
-    .v16 section > *, .v16 .foot > * { margin-left: auto; margin-right: auto; }
+    /* Sections: a centered column, wide spacing, hierarchy from size and
+       hairlines rather than rules and color. */
+    .v17 section, .v17 .foot { padding-left: var(--pad); padding-right: var(--pad); }
+    .v17 section > *, .v17 .foot > * { margin-left: auto; margin-right: auto; max-width: var(--col); }
 
-    /* Hero: the name on the left, two lines; the tagline on the right,
-       centered vertically against the whole name block (v17: it sat on the
-       name's last line in v16); "See all work" bottom-left. */
-    .v16 .first { text-align: left; }
+    /* The hero: name on the left, the line and the second paragraph on the
+       right, "See all work" at the bottom-left. */
     .first {
       min-height: 100svh; position: relative;
-      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-content: center;
-      column-gap: clamp(24px, 4vw, 64px); row-gap: clamp(22px, 3.5vh, 44px);
+      display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); align-content: center;
+      column-gap: clamp(32px, 5vw, 80px); row-gap: clamp(20px, 3vh, 36px);
       padding-top: 96px; padding-bottom: 120px;
+      max-width: none;
     }
-    .v16 .first > * { margin-left: 0; margin-right: 0; }
+    .v17 .first > * { margin-left: 0; margin-right: 0; max-width: none; }
     .first-name {
-      grid-column: 1; grid-row: 1; justify-self: start; display: grid;
-      font: 400 clamp(3.4rem, 11vw, 10.5rem)/0.9 var(--display);
-      text-transform: uppercase; letter-spacing: -0.005em; white-space: nowrap;
+      grid-column: 1; justify-self: start; align-self: center;
+      font: 500 clamp(2.9rem, 6.5vw, 5.25rem)/1.02 var(--serif);
+      letter-spacing: -0.015em;
     }
-    .fn-b { color: var(--red); }
+    .first-r { grid-column: 2; align-self: center; display: grid; gap: 1.1em; justify-items: stretch; }
     .first-line {
-      grid-column: 2; grid-row: 1; align-self: center; justify-self: start; max-width: 24ch;
-      font: 800 clamp(1.5rem, 2.8vw, 2.6rem)/1.14 var(--bodyf);
-      letter-spacing: -0.01em;
+      max-width: none;
+      font: 400 clamp(1.45rem, 2.4vw, 2.1rem)/1.2 var(--serif);
+      letter-spacing: -0.008em;
+      text-wrap: balance;
     }
+    .first-p { max-width: none; font: var(--t-md); letter-spacing: -0.004em; color: var(--mute); text-wrap: pretty; }
+    .first-p a { text-decoration-thickness: 1px; text-underline-offset: .14em; }
     .to-work {
-      position: absolute; left: var(--pad); bottom: 28px;
+      position: absolute; left: var(--pad); bottom: 32px;
       display: flex; gap: 8px; align-items: center;
-      font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
-      text-decoration: none; border-bottom: 3px solid var(--red); padding-bottom: 6px;
-      color: var(--ink); white-space: nowrap;
+      font: var(--t-ui); color: var(--mute);
+      text-decoration: none; border-bottom: 1px solid var(--hair); padding-bottom: 4px;
+      transition: color .2s linear, border-color .2s linear;
     }
+    .to-work:hover { color: var(--ink); border-bottom-color: var(--ink); }
 
-    .label { display: flex; align-items: center; gap: 18px; margin-bottom: clamp(48px, 7vw, 88px); max-width: var(--col); }
-    .label-t { font: 600 13px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em; white-space: nowrap; }
-    .label-rule { flex: 1; height: 4px; background: var(--ink); }
+    .label { display: flex; align-items: center; gap: 18px; margin-bottom: clamp(40px, 6vw, 72px); }
+    .label-t { font: var(--t-ui); color: var(--mute); white-space: nowrap; }
+    .label-rule { flex: 1; height: 1px; background: var(--hair); }
 
-    .state { padding-top: 10vh; padding-bottom: 14vh; }
-    .state-p { max-width: 30ch; font: 600 clamp(1.5rem, 2.6vw, 2.3rem)/1.32 var(--bodyf); letter-spacing: 0; }
+    section.about, section.work, section.more, section.life, section.exp { padding-top: clamp(120px, 16vw, 240px); }
 
-    /* One divider per section (v17): the label's own rules cut the page,
-       so the labeled sections carry no full-width border of their own. The
-       footer has no label and keeps its rule. */
-    .about { padding-top: 8vh; padding-bottom: 12vh; }
-    .about-t { max-width: 58ch; font-size: clamp(18px, 1.6vw, 22px); line-height: 1.45; display: grid; gap: 1.2em; }
-    .about-links { margin-top: 48px; display: flex; justify-content: center; gap: 26px; flex-wrap: wrap; }
-    .about-links a, .foot-links a, .proj-l a, .row-links a {
-      font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
-      text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 3px; text-underline-offset: 5px;
-    }
-    .about-links a:hover, .proj-l a:hover, .row-links a:hover { text-decoration-color: var(--blue); }
-
-    /* Off the clock: its own section, roomy. Four photos, one aspect, one
-       gap, each with its own focal crop; captions under each. */
-    .life { padding-top: 10vh; padding-bottom: 12vh; }
-    .life-line { max-width: 56ch; font-size: clamp(18px, 1.6vw, 22px); line-height: 1.45; }
+    /* About: one centered reading column, then the photos. The width needs
+       to beat the generic section column rule, so it names its section. */
+    .v17 section.about .about-t { max-width: 660px; font: var(--t-md); letter-spacing: -0.004em; display: grid; gap: 1.2em; text-align: center; }
+    .about-t a { text-decoration-thickness: 1px; text-underline-offset: .14em; }
     .photos {
-      margin-top: 72px; max-width: var(--col);
-      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(16px, 2.4vw, 32px);
+      margin-top: clamp(48px, 7vw, 88px);
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: clamp(14px, 2vw, 24px);
     }
-    .photos figure { display: grid; gap: 12px; justify-items: center; }
-    .photos .vis { width: 100%; aspect-ratio: 4 / 5; overflow: hidden; border: 4px solid var(--ink); background: #e3ded1; }
-    .photos img { width: 100%; height: 100%; object-fit: cover; object-position: var(--fp, 50% 50%); display: block; transition: transform .25s linear; }
-    .photos figure:hover img { transform: scale(1.03); }
-    .photos figcaption { color: var(--mute); font: 600 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .02em; }
-    /* The playlist link: one small mono line under the tiles (v18; the
-       separate list of outside links is gone). */
-    .music { margin: 4px 0 0; }
-    .music-a {
-      font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em; color: var(--ink);
-      text-decoration: underline; text-decoration-color: var(--red); text-decoration-thickness: 3px; text-underline-offset: 5px;
-    }
-    .music-a:hover { text-decoration-color: var(--blue); }
+    .photos figure { display: grid; gap: 8px; align-content: start; }
+    .photos .vis { width: 100%; aspect-ratio: 4 / 5; overflow: hidden; background: var(--plate); }
+    .photos img { width: 100%; height: 100%; object-fit: cover; object-position: var(--fp, 50% 50%); }
+    .photos figcaption { font: var(--t-sm); color: var(--mute); }
 
-    /* Selected work: two columns, the visual on one side and the writeup
-       on the other, swapping sides project by project (odd: visual left;
-       even: visual right). The visual keeps its 2:1 frame; the shot sits
-       inside at its own width (--wd on desktop, --wm on phones, from
-       fitShot above), top edge to the frame's top, with the pan travel
-       (--td / --tm) never more than the overflow, so the frame never
-       shows through. Under 900px the pair stacks, centered, as in v15. */
-    .work { padding-top: 10vh; padding-bottom: 4vh; }
-    .projs { display: grid; gap: 14vh; max-width: var(--col); }
-    .proj { display: grid; grid-template-columns: 7fr 5fr; column-gap: clamp(28px, 4vw, 56px); row-gap: 34px; align-items: center; text-align: left; }
-    .proj:nth-child(even) { grid-template-columns: 5fr 7fr; }
-    .proj-media { grid-column: 1; grid-row: 1; }
-    .proj-cap { grid-column: 2; grid-row: 1; }
-    .proj:nth-child(even) .proj-media { grid-column: 2; }
-    .proj:nth-child(even) .proj-cap { grid-column: 1; }
-    .proj-media {
-      position: relative; width: 100%; aspect-ratio: 2 / 1; overflow: hidden; background: #e3ded1;
-      border: 4px solid var(--ink);
-      transition: transform .18s linear, box-shadow .18s linear;
+    /* Selected work: a small visual beside the writeup, alternating sides,
+       bare frames on the paper. */
+    .projs { display: grid; gap: clamp(72px, 10vw, 140px); }
+    .proj {
+      display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: clamp(24px, 4vw, 64px); align-items: center;
     }
-    .proj-media:hover { transform: translate(-3px, -3px); box-shadow: 6px 6px 0 var(--ink); }
+    .proj:nth-child(even) { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); }
+    .proj:nth-child(even) .proj-media { order: 2; }
+    .proj:nth-child(even) .proj-cap { order: 1; }
+    .proj-media { position: relative; width: 100%; aspect-ratio: 2 / 1; background: var(--plate); overflow: hidden; }
     .proj-media .vis { position: absolute; inset: 0; overflow: hidden; }
     .proj-media img {
       position: absolute; left: 50%; top: 0; width: var(--wd, 100%); height: auto; max-width: none;
       transform: translate(-50%, 0); display: block; --travel: var(--td, 0%);
     }
-    .proj-cap { display: grid; gap: 18px; justify-items: start; max-width: 46ch; }
-    .proj-name { font: 400 clamp(2.2rem, 3.4vw, 3.4rem)/0.9 var(--display); text-transform: uppercase; letter-spacing: -0.005em; }
-    .proj:nth-child(even) .proj-name { color: var(--red); }
-    .proj-d { font-size: clamp(16px, 1.3vw, 19px); line-height: 1.45; }
-    .proj-l { display: flex; gap: 22px; justify-content: flex-start; }
-
-    /* All work: centered groups, rows cut by rules, text only. Under the
-       heading, one row of the categories, each an anchor to its group,
-       with a rule beneath. Every inventory row belongs to its category;
-       the five upper feature projects are included under tooling. */
-    .more { padding-top: 10vh; padding-bottom: 4vh; }
-    .more .label { margin-bottom: 30px; }
-    .cats {
-      display: flex; flex-wrap: wrap; justify-content: center; gap: 12px 28px;
-      max-width: var(--col); margin-bottom: 72px; padding-bottom: 16px; border-bottom: 3px solid var(--ink);
-    }
-    .cats a {
-      font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
-      text-decoration: none; position: relative; padding: 6px 0;
-    }
-    .cats a::after {
-      content: ""; position: absolute; left: 0; bottom: 0; height: 3px; width: 0;
-      background: var(--red); transition: width .25s linear;
-    }
-    .cats a:hover::after, .cats a:focus-visible::after { width: 100%; }
-    .grp { margin-bottom: 72px; max-width: 64ch; }
-    .grp-t { font: 400 clamp(1.8rem, 3vw, 2.6rem)/0.9 var(--display); text-transform: uppercase; margin-bottom: 36px; }
-    .row { padding: 24px 0; border-top: 3px solid var(--ink); display: grid; gap: 8px; justify-items: center; }
-    .grp .row:last-child { border-bottom: 3px solid var(--ink); }
-    .row-h { font-size: 17px; font-weight: 700; }
-    .row-n { margin-right: 10px; }
-    .row-m { color: var(--mute); font: 600 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .02em; }
-    .row-l { max-width: 56ch; font-size: 16px; line-height: 1.45; }
-    .row-links { display: flex; gap: 22px; justify-content: center; }
-
-    .exp { padding-top: 10vh; padding-bottom: 4vh; display: grid; gap: 26px; justify-items: center; }
-    .exp-line, .exp-edu { max-width: 62ch; font-size: 18px; line-height: 1.45; }
-    .exp-edu { color: var(--mute); font: 600 13px/1.6 var(--mono); text-transform: uppercase; letter-spacing: .02em; margin-top: 18px; }
-
-    .foot { padding-top: 18vh; padding-bottom: 64px; border-top: 4px solid var(--ink); display: grid; justify-items: center; gap: 44px; }
-    .foot-mail a {
-      font: 400 clamp(2.4rem, 6.5vw, 7rem)/0.95 var(--display); text-transform: uppercase;
-      color: var(--red); text-decoration: none; letter-spacing: -0.005em;
-    }
-    .foot-mail a:hover { text-decoration: underline; text-decoration-thickness: 6px; text-underline-offset: 10px; }
-    .foot-links { display: flex; gap: 26px; }
-    .foot-links a { text-decoration-color: var(--yellow); }
-    .foot-links a:hover { text-decoration-color: var(--blue); }
-
-    /* Timed ink. The script splits each [data-ink] into letters and gives
-       every letter two delays: --d for inking in (spread across the block
-       with a little deterministic jitter) and --ds for smearing out. The
-       block's class says what the letters do: .on inks, .off smears, .set
-       is settled at once (a flick, or a repeat visit's hero). Without the
-       script nothing is split and everything is visible. */
-    .ink-js [data-ink] .iw { display: inline-block; white-space: nowrap; }
-    .ink-js [data-ink] .il {
-      display: inline-block; opacity: 0; transform-origin: 0 50%;
-      transform: translateX(-.06em) scaleX(1.5);
-    }
-    .ink-js [data-ink].on .il { animation: v16ink .9s cubic-bezier(.2, 0, 0, 1) both; animation-delay: var(--d, 0ms); }
-    .ink-js [data-ink].off .il { animation: v16smear .45s cubic-bezier(.2, 0, 0, 1) both; animation-delay: var(--ds, 0ms); }
-    .ink-js [data-ink].set .il { animation: none; opacity: 1; transform: none; }
-    @keyframes v16ink {
-      0% { opacity: 0; transform: translateX(-.06em) scaleX(1.5); }
-      45% { opacity: .35; }
-      100% { opacity: 1; transform: none; }
-    }
-    @keyframes v16smear {
-      0% { opacity: 1; transform: none; }
-      100% { opacity: 0; transform: translateX(.06em) scaleX(1.5); }
-    }
-
-    /* Motion inside the visuals: a sink-in entrance (the clip opens and
-       the shot settles from 108% to 100% over 2 s), then a slow vertical
-       pan, back and forth, from the shot's top edge down over its overflow
-       (the whole travel is --travel of the shot's height: 21.2% where the
-       side band allows the full pan, less where it does not). */
-    .ink-js .proj-media .vis { clip-path: inset(9% 9%); transform: scale(1.08); transition: clip-path 2s cubic-bezier(.2, 0, 0, 1), transform 2s cubic-bezier(.2, 0, 0, 1); }
-    .ink-js .proj-media.in .vis { clip-path: inset(0 0); transform: none; }
-    .ink-js .proj-media.in img { animation: v16pan 16s cubic-bezier(.45, 0, .55, 1) infinite alternate; }
-    @keyframes v16pan {
-      from { transform: translate(-50%, 0); }
-      to { transform: translate(-50%, var(--travel, 0%)); }
-    }
-    .ink-js .photos figure .vis { clip-path: inset(9% 9%); transition: clip-path 2s cubic-bezier(.2, 0, 0, 1); }
-    .ink-js .photos figure.in .vis { clip-path: inset(0 0); }
-
-    /* Section titles: the two rules draw out from the title as its letters
-       ink, and smear back with them, so a title is never a blank gap
-       between two finished rules. Where :has() is unsupported the rules
-       are simply always drawn. */
-    @supports selector(:has(a)) {
-      .ink-js .label-rule { transform: scaleX(0); transition: transform .9s cubic-bezier(.2, 0, 0, 1); }
-      .ink-js .label-rule:first-child { transform-origin: 100% 50%; }
-      .ink-js .label-rule:last-child { transform-origin: 0 50%; }
-      .ink-js .label:has(.label-t.on) .label-rule, .ink-js .label:has(.label-t.set) .label-rule { transform: none; }
-      .ink-js .label:has(.label-t.off) .label-rule { transform: scaleX(0); transition-duration: .45s; }
-    }
-
-    /* The player: the Poster system's rules and mono labels, nothing that
-       looks like a third-party widget. State lives on data-state. */
-    .player { margin-top: 88px; max-width: 560px; display: grid; gap: 18px; justify-items: center; border: 4px solid var(--ink); padding: 28px clamp(16px, 4vw, 36px) 24px; }
-    .player-k { font: 600 12px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em; color: var(--mute); }
-    .player-now { font: 800 clamp(1.05rem, 1.5vw, 1.25rem)/1.3 var(--bodyf); max-width: 34ch; min-height: 2.6em; display: grid; align-content: center; }
-    .player[data-state="error"] .player-now { color: var(--red); }
-    .player-hint { font: 600 12px/1.5 var(--mono); text-transform: uppercase; letter-spacing: .02em; color: var(--mute); margin-top: -6px; }
-    .player-ctl { display: flex; gap: 12px; align-items: center; }
-    .pbtn {
-      font: 600 13px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em;
-      color: var(--ink); background: var(--paper); border: 3px solid var(--ink); cursor: pointer;
-      min-width: 52px; height: 48px; padding: 0 14px;
-    }
-    .pbtn-play { min-width: 112px; }
-    .pbtn[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-    .pbtn:hover:not(:disabled) { background: var(--yellow); color: var(--ink); }
-    .pbtn:disabled { cursor: not-allowed; color: var(--mute); border-color: var(--mute); }
-    .player-seek { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: center; width: 100%; }
-    .ptime { font: 600 12px/1 var(--mono); letter-spacing: .02em; min-width: 3.2em; }
-    #player-range { width: 100%; height: 28px; margin: 0; accent-color: var(--red); cursor: pointer; }
-    #player-range:disabled { cursor: not-allowed; accent-color: var(--mute); opacity: .55; }
-    /* Song tiles: one bordered tile per local file, two across (eight
-       tiles, four rows), each a button in the Poster system's own rules;
-       the pressed tile is the selected or playing one, and a playing tile
-       says so. */
-    .tiles { list-style: none; margin: 6px 0 0; padding: 0; width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-    .tile {
-      width: 100%; height: 100%; display: grid; grid-template-rows: auto auto 1fr auto; gap: 10px; align-items: start; justify-items: start; text-align: left;
-      font: 400 16px/1.3 var(--bodyf); color: var(--ink); background: var(--paper); border: 3px solid var(--ink); padding: 14px 14px 12px; cursor: pointer;
-      transition: transform .18s linear, box-shadow .18s linear;
-    }
-    .tile:hover:not(:disabled), .tile:focus-visible { transform: translate(-3px, -3px); box-shadow: 6px 6px 0 var(--ink); }
-    .tile:disabled { cursor: not-allowed; color: var(--mute); border-color: var(--mute); }
-    .tile[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
-    .tile[aria-pressed="true"] .tile-n, .tile[aria-pressed="true"] .tile-t { color: var(--paper); opacity: .72; }
-    .tile[aria-pressed="true"] .tile-go { color: var(--yellow); border-color: var(--yellow); }
-    .tile-n { font: 600 12px/1 var(--mono); color: var(--mute); }
-    .tile-a { font-weight: 800; font-size: clamp(1rem, 1.3vw, 1.15rem); }
-    .tile-t { color: var(--mute); font-size: 15px; }
-    .tile-go { font: 600 11px/1 var(--mono); text-transform: uppercase; letter-spacing: .02em; border-bottom: 3px solid var(--red); padding-bottom: 4px; margin-top: 6px; align-self: end; }
-    .player[data-state="playing"] .tile[aria-pressed="true"] .tile-go::after { content: "ing"; }
-
-    @media (max-width: 900px) {
-      .photos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      /* The pair stacks: visual, then writeup, centered. */
-      .proj, .proj:nth-child(even) { grid-template-columns: minmax(0, 1fr); text-align: center; justify-items: center; }
-      .proj-media, .proj:nth-child(even) .proj-media { grid-column: 1; grid-row: 1; width: min(100%, 960px); }
-      .proj-cap, .proj:nth-child(even) .proj-cap { grid-column: 1; grid-row: 2; justify-items: center; max-width: 60ch; }
-      .proj-l { justify-content: center; }
-    }
     @media (max-width: 767px) {
-      .v16 { --pad: 20px; --chrome-h: 104px; }
-      /* The bar wraps to two rows: links and the stamp, then the transport. */
-      .chrome { flex-wrap: wrap; gap: 10px 14px; padding: 12px 16px; }
-      .chrome-name { display: none; }
-      .chrome-nav { margin-left: 0; gap: 16px; }
-      .bar { flex-basis: 100%; order: 3; }
-      .bar-now { max-width: none; flex: 1; min-width: 0; }
-      .first { grid-template-columns: minmax(0, 1fr); padding-top: 136px; padding-bottom: 96px; row-gap: 26px; }
-      .first-name { white-space: normal; }
-      .first-line { grid-column: 1; grid-row: 2; align-self: start; }
-      .to-work { bottom: 20px; }
       .proj-media { aspect-ratio: 16 / 9; }
       .proj-media img { width: var(--wm, 100%); --travel: var(--tm, 0%); }
-      .projs { gap: 12vh; }
-      .stamp { padding: 6px 8px; }
-      /* The address is one unbreakable word: size it to the width so the
-         mobile layout never grows past the screen (v14 overflowed here). */
-      .foot-mail a { font-size: 8vw; }
-      .player { padding: 22px 14px 18px; }
-      .cats { gap: 10px 20px; }
-      .tiles { gap: 10px; }
-      .tile { padding: 12px 12px 10px; }
+    }
+    .proj-cap { display: grid; gap: 14px; justify-items: start; }
+    .proj-name { font: 500 24px/1.3 var(--serif); letter-spacing: -0.004em; }
+    .proj-d { font: var(--t-body); color: var(--mute); }
+    .proj-l { display: flex; gap: 18px; }
+    .proj-l a { font: var(--t-ui); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+
+    /* All work: centered, text only, categories with jump links. */
+    .more { text-align: center; }
+    .cats { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; margin-bottom: clamp(48px, 7vw, 80px); }
+    .cats a { font: var(--t-ui); color: var(--mute); text-decoration: none; border-bottom: 1px solid var(--hair); padding-bottom: 3px; transition: color .2s linear, border-color .2s linear; }
+    .cats a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+    .grp { margin-bottom: clamp(48px, 7vw, 80px); }
+    .grp-t { font: 500 24px/1.3 var(--serif); letter-spacing: -0.004em; margin-bottom: 28px; }
+    .row { padding: 18px 0; border-top: 1px solid var(--hair); display: grid; gap: 6px; }
+    .grp .row:last-child { border-bottom: 1px solid var(--hair); }
+    .row-h { font: var(--t-body); }
+    .row-n { font-weight: 500; }
+    .row-m { color: var(--mute); font-size: 14px; }
+    .row-m::before { content: "· "; }
+    .row-l { color: var(--mute); max-width: 64ch; margin: 0 auto; }
+    .row-links { display: flex; gap: 18px; justify-content: center; }
+    .row-links a { font: var(--t-sm); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+
+    /* Off the clock: one line, then the player. */
+    .life { text-align: center; }
+    .life-line { font: var(--t-md); letter-spacing: -0.004em; max-width: 640px; }
+
+    .player { margin-top: clamp(48px, 7vw, 80px); max-width: 720px; text-align: left; }
+    .player-k { font: var(--t-ui); color: var(--mute); }
+    .player-now { font: 500 19px/1.4 var(--serif); margin-top: 10px; min-height: 1.4em; }
+    .player-hint { font: var(--t-sm); color: var(--mute); margin-top: 4px; }
+    .player-seek { display: flex; align-items: center; gap: 12px; margin-top: 16px; }
+    .ptime { font: var(--t-sm); color: var(--mute); min-width: 4ch; }
+    .player-seek input[type="range"] {
+      flex: 1; appearance: none; -webkit-appearance: none; height: 24px; background: transparent; cursor: pointer;
+    }
+    .player-seek input[type="range"]::-webkit-slider-runnable-track { height: 1px; background: var(--hair); }
+    .player-seek input[type="range"]::-webkit-slider-thumb {
+      appearance: none; -webkit-appearance: none; width: 12px; height: 12px; border-radius: 50%;
+      background: var(--ink); margin-top: -5.5px;
+    }
+    .player-seek input[type="range"]::-moz-range-track { height: 1px; background: var(--hair); }
+    .player-seek input[type="range"]::-moz-range-thumb { width: 12px; height: 12px; border: 0; border-radius: 50%; background: var(--ink); }
+    .player-seek input[type="range"]:disabled { cursor: default; opacity: .5; }
+    .tiles { margin-top: 20px; border-top: 1px solid var(--hair); }
+    .tile {
+      width: 100%; display: flex; gap: 16px; align-items: baseline;
+      padding: 14px 4px; border: 0; border-bottom: 1px solid var(--hair); background: none; cursor: pointer;
+      font: var(--t-body); color: var(--ink); text-align: left;
+      transition: background .2s linear;
+    }
+    .tile:hover:not(:disabled) { background: var(--wash); }
+    .tile[aria-pressed="true"] { background: var(--wash); }
+    .tile:disabled { cursor: not-allowed; color: var(--mute); }
+    .tile-n { font: var(--t-sm); color: var(--mute); flex: 0 0 3ch; }
+    .tile-a { font-weight: 500; }
+    .tile-a::after { content: " - "; font-weight: 400; color: var(--mute); }
+    .tile-t { flex: 1 1 auto; }
+    .tile-go { font: var(--t-sm); color: var(--mute); margin-left: auto; }
+    .music { margin-top: 20px; text-align: center; }
+    .music-a { font: var(--t-sm); color: var(--mute); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+    .music-a:hover { color: var(--ink); }
+
+    /* Experience: short lines, centered. */
+    .exp { text-align: center; }
+    .exp-line { font: var(--t-body); color: var(--mute); max-width: 720px; padding: 14px 0; border-top: 1px solid var(--hair); }
+    .exp-line:last-of-type { border-bottom: 1px solid var(--hair); }
+
+    /* Footer: the email large, then the links. */
+    .foot { padding-top: clamp(96px, 14vw, 200px); padding-bottom: clamp(48px, 7vw, 88px); text-align: center; }
+    .foot-mail { font: 500 clamp(1.6rem, 3.4vw, 2.6rem)/1.15 var(--serif); letter-spacing: -0.012em; }
+    .foot-mail a { text-decoration: none; border-bottom: 1px solid var(--hair); transition: border-color .2s linear; }
+    .foot-mail a:hover { border-bottom-color: var(--ink); }
+    .foot-links { margin-top: 24px; display: flex; gap: 22px; justify-content: center; }
+    .foot-links a { font: var(--t-ui); color: var(--mute); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 5px; }
+    .foot-links a:hover { color: var(--ink); }
+
+    /* Ink letter reveals (behavior unchanged from v16): each [data-ink]
+       element is split into word (.iw) and letter (.il) spans by the
+       script; the block's class says what the letters do: .on inks, .off
+       smears, .set settles. Without JS the text renders whole. */
+    /* Nothing shows before its part of the page: a block stays hidden
+       until the scroll band inks it. .off keeps its own smear visible. */
+    .ink-js [data-ink]:not(.on):not(.set):not(.off) { opacity: 0; }
+    .ink-js [data-ink] .iw { display: inline-block; white-space: nowrap; }
+    .ink-js [data-ink] .il {
+      display: inline-block; opacity: 0; transform: translateY(.35em);
+      will-change: opacity, transform;
+    }
+    .ink-js [data-ink].on .il { animation: v17ink .9s cubic-bezier(.2, 0, 0, 1) both; animation-delay: var(--d, 0ms); }
+    .ink-js [data-ink].off .il { animation: v17smear .45s cubic-bezier(.2, 0, 0, 1) both; animation-delay: var(--ds, 0ms); }
+    .ink-js [data-ink].set .il { animation: none; opacity: 1; transform: none; }
+    @keyframes v17ink {
+      0% { opacity: 0; transform: translateY(.35em); }
+      100% { opacity: 1; transform: none; }
+    }
+    @keyframes v17smear {
+      0% { opacity: 1; transform: none; }
+      100% { opacity: 0; transform: translateY(-.2em); }
+    }
+    /* Section labels: the hairlines grow out as the label inks. */
+    .ink-js .label .label-rule { transform: scaleX(0); transform-origin: left center; transition: transform 1.2s var(--ease); }
+    .ink-js .label:has(.label-t.on) .label-rule, .ink-js .label:has(.label-t.set) .label-rule { transform: none; }
+    .ink-js .label:has(.label-t.off) .label-rule { transform: scaleX(0); transition-duration: .45s; }
+
+    /* Visual entrances: the frame sinks in once, when it first shows. */
+    .ink-js [data-vis] .vis { clip-path: inset(7% 7%); transition: clip-path 1.8s cubic-bezier(.2, 0, 0, 1); }
+    .ink-js [data-vis].in .vis { clip-path: inset(0 0); }
+    .ink-js .proj-media .vis { transform: scale(1.06); transition: clip-path 1.8s cubic-bezier(.2, 0, 0, 1), transform 1.8s cubic-bezier(.2, 0, 0, 1); }
+    .ink-js .proj-media.in .vis { transform: none; }
+    /* The slow drift inside a selected-work frame, gentle enough to read as
+       alive rather than moving. */
+    .ink-js .proj-media.in img { animation: v17pan 18s cubic-bezier(.45, 0, .55, 1) infinite alternate; }
+    @keyframes v17pan { from { transform: translate(-50%, 0); } to { transform: translate(-50%, var(--td, -8%)); } }
+    @media (max-width: 767px) {
+      .ink-js .proj-media.in img { animation-name: v17panm; }
+      @keyframes v17panm { from { transform: translate(-50%, 0); } to { transform: translate(-50%, var(--tm, -8%)); } }
     }
     @media (prefers-reduced-motion: reduce) {
-      .stamp-dot { animation: none; }
-      .photos img, .proj-media, .tile, .chrome-nav a::after, .chrome-name { transition: none; }
+      .ink-js [data-ink] .il { animation: none !important; opacity: 1; transform: none; }
+      .ink-js [data-vis] .vis { clip-path: none; transform: none; transition: none; }
+      .ink-js .proj-media.in img { animation: none; }
+      .ink-js .label .label-rule { transform: none; transition: none; }
+    }
+
+    /* Phone: one column, sections stack, the bar keeps only what fits. */
+    @media (max-width: 900px) {
+      .theme-toggle { width: 30px; height: 30px; }
+    }
+    @media (max-width: 900px) {
+      .proj, .proj:nth-child(even) { grid-template-columns: minmax(0, 1fr); }
+      .proj { gap: 20px; }
+      .proj:nth-child(even) .proj-media { order: 0; }
+      .proj:nth-child(even) .proj-cap { order: 1; }
+      .proj-cap { justify-items: center; text-align: center; }
+    }
+    @media (max-width: 767px) {
+      .first { grid-template-columns: minmax(0, 1fr); align-content: center; padding-top: 120px; }
+      .first-name { grid-column: 1; font-size: clamp(2.9rem, 14vw, 4.4rem); }
+      .first-r { grid-column: 1; }
+      .photos { grid-template-columns: repeat(2, 1fr); }
+      .bar-now { display: none; }
+      .stamp { display: none; }
+      .chrome { gap: 10px; padding-left: 16px; padding-right: 16px; }
+      .chrome-nav { gap: 12px; }
+      .bbtn { min-width: 28px; height: 30px; padding: 0 8px; }
+      .bbtn-play { min-width: 50px; }
+      .theme-toggle { width: 28px; height: 30px; }
+      .chrome-name { display: none; }
+      .row-l { text-align: center; }
     }
   </style>
-
+  <script is:inline>
+    // The light/dark turn. The bootstrap in the head sets the first theme;
+    // this owns the toggle, persists the choice, follows the system while
+    // no choice is stored, and tells the mist to re-shade (themechange).
+    (function () {
+      var d = document.documentElement, btn = document.getElementById('theme-toggle');
+      var meta = document.querySelector('meta[name="theme-color"]');
+      var mq = window.matchMedia('(prefers-color-scheme: dark)');
+      function stored() { try { return localStorage.getItem('kk-theme'); } catch (e) { return null; } }
+      function apply(theme, save) {
+        d.dataset.theme = theme;
+        if (meta) meta.content = theme === 'dark' ? '#131210' : '#ece9e2';
+        if (btn) {
+          btn.setAttribute('aria-pressed', String(theme === 'dark'));
+          btn.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
+        }
+        if (save) { try { localStorage.setItem('kk-theme', theme); } catch (e) {} }
+        d.dispatchEvent(new Event('themechange'));
+      }
+      if (btn) btn.addEventListener('click', function () { apply(d.dataset.theme === 'dark' ? 'light' : 'dark', true); });
+      if (mq.addEventListener) mq.addEventListener('change', function (e) { if (!stored()) apply(e.matches ? 'dark' : 'light', false); });
+      apply(d.dataset.theme === 'dark' ? 'dark' : 'light', false);
+    })();
+  </script>
+  <script is:inline>
+    (function () {
+      var cv = document.getElementById('air');
+      if (!cv) return;
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var gl = cv.getContext('webgl', { antialias: false, alpha: false, depth: false, stencil: false, preserveDrawingBuffer: true });
+      if (!gl) { cv.remove(); return; }
+      var VS = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+      var FS = [
+        'precision highp float;',
+        'uniform vec2 r;uniform float t,p,dk;',
+        'float h(vec2 q){return fract(sin(dot(q,vec2(127.1,311.7)))*43758.5453);}',
+        'float n(vec2 q){vec2 i=floor(q),u=fract(q);u=u*u*(3.-2.*u);',
+        ' return mix(mix(h(i),h(i+vec2(1.,0.)),u.x),mix(h(i+vec2(0.,1.)),h(i+1.),u.x),u.y);}',
+        'float fbm(vec2 q){float v=0.,a=.5;mat2 R=mat2(.8,.6,-.6,.8);for(int i=0;i<5;i++){v+=a*n(q);q=R*q*2.02;a*=.5;}return v;}',
+        'void main(){',
+        ' vec2 q0=(gl_FragCoord.xy-.5*r)/r.y;',
+        ' vec2 q=q0*1.3; q.y+=p*2.1;',
+        ' float tt=t*.03;',
+        ' vec2 w=vec2(fbm(q*1.1+vec2(tt,0.)),fbm(q*1.1+vec2(2.7,-tt)));',
+        ' vec2 w2=vec2(fbm(q*1.4+1.8*w+vec2(1.3,8.9)+tt*.5),fbm(q*1.4+1.8*w+vec2(7.9,2.5)-tt*.35));',
+        ' float k=fbm(q+2.2*w2);',
+        ' vec3 paper=mix(vec3(.925,.914,.886),vec3(.075,.071,.063),dk);',
+        ' vec3 mist=mix(vec3(.868,.855,.818),vec3(.108,.101,.089),dk);',
+        ' vec3 haze=mix(vec3(.765,.75,.715),vec3(.152,.142,.122),dk);',
+        ' vec3 warm=mix(vec3(.958,.943,.902),vec3(.048,.045,.042),dk);',
+        ' vec3 col=mix(paper,mist,smoothstep(.28,.62,k));',
+        ' col=mix(col,haze,smoothstep(.48,.72,k)*.85);',
+        ' col=mix(col,warm,smoothstep(.42,.12,k)*.75);',
+        ' float vg=smoothstep(.55,1.25,length(q0*vec2(.9,1.2)));',
+        ' col*=mix(1.,.92,vg);',
+        ' col+=(h(gl_FragCoord.xy+floor(t*8.)*13.7)-.5)*.028;',
+        ' gl_FragColor=vec4(col,1.);}'
+      ].join('\n');
+      function sh(type, src) { var o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; }
+      var pr = gl.createProgram();
+      gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS));
+      gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS));
+      gl.linkProgram(pr);
+      if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) { cv.remove(); return; }
+      gl.useProgram(pr);
+      var b = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, b);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+      var a = gl.getAttribLocation(pr, 'a');
+      gl.enableVertexAttribArray(a);
+      gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
+      var ur = gl.getUniformLocation(pr, 'r'), ut = gl.getUniformLocation(pr, 't'), up = gl.getUniformLocation(pr, 'p'), udk = gl.getUniformLocation(pr, 'dk');
+      var scale = window.innerWidth < 760 ? 0.22 : 0.28;
+      function resize() {
+        cv.width = Math.max(2, Math.round(cv.clientWidth * scale));
+        cv.height = Math.max(2, Math.round(cv.clientHeight * scale));
+        gl.viewport(0, 0, cv.width, cv.height);
+      }
+      function progress() {
+        var h = document.documentElement.scrollHeight - window.innerHeight;
+        return h > 0 ? Math.min(1, window.scrollY / h) : 0;
+      }
+      function frame(t) {
+        gl.uniform2f(ur, cv.width, cv.height);
+        gl.uniform1f(ut, t);
+        gl.uniform1f(up, progress());
+        gl.uniform1f(udk, document.documentElement.dataset.theme === 'dark' ? 1 : 0);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+      }
+      resize();
+      frame(reduce ? 12 : 0);
+      if (reduce) {
+        window.addEventListener('resize', function () { resize(); frame(12); });
+        document.documentElement.addEventListener('themechange', function () { frame(12); });
+        return;
+      }
+      var start = performance.now(), tick = 0;
+      function loop(now) {
+        if (document.hidden) { requestAnimationFrame(loop); return; }
+        if (++tick % 3 === 0) frame((now - start) / 1000);
+        requestAnimationFrame(loop);
+      }
+      requestAnimationFrame(loop);
+      window.addEventListener('resize', resize);
+    })();
+  </script>
   <script is:inline>
     (function () {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
       var root = document.documentElement;
       root.classList.add('ink-js');
-      var main = document.querySelector('.v16');
-      var KEY = 'kk-v16-entrance';
+      var main = document.querySelector('.v17');
+      var KEY = 'kk-v17-entrance';
       var firstVisit = true;
       try {
         firstVisit = !sessionStorage.getItem(KEY);
@@ -964,7 +1048,7 @@ const education = 'B.S. Computer Science and Data Science, Minor in Entrepreneur
   <script is:inline>
     // The fixed bar's height, so every anchor jump clears it (scroll-margin-top).
     (function () {
-      var main = document.querySelector('.v16'), bar = document.querySelector('.chrome');
+      var main = document.querySelector('.v17'), bar = document.querySelector('.chrome');
       if (!main || !bar) return;
       function measure() { main.style.setProperty('--chrome-h', bar.offsetHeight + 'px'); }
       measure();
