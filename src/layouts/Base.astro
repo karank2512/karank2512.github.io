@@ -1,11 +1,11 @@
 ---
 import '../styles/fonts.css';
 import '../styles/global.css';
-// The display face, preloaded: the stylesheet is inlined into the page, so
+// The text face, preloaded: the stylesheet is inlined into the page, so
 // without this hint the browser would only find the font once it has run
-// style resolution and laid out the first text. The name is the largest
-// paint, so Anton starts while the HTML is still being parsed.
-import anton from '@fontsource/anton/files/anton-latin-400-normal.woff2?url';
+// style resolution and laid out the first text. The hero name is the largest
+// paint, so EB Garamond starts while the HTML is still being parsed.
+import garamond from '../assets/fonts/eb-garamond-latin-500-normal.woff2?url';
 
 interface Props {
   title: string;
@@ -27,10 +27,23 @@ const og = new URL('/og-image.png', Astro.site);
     <title>{title}</title>
     <meta name="description" content={description} />
     {notFound ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
-    <link rel="preload" href={anton} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={garamond} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#f4f0e6" />
-    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#0a0d19" />
+    <meta name="color-scheme" content="light dark" />
+    <script is:inline>
+      // The theme before the first paint: night is the default, a saved
+      // choice wins, and neither flashes the other sheet. The toggle script
+      // owns changes after load.
+      (function () {
+        var v = null;
+        try { v = localStorage.getItem('kk-theme'); } catch (e) {}
+        var dark = v ? v === 'dark' : true;
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.content = dark ? '#0a0d19' : '#eceef4';
+      })();
+    </script>
     <meta property="og:type" content="website" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
