@@ -713,6 +713,7 @@ const experience = [
     .ink-js [data-ink] .iw { display: inline-block; white-space: nowrap; }
     .ink-js [data-ink] .il {
       display: inline-block; opacity: 0; transform: translateY(.35em);
+      will-change: opacity, transform;
     }
     .ink-js [data-ink].on .il { animation: v17ink .9s cubic-bezier(.2, 0, 0, 1) both; animation-delay: var(--d, 0ms); }
     .ink-js [data-ink].off .il { animation: v17smear .45s cubic-bezier(.2, 0, 0, 1) both; animation-delay: var(--ds, 0ms); }
@@ -855,7 +856,7 @@ const experience = [
       gl.enableVertexAttribArray(a);
       gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
       var ur = gl.getUniformLocation(pr, 'r'), ut = gl.getUniformLocation(pr, 't'), up = gl.getUniformLocation(pr, 'p'), udk = gl.getUniformLocation(pr, 'dk');
-      var scale = window.innerWidth < 760 ? 0.10 : 0.10;
+      var scale = window.innerWidth < 760 ? 0.22 : 0.28;
       function resize() {
         cv.width = Math.max(2, Math.round(cv.clientWidth * scale));
         cv.height = Math.max(2, Math.round(cv.clientHeight * scale));
@@ -882,7 +883,7 @@ const experience = [
       var start = performance.now(), tick = 0;
       function loop(now) {
         if (document.hidden) { requestAnimationFrame(loop); return; }
-        if (++tick % 12 === 0) frame((now - start) / 1000);
+        if (++tick % 3 === 0) frame((now - start) / 1000);
         requestAnimationFrame(loop);
       }
       requestAnimationFrame(loop);
@@ -975,19 +976,10 @@ const experience = [
       function has(list, el) { return list.indexOf(el) !== -1; }
       function drop(list, el) { var k = list.indexOf(el); if (k !== -1) list.splice(k, 1); }
 
-      var ioq = [], ioBusy = false;
-      function ioDrain() {
-        var item = ioq.shift();
-        if (item) ioStep(item[0], item[1]);
-        if (ioq.length) { requestAnimationFrame(ioDrain); return; }
-        ioBusy = false;
-      }
       var io = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) { ioq.push([e.target, e.isIntersecting]); });
-        if (!ioBusy) { ioBusy = true; requestAnimationFrame(ioDrain); }
-      }, { rootMargin: '-10% 0px -25% 0px', threshold: 0 });
-      function ioStep(el, isIntersecting) {
-          if (isIntersecting) {
+        entries.forEach(function (e) {
+          var el = e.target;
+          if (e.isIntersecting) {
             prepare(el);
             if (!has(visible, el)) visible.push(el);
             if (has(pending, el)) {
@@ -1002,7 +994,8 @@ const experience = [
             // outside the band: there is no more scroll to bring it in.
             if (shown(el) && !(atEnd() && el.getBoundingClientRect().top < window.innerHeight)) smear(el);
           }
-      }
+        });
+      }, { rootMargin: '-10% 0px -25% 0px', threshold: 0 });
       inkEls.forEach(function (el) { io.observe(el); });
 
       // The hero: a 250 ms beat after load on the first visit of a session,
