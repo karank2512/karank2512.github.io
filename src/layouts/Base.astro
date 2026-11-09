@@ -29,20 +29,19 @@ const og = new URL('/og-image.png', Astro.site);
     {notFound ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
     <link rel="preload" href={garamond} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="theme-color" content="#eceef4" />
+    <meta name="theme-color" content="#0a0d19" />
     <meta name="color-scheme" content="light dark" />
     <script is:inline>
-      // The theme before the first paint, so a saved or system dark never
-      // flashes paper. The toggle script owns changes after load.
+      // The theme before the first paint: night is the default, a saved
+      // choice wins, and neither flashes the other sheet. The toggle script
+      // owns changes after load.
       (function () {
         var v = null;
         try { v = localStorage.getItem('kk-theme'); } catch (e) {}
-        var dark = v ? v === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var dark = v ? v === 'dark' : true;
         document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-        if (dark) {
-          var m = document.querySelector('meta[name="theme-color"]');
-          if (m) m.content = '#0a0d19';
-        }
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.content = dark ? '#0a0d19' : '#eceef4';
       })();
     </script>
     <meta property="og:type" content="website" />

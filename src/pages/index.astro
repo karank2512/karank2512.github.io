@@ -785,8 +785,6 @@ const experience = [
     (function () {
       var d = document.documentElement, btn = document.getElementById('theme-toggle');
       var meta = document.querySelector('meta[name="theme-color"]');
-      var mq = window.matchMedia('(prefers-color-scheme: dark)');
-      function stored() { try { return localStorage.getItem('kk-theme'); } catch (e) { return null; } }
       function apply(theme, save) {
         d.dataset.theme = theme;
         if (meta) meta.content = theme === 'dark' ? '#0a0d19' : '#eceef4';
@@ -798,7 +796,6 @@ const experience = [
         d.dispatchEvent(new Event('themechange'));
       }
       if (btn) btn.addEventListener('click', function () { apply(d.dataset.theme === 'dark' ? 'light' : 'dark', true); });
-      if (mq.addEventListener) mq.addEventListener('change', function (e) { if (!stored()) apply(e.matches ? 'dark' : 'light', false); });
       apply(d.dataset.theme === 'dark' ? 'dark' : 'light', false);
     })();
   </script>
