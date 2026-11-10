@@ -425,6 +425,10 @@ const experience = [
       {experience.map((line, i) => <p class="exp-line" id={`exp-${i}`} data-ink>{line}</p>)}
     </section>
 
+    <section class="book" id="book" aria-label="Book a time">
+      <p class="book-line" data-ink><a class="book-a" href="https://cal.boardy.ai/karankapur5" target="_blank" rel="noopener">If you're cool, book a time <span class="book-arrow" aria-hidden="true">&rarr;</span></a></p>
+    </section>
+
     <footer class="foot" aria-label="Contact">
       <p class="foot-mail" data-ink><a href="mailto:kapur04karan@gmail.com">kapur04karan@gmail.com</a></p>
       <p class="foot-links">
@@ -693,6 +697,14 @@ const experience = [
     .exp { text-align: center; }
     .exp-line { font: var(--t-body); color: var(--mute); max-width: 720px; padding: 14px 0; border-top: 1px solid var(--hair); }
     .exp-line:last-of-type { border-bottom: 1px solid var(--hair); }
+
+    /* Book a time: one plain invitation, centered; the arrow is the way out. */
+    .book { padding-top: clamp(96px, 14vw, 200px); text-align: center; }
+    .book-line { font: var(--t-md); }
+    .book-a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--hair); transition: border-color .2s linear; }
+    .book-a:hover { border-color: var(--ink); }
+    .book-arrow { display: inline-block; transition: transform .2s var(--ease); }
+    .book-a:hover .book-arrow { transform: translateX(4px); }
 
     /* Footer: the email large, then the links. */
     .foot { padding-top: clamp(96px, 14vw, 200px); padding-bottom: clamp(48px, 7vw, 88px); text-align: center; }
