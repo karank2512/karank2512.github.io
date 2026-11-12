@@ -1,0 +1,325 @@
+/* The essays section's own skin, modeled element-by-element on
+   abhaymettu.com/essays/ (Karan's ask: "make it look like Abhay's"):
+   STIX Two Text, his paper and ink, the left-pinned 660px column, the
+   crumb, the ruled index rows, and the soft-underlined ink links. The
+   homepage keeps the Dawn identity; these tokens override it only inside
+   .essays-shell. Dark is his night pair, not an inversion: the same warm
+   grey turned down. */
+
+.essays-shell {
+  --serif: 'STIX Two Text', 'Times New Roman', Times, serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, 'Courier New', monospace;
+
+  --paper: #e8e8e8;
+  --ink: #030303;
+  --gray: rgba(3, 3, 3, .68);
+  --rule: rgba(3, 3, 3, .14);
+  --mark: color-mix(in srgb, currentColor 32%, transparent);
+
+  --t-sm: 400 14px/1.45 var(--serif);
+  --t-ui: 400 15px/1.15 var(--serif);
+  --t-body: 400 16px/1.5 var(--serif);
+  --t-read: 400 18px/1.55 var(--serif);
+  --t-md: 400 20px/1.35 var(--serif);
+  --t-2xl: 400 32px/1.1 var(--serif);
+  --track-md: -.004em;
+  --track-2xl: -.012em;
+
+  --step: clamp(3.5rem, 8vh, 6rem);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font: var(--t-read);
+  line-height: 1.55;
+  padding-bottom: var(--step);
+}
+:root[data-theme='dark'] .essays-shell {
+  --paper: #121212;
+  --ink: #e2e2df;
+  --gray: rgba(226, 226, 223, .66);
+  --rule: rgba(226, 226, 223, .16);
+}
+@media (min-width: 700px) {
+  .essays-shell {
+    --t-read: 400 19px/1.55 var(--serif);
+    --t-md: 400 22px/1.35 var(--serif);
+    --t-2xl: 400 44px/1.1 var(--serif);
+  }
+}
+
+.essays-shell ::selection { background: var(--ink); color: var(--paper); }
+.essays-shell a:focus-visible,
+.essays-shell button:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 4px;
+}
+
+/* ------------------------------------------------------------- chrome
+   His fixed top-right bar: text links and a circled monogram, set in the
+   UI step; the theme toggle is a bare glyph pinned to the bottom right. */
+.chrome {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: flex-end;
+  padding: 18px clamp(20px, 4vw, 44px) 0;
+  font: var(--t-ui);
+}
+.chrome-r {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 2.4vw, 26px);
+}
+.chrome-r a {
+  color: var(--ink);
+  text-decoration: none;
+}
+.chrome-r a[aria-current] { font-weight: 500; }
+.chrome-mark {
+  box-sizing: content-box;
+  width: 32px; height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  font-size: 13px;
+  letter-spacing: .02em;
+}
+.theme-toggle {
+  position: fixed;
+  right: clamp(20px, 4vw, 44px);
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 10;
+  background: none;
+  border: 0;
+  padding: 4px;
+  color: var(--ink);
+  cursor: pointer;
+}
+.theme-toggle .icon-moon { display: none; }
+:root[data-theme='dark'] .theme-toggle .icon-sun { display: none; }
+:root[data-theme='dark'] .theme-toggle .icon-moon { display: inline; }
+
+/* ------------------------------------------------------------- column
+   Pinned to the left margin, not centred: the same 660px measure he uses. */
+.col {
+  margin-left: max(clamp(24px, 14vw, 230px), env(safe-area-inset-left));
+  margin-right: max(24px, env(safe-area-inset-right));
+  max-width: 660px;
+}
+@media (max-width: 700px) {
+  .col {
+    margin-left: max(24px, env(safe-area-inset-left));
+    margin-right: max(20px, env(safe-area-inset-right));
+  }
+}
+
+/* ------------------------------------------------------------ masthead */
+.crumb {
+  padding-top: calc(56px + clamp(32px, 6vh, 56px)); /* clears the fixed chrome */
+  font: var(--t-sm);
+  color: var(--gray);
+  display: flex;
+  gap: .45em;
+  align-items: baseline;
+}
+.crumb a {
+  color: var(--gray);
+  text-decoration: underline;
+  text-decoration-color: var(--mark);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+}
+.story { padding-block: clamp(2.5rem, 8vh, 5rem) 0; }
+.story h1 {
+  font: var(--t-2xl);
+  font-weight: 500;
+  letter-spacing: var(--track-2xl);
+  text-wrap: balance;
+  max-width: 18em;
+  margin: 0 0 1rem;
+}
+.story .dek {
+  font: var(--t-md);
+  letter-spacing: var(--track-md);
+  color: var(--ink);
+  max-width: 32em;
+  text-wrap: pretty;
+}
+.byline {
+  margin-top: 1.5rem;
+  padding-top: .75rem;
+  border-top: 1px solid var(--rule);
+  font: var(--t-sm);
+  color: var(--gray);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 .6em;
+  font-variant-numeric: lining-nums;
+}
+.byline > * + *::before { content: '\00B7'; margin-right: .6em; }
+
+/* ------------------------------------------------------------ contents */
+.contents {
+  padding-top: 2rem;
+  padding-bottom: var(--step);
+  font: var(--t-body);
+}
+.contents ol { list-style: none; margin: 0; padding: 0; counter-reset: c; }
+.contents li { counter-increment: c; margin-bottom: .3rem; padding-left: 2.2rem; position: relative; }
+.contents li::before {
+  content: counter(c, decimal-leading-zero);
+  position: absolute; left: 0; top: .15em;
+  font: var(--t-sm);
+  color: var(--gray);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.contents a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--mark);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+}
+
+/* --------------------------------------------------------------- index */
+.list {
+  list-style: none;
+  margin-top: 2.5rem; /* longhand: the shorthand would eat .col's margins */
+  padding: 0 0 var(--step);
+  border-bottom: 1px solid var(--rule);
+}
+.list li { border-top: 1px solid var(--rule); }
+.list a {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 1.5rem;
+  padding: 1.1rem 0 1.2rem;
+  text-decoration: none;
+  color: var(--ink);
+}
+.list h2 {
+  font: var(--t-md);
+  letter-spacing: var(--track-md);
+  margin: 0;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+}
+.list time {
+  justify-self: end;
+  align-self: baseline;
+  font: var(--t-sm);
+  color: var(--gray);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.list p {
+  grid-column: 1 / -1;
+  font: var(--t-body);
+  color: var(--gray);
+  max-width: 34em;
+  margin: .2rem 0 0;
+  text-wrap: pretty;
+}
+.list .meta {
+  grid-column: 1 / -1;
+  font: var(--t-sm);
+  color: var(--gray);
+  margin: .35rem 0 0;
+}
+.list a:focus-visible h2 { text-decoration-color: currentColor; }
+@media (hover: hover) and (pointer: fine) {
+  .list h2 { transition: color 150ms ease, text-decoration-color 150ms ease; }
+  .list:hover li:not(:hover) h2 { color: var(--gray); }
+  .list a:hover h2 { text-decoration-color: currentColor; }
+}
+@media (prefers-reduced-motion: reduce) { .list h2 { transition: none; } }
+
+/* --------------------------------------------------------------- prose */
+.essay { padding-bottom: var(--step); }
+.essay h2 {
+  font: var(--t-md);
+  font-weight: 500;
+  letter-spacing: var(--track-md);
+  text-wrap: balance;
+  max-width: 28em;
+  margin: 3.5rem 0 1rem;
+  scroll-margin-top: 1.5rem;
+}
+.essay > h2:first-child { margin-top: 0; }
+.essay h3 { font: var(--t-read); font-weight: 500; margin: 2.25rem 0 .75rem; }
+.essay p { margin: 0 0 1.1em; max-width: 65ch; text-wrap: pretty; }
+.essay a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--mark);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+}
+@media (hover: hover) and (pointer: fine) {
+  .essay a, .contents a, .crumb a {
+    transition: text-decoration-color 150ms ease, text-underline-offset 150ms ease;
+  }
+  .essay a:hover, .contents a:hover, .crumb a:hover {
+    text-decoration-color: currentColor;
+    text-underline-offset: .26em;
+  }
+}
+.essay code {
+  font-family: var(--mono);
+  font-size: .86em;
+  border: 1px solid var(--rule);
+  padding: .05em .3em;
+}
+.essay pre {
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  border: 1px solid var(--rule);
+  margin: 0 0 1.3rem;
+}
+.essay pre code { border: 0; padding: 0; }
+.essay ul, .essay ol { margin: 0 0 1.3rem 1.3rem; padding: 0; }
+.essay li { margin-bottom: .5rem; padding-left: .2rem; max-width: 65ch; }
+/* Pull-quote: thesis statements get size and air rather than an indent. */
+.essay blockquote {
+  margin: 2.2rem 0;
+  padding: 0;
+  font: var(--t-md);
+  letter-spacing: var(--track-md);
+  line-height: 1.35;
+  text-wrap: pretty;
+}
+.essay blockquote p { margin: 0; }
+.essay hr { border: 0; height: 1px; background: var(--rule); margin: var(--step) 0; }
+.essay table { border-collapse: collapse; width: 100%; font: var(--t-sm); margin: 2rem 0; }
+.essay th, .essay td {
+  text-align: left;
+  padding: .5rem .9rem .5rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.essay thead th { border-bottom: 1px solid var(--ink); font-weight: 400; color: var(--gray); }
+.essay tbody tr:last-child td { border-bottom: 0; }
+
+/* --------------------------------------------------------------- footer */
+.jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  justify-content: space-between;
+  padding-block: 2rem var(--step);
+  border-top: 1px solid var(--rule);
+  font: var(--t-body);
+}
+.jump a {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-color: var(--mark);
+  text-decoration-thickness: 1px;
+  text-underline-offset: .2em;
+}
+.jump .k { display: block; color: var(--gray); font: var(--t-sm); margin-bottom: .2rem; }

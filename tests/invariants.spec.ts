@@ -19,7 +19,11 @@ test.describe('site invariants', () => {
     const sitemap = await request.get('/sitemap-0.xml');
     expect(sitemap.ok()).toBe(true);
     const urls = (await sitemap.text()).match(/<loc>([^<]+)<\/loc>/g) ?? [];
-    expect(urls).toEqual(['<loc>https://karankapur.com/</loc>']);
+    expect(urls).toEqual([
+      '<loc>https://karankapur.com/</loc>',
+      '<loc>https://karankapur.com/essays/</loc>',
+      '<loc>https://karankapur.com/essays/relayiq/</loc>',
+    ]);
 
     await page.goto('/');
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://karankapur.com/');

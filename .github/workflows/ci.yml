@@ -105,11 +105,19 @@ jobs:
           # check a blob link against the raw file instead, which says
           # whether the file exists without the HTML view in between. The
           # links on the site stay the blob pages.
+          # Same-origin absolute URLs (canonical, og:url) are verified
+          # against the built site, not production: a route that exists only
+          # in this PR is not live yet, so production answers 404. Remaps
+          # are first-match-wins, so the tell-data rule comes first: that
+          # path is deployed by the separate tell-data repo and is not in
+          # this build, so it keeps being checked against production.
           args: >-
             --no-progress
             --accept 200..=206,403,429
             --exclude 'linkedin\.com'
+            --remap 'https://karankapur\.com/tell-data/(.*) https://karankapur.com/tell-data/$1'
             --remap 'https://github.com/([^/]+/[^/]+)/blob/(.+) https://raw.githubusercontent.com/$1/$2'
+            --remap 'https://karankapur\.com/(.*) file://${{ github.workspace }}/dist/$1'
             --root-dir dist
             'dist/**/*.html'
           fail: true

@@ -1,0 +1,95 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import '../../styles/essays.css';
+
+export async function getStaticPaths() {
+  const essays = await getCollection('essays');
+  return essays.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+const sections = headings.filter((h) => h.depth === 2);
+
+// "2026-11-13" -> "November 13, 2026", in English regardless of the
+// machine's locale or zone (noon UTC keeps the calendar day stable).
+const when = new Date(`${entry.data.date}T12:00:00Z`).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+
+const title = `${entry.data.title} - Karan Kapur`;
+const description = entry.data.hook;
+---
+
+<Base title={title} description={description}>
+  <div class="essays-shell">
+    <header class="chrome" aria-label="Site">
+      <nav class="chrome-r" aria-label="Site">
+        <a href="/">Home</a>
+        <a href="/essays/">Essays</a>
+        <a class="chrome-mark" href="/" aria-label="Karan Kapur, home">KK</a>
+      </nav>
+    </header>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="true" aria-label="Switch to light theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+    </button>
+
+    <main id="main">
+      <nav class="col crumb" aria-label="Breadcrumb">
+        <a href="/">Karan Kapur</a> / <a href="/essays/">Essays</a>
+      </nav>
+
+      <header class="story col">
+        <h1>{entry.data.title}</h1>
+        <p class="dek">{entry.data.hook}</p>
+        <div class="byline">
+          <time datetime={entry.data.date}>{when}</time>
+          {entry.data.topics.map((topic) => <span>{topic}</span>)}
+        </div>
+      </header>
+
+      {sections.length > 0 && (
+        <nav class="contents col" aria-label="Contents">
+          <ol>
+            {sections.map((section) => (
+              <li><a href={`#${section.slug}`}>{section.text}</a></li>
+            ))}
+          </ol>
+        </nav>
+      )}
+
+      <article class="essay col">
+        <Content />
+      </article>
+
+      <nav class="jump col" aria-label="More essays">
+        <a href="/essays/"><span class="k">Index</span>All essays</a>
+      </nav>
+    </main>
+  </div>
+
+  <script is:inline>
+    // The theme toggle, same behavior as the home page's: the saved choice
+    // wins, the change persists, and the icon state tracks the palette.
+    (function () {
+      var b = document.getElementById('theme-toggle');
+      if (!b) return;
+      var root = document.documentElement;
+      function apply(dark) {
+        root.dataset.theme = dark ? 'dark' : 'light';
+        try { localStorage.setItem('kk-theme', dark ? 'dark' : 'light'); } catch (e) {}
+        b.setAttribute('aria-pressed', String(dark));
+        b.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.content = dark ? '#121212' : '#e8e8e8';
+      }
+      apply(root.dataset.theme !== 'light');
+      b.addEventListener('click', function () { apply(root.dataset.theme !== 'dark'); });
+    })();
+  </script>
+</Base>
