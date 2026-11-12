@@ -1,5 +1,5 @@
 ---
-title: "RelayIQ's confidence score is a heuristic, not a probability"
+title: "Measuring RelayIQ's confidence score against its floor"
 date: '2026-11-13'
 hook: 'A score of 0.92 from RelayIQ was right 81% of the time. A single constant guess beat the whole score. All numbers here come from a synthetic benchmark, and I say so each time.'
 topics: ['Evaluation', 'Synthetic data, no live provider calls']
