@@ -1,0 +1,201 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const essays = await getCollection('essays');
+  return essays.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+// "2026-11-13" -> "November 13, 2026", in English regardless of the
+// machine's locale or zone (noon UTC keeps the calendar day stable).
+const when = new Date(`${entry.data.date}T12:00:00Z`).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  timeZone: 'UTC',
+});
+
+const title = `${entry.data.title} - Karan Kapur`;
+const description = entry.data.hook;
+---
+
+<Base title={title} description={description}>
+  <main class="essay-page" id="main">
+    <header class="chrome" aria-label="Site">
+      <a class="chrome-name" href="/">Karan Kapur</a>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="true" aria-label="Switch to light theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </button>
+    </header>
+
+    <article class="essay">
+      <p class="essay-back"><a href="/essays"><span aria-hidden="true">&larr;</span> Essays</a></p>
+      <h1 class="essay-title">{entry.data.title}</h1>
+      <p class="essay-meta">{when} · {entry.data.topics.join(' · ')}</p>
+      <div class="essay-body">
+        <Content />
+      </div>
+    </article>
+  </main>
+
+  <script is:inline>
+    // The theme toggle, same behavior as the home page's: the saved choice
+    // wins, the change persists, and the icon state tracks the palette.
+    (function () {
+      var b = document.getElementById('theme-toggle');
+      if (!b) return;
+      var root = document.documentElement;
+      function apply(dark) {
+        root.dataset.theme = dark ? 'dark' : 'light';
+        try { localStorage.setItem('kk-theme', dark ? 'dark' : 'light'); } catch (e) {}
+        b.setAttribute('aria-pressed', String(dark));
+        b.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.content = dark ? '#0a0d19' : '#eceef4';
+      }
+      apply(root.dataset.theme !== 'light');
+      b.addEventListener('click', function () { apply(root.dataset.theme !== 'dark'); });
+    })();
+  </script>
+
+  <style>
+    /* The Dawn identity carried to a plain reading page: one serif, the same
+       paper and ink, hairline rules, generous air. The palette tokens come
+       from global.css; the type scale mirrors the home page's steps. */
+    .essay-page {
+      --serif: 'EB Garamond', Georgia, 'Times New Roman', serif;
+      --t-sm: 400 14px/1.45 var(--serif);
+      --t-ui: 400 15px/1.25 var(--serif);
+      --t-body: 400 17px/1.55 var(--serif);
+      --t-read: 400 19px/1.55 var(--serif);
+      --t-md: 400 22px/1.4 var(--serif);
+      --t-lg: 400 28px/1.25 var(--serif);
+      --pad: clamp(20px, 4vw, 48px);
+      min-height: 100vh;
+      padding: 0 var(--pad) clamp(48px, 7vw, 88px);
+      font: var(--t-body);
+    }
+    .essay-page a:focus-visible,
+    .essay-page button:focus-visible {
+      outline: 1px solid var(--ink);
+      outline-offset: 4px;
+    }
+
+    .chrome {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-block: 16px;
+      border-bottom: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+    }
+    .chrome-name {
+      font: 500 19px/1.1 var(--serif);
+      letter-spacing: -0.005em;
+      text-decoration: none;
+    }
+    .theme-toggle {
+      font: var(--t-sm);
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+      border-radius: 999px;
+      padding: 6px 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .theme-toggle .icon-moon { display: none; }
+    html[data-theme='dark'] .theme-toggle .icon-sun { display: none; }
+    html[data-theme='dark'] .theme-toggle .icon-moon { display: inline; }
+
+    .essay {
+      max-width: 720px;
+      padding-top: clamp(48px, 8vw, 96px);
+    }
+    .essay-back a {
+      font: var(--t-ui);
+      color: var(--mute);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: color 0.2s linear;
+    }
+    .essay-back a:hover {
+      color: var(--ink);
+    }
+    .essay-title {
+      margin-top: 28px;
+      font: 500 clamp(1.9rem, 4vw, 2.8rem)/1.15 var(--serif);
+      letter-spacing: -0.015em;
+    }
+    .essay-meta {
+      margin-top: 10px;
+      font: var(--t-sm);
+      color: var(--mute);
+    }
+
+    /* The prose: the reading step of the scale, hairline-separated headings,
+       links quietly underlined. */
+    .essay-body {
+      margin-top: clamp(32px, 5vw, 48px);
+      font: var(--t-read);
+    }
+    .essay-body :where(p, ul, ol, blockquote, pre, table) {
+      margin-top: 1.4em;
+    }
+    .essay-body :where(h2, h3) {
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      margin-top: 2em;
+    }
+    .essay-body h2 { font-size: 1.5rem; line-height: 1.25; }
+    .essay-body h3 { font-size: 1.25rem; line-height: 1.3; }
+    .essay-body :where(ul, ol) {
+      padding-left: 1.4em;
+    }
+    .essay-body ul { list-style: disc; }
+    .essay-body ol { list-style: decimal; }
+    .essay-body li { margin-top: 0.5em; }
+    .essay-body a {
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 4px;
+      text-decoration-color: color-mix(in srgb, var(--ink) 35%, transparent);
+      transition: text-decoration-color 0.2s linear;
+    }
+    .essay-body a:hover {
+      text-decoration-color: var(--ink);
+    }
+    .essay-body blockquote {
+      padding-left: 1.2em;
+      border-left: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+      font-style: italic;
+    }
+    .essay-body :where(code, pre) {
+      font-family: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+      font-size: 0.82em;
+    }
+    .essay-body pre {
+      padding: 16px;
+      overflow-x: auto;
+      border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+    }
+    .essay-body table {
+      width: 100%;
+      border-collapse: collapse;
+      font: var(--t-ui);
+    }
+    .essay-body :where(th, td) {
+      text-align: left;
+      padding: 8px 12px 8px 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+    }
+    .essay-body th { font-weight: 500; }
+  </style>
+</Base>

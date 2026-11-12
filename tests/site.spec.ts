@@ -254,10 +254,11 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     });
     await open18(page);
     const nav = page.locator('.chrome-nav a');
-    await expect(nav).toHaveCount(3);
-    await expect(nav.nth(0)).toHaveAttribute('href', 'https://github.com/karank2512');
-    await expect(nav.nth(1)).toHaveAttribute('href', 'https://www.linkedin.com/in/karankapur5');
-    await expect(nav.nth(2)).toHaveAttribute('href', '/resume.pdf');
+    await expect(nav).toHaveCount(4);
+    await expect(nav.nth(0)).toHaveAttribute('href', '/essays');
+    await expect(nav.nth(1)).toHaveAttribute('href', 'https://github.com/karank2512');
+    await expect(nav.nth(2)).toHaveAttribute('href', 'https://www.linkedin.com/in/karankapur5');
+    await expect(nav.nth(3)).toHaveAttribute('href', '/resume.pdf');
     await expect(page.locator('.chrome .stamp')).toContainText('Open to work');
     await expect(page.locator('.chrome #bar')).toHaveCount(1);
     await expect(page.locator('#bar-play')).toBeVisible();

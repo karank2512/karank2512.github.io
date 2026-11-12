@@ -118,4 +118,21 @@ const profile = defineCollection({
   }),
 });
 
-export const collections = { projects, experience, leadership, profile };
+/**
+ * Essays, the long-form writing under /essays. One markdown file per essay;
+ * the body is the essay itself. `date` is the publication date (YYYY-MM-DD):
+ * the index prints its year, the essay page the full date. `hook` is the one
+ * or two sentences under the title on the index, and the page description.
+ */
+const essays = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/essays' }),
+  schema: z.object({
+    title: z.string().min(1),
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    hook: z.string().min(1),
+    /** The small topic line under the hook, printed with ` · ` between. */
+    topics: z.array(z.string().min(1)).min(1),
+  }),
+});
+
+export const collections = { projects, experience, leadership, profile, essays };

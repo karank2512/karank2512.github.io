@@ -1,0 +1,170 @@
+---
+import { getCollection } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+
+// Newest first; the list number still counts down from the newest essay.
+const essays = (await getCollection('essays')).sort((a, b) => b.data.date.localeCompare(a.data.date));
+
+const title = 'Essays - Karan Kapur';
+const description = 'Essays by Karan Kapur on building software with AI agents and the tooling around them.';
+---
+
+<Base title={title} description={description}>
+  <main class="essays-page" id="main">
+    <header class="chrome" aria-label="Site">
+      <a class="chrome-name" href="/">Karan Kapur</a>
+      <button type="button" class="theme-toggle" id="theme-toggle" aria-pressed="true" aria-label="Switch to light theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false"><path d="M20 14.5A8 8 0 0 1 9.5 4 8 8 0 1 0 20 14.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </button>
+    </header>
+
+    <h1 class="page-title">Essays</h1>
+
+    <ol class="essay-list">
+      {essays.map((essay) => (
+        <li class="essay-row">
+          <h2 class="essay-title"><a href={`/essays/${essay.id}`}>{essay.data.title}</a></h2>
+          <p class="essay-year">{essay.data.date.slice(0, 4)}</p>
+          <p class="essay-hook">{essay.data.hook}</p>
+          <p class="essay-topics">{essay.data.topics.join(' · ')}</p>
+        </li>
+      ))}
+    </ol>
+  </main>
+
+  <script is:inline>
+    // The theme toggle, same behavior as the home page's: the saved choice
+    // wins, the change persists, and the icon state tracks the palette.
+    (function () {
+      var b = document.getElementById('theme-toggle');
+      if (!b) return;
+      var root = document.documentElement;
+      function apply(dark) {
+        root.dataset.theme = dark ? 'dark' : 'light';
+        try { localStorage.setItem('kk-theme', dark ? 'dark' : 'light'); } catch (e) {}
+        b.setAttribute('aria-pressed', String(dark));
+        b.setAttribute('aria-label', dark ? 'Switch to light theme' : 'Switch to dark theme');
+        var m = document.querySelector('meta[name="theme-color"]');
+        if (m) m.content = dark ? '#0a0d19' : '#eceef4';
+      }
+      apply(root.dataset.theme !== 'light');
+      b.addEventListener('click', function () { apply(root.dataset.theme !== 'dark'); });
+    })();
+  </script>
+
+  <style>
+    /* The Dawn identity carried to a plain reading page: one serif, the same
+       paper and ink, hairline rules, generous air. The palette tokens come
+       from global.css; the type scale mirrors the home page's steps. */
+    .essays-page {
+      --serif: 'EB Garamond', Georgia, 'Times New Roman', serif;
+      --t-sm: 400 14px/1.45 var(--serif);
+      --t-ui: 400 15px/1.25 var(--serif);
+      --t-body: 400 17px/1.55 var(--serif);
+      --t-md: 400 22px/1.4 var(--serif);
+      --t-lg: 400 28px/1.25 var(--serif);
+      --pad: clamp(20px, 4vw, 48px);
+      min-height: 100vh;
+      padding: 0 var(--pad) clamp(48px, 7vw, 88px);
+      font: var(--t-body);
+    }
+    .essays-page a:focus-visible,
+    .essays-page button:focus-visible {
+      outline: 1px solid var(--ink);
+      outline-offset: 4px;
+    }
+
+    /* The quiet bar: name on the left, the theme toggle on the right. */
+    .chrome {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding-block: 16px;
+      border-bottom: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+    }
+    .chrome-name {
+      font: 500 19px/1.1 var(--serif);
+      letter-spacing: -0.005em;
+      text-decoration: none;
+    }
+    .theme-toggle {
+      font: var(--t-sm);
+      color: var(--ink);
+      background: transparent;
+      border: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+      border-radius: 999px;
+      padding: 6px 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .theme-toggle .icon-moon { display: none; }
+    html[data-theme='dark'] .theme-toggle .icon-sun { display: none; }
+    html[data-theme='dark'] .theme-toggle .icon-moon { display: inline; }
+
+    .page-title {
+      font: 500 clamp(2.2rem, 5vw, 3.4rem)/1.1 var(--serif);
+      letter-spacing: -0.015em;
+      padding-top: clamp(48px, 8vw, 96px);
+    }
+
+    /* The list: Abhay's shape - a number, the title, the year, one or two
+       sentences, and the small topic line - set in this site's face. */
+    .essay-list {
+      margin-top: clamp(32px, 5vw, 56px);
+      max-width: 720px;
+      counter-reset: essay;
+    }
+    .essay-row {
+      counter-increment: essay;
+      position: relative;
+      padding: 28px 0 28px 52px;
+      border-top: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+    }
+    .essay-row:last-child {
+      border-bottom: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+    }
+    .essay-row::before {
+      content: counter(essay) '.';
+      position: absolute;
+      left: 0;
+      top: 30px;
+      font: var(--t-ui);
+      color: var(--mute);
+    }
+    .essay-title {
+      font: 500 var(--t-md);
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    .essay-title a {
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.2s linear;
+    }
+    .essay-title a:hover {
+      border-bottom-color: var(--ink);
+    }
+    .essay-year {
+      margin-top: 4px;
+      font: var(--t-sm);
+      color: var(--mute);
+    }
+    .essay-hook {
+      margin-top: 12px;
+      max-width: 640px;
+    }
+    .essay-topics {
+      margin-top: 12px;
+      font: var(--t-sm);
+      color: var(--mute);
+    }
+
+    @media (max-width: 640px) {
+      .essay-row { padding-left: 40px; }
+    }
+  </style>
+</Base>
