@@ -12,7 +12,7 @@ test.describe('essays: index and essay pages', () => {
     await expect(page.locator('.story h1')).toHaveText('Essays');
     const rows = page.locator('.list li');
     await expect(rows).toHaveCount(2);
-    for (const [row, href] of [[0, '/essays/relayiq/'], [1, '/essays/retries-mid-refund/']] as const) {
+    for (const [row, href] of [[0, '/essays/retries-mid-refund/'], [1, '/essays/relayiq/']] as const) {
       const link = rows.nth(row).locator('a').first();
       await expect(link).toHaveAttribute('href', href);
       await expect(link.locator('h2')).not.toBeEmpty();
