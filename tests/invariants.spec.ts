@@ -23,6 +23,7 @@ test.describe('site invariants', () => {
       '<loc>https://karankapur.com/</loc>',
       '<loc>https://karankapur.com/essays/</loc>',
       '<loc>https://karankapur.com/essays/relayiq/</loc>',
+      '<loc>https://karankapur.com/essays/retries-mid-refund/</loc>',
     ]);
 
     await page.goto('/');
