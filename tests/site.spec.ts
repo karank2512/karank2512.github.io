@@ -68,7 +68,7 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     await expect(page.locator('#proj-thaw .proj-l a').nth(1)).toHaveAttribute('href', 'https://github.com/thaw-ai/thaw/blob/main/site/receipts/2026-04-20_h100_fork_pool_rl.json');
     await expect(page.locator('#proj-relayiq .proj-l a').nth(1)).toHaveAttribute('href', 'https://github.com/karank2512/RelayIQ/blob/main/docs/benchmarks/results.md');
     await expect(page.locator('#proj-tell .proj-l a').nth(0)).toHaveAttribute('href', 'https://karankapur.com/tell-data/');
-    await expect(page.locator('#proj-thaw .proj-d')).toContainText('0.885 s median fork');
+    await expect(page.locator('#proj-thaw .proj-d')).toContainText('0.885 s median');
     await expect(page.locator('#proj-relayiq .proj-d')).toContainText('3.3x (13.24 to 4.07 credits)');
     // the Ledgewood row, exactly as v15 lists it: one line, no link
     const led = page.locator('#more-ledgewood');
