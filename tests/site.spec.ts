@@ -79,7 +79,7 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     await expect(led.locator('a')).toHaveCount(0);
     await expect(page.locator('#grp-in-progress .row')).toHaveCount(1);
     const names = await page.locator('#all-work .row-n').allTextContents();
-    expect(names).toEqual(['thaw', 'RelayIQ', 'Foreman', 'Tell', 'Delivery Doctor', 'Postmaster', 'sports-data-mcp', 'imessage-mcp', 'Ledgewood', 'Wisconsin Union', 'Eurofins', 'OpenAI x UW-Madison SAIL', 'pitchsmith', 'Ref Ball', 'Illini ScoutBoard', 'TorqueSeal']);
+    expect(names).toEqual(['thaw', 'RelayIQ', 'Foreman', 'Tell', 'Delivery Doctor', 'Refund fault injection', 'Postmaster', 'sports-data-mcp', 'imessage-mcp', 'Ledgewood', 'Wisconsin Union', 'Eurofins', 'OpenAI x UW-Madison SAIL', 'pitchsmith', 'Ref Ball', 'Illini ScoutBoard', 'TorqueSeal']);
     expect(new Set(names).size).toBe(names.length);
     await expect(page.locator('.foot-mail a')).toHaveAttribute('href', 'mailto:kapur04karan@gmail.com');
     await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
@@ -188,8 +188,8 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     for (const h of hrefs) await expect(page.locator(h!)).toHaveCount(1);
     // All work inventories every project once, categorized, no Above shortcuts.
     await expect(page.locator('#grp-featured')).toHaveCount(0);
-    await expect(page.locator('#all-work .row')).toHaveCount(16);
-    await expect(page.locator('#grp-agent-tooling .row')).toHaveCount(8);
+    await expect(page.locator('#all-work .row')).toHaveCount(17);
+    await expect(page.locator('#grp-agent-tooling .row')).toHaveCount(9);
     await expect(page.locator('#all-work a[href^="#proj-"]')).toHaveCount(0);
     for (const id of ['thaw', 'relayiq', 'foreman', 'tell', 'delivery-doctor']) {
       await expect(page.locator('#grp-agent-tooling #all-' + id)).toHaveCount(1);

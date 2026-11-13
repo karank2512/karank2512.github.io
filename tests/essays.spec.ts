@@ -12,8 +12,12 @@ test.describe('essays: index and essay pages', () => {
     await expect(page.locator('.story h1')).toHaveText('Essays');
     const rows = page.locator('.list li');
     await expect(rows).toHaveCount(2);
-    for (const [row, href] of [[0, '/essays/relayiq/'], [1, '/essays/retries-mid-refund/']] as const) {
-      const link = rows.nth(row).locator('a').first();
+    // Equal publication dates have no defined relative order across content loaders.
+    const dates = await rows.locator('time').evaluateAll(nodes => nodes.map(node => node.getAttribute('datetime')));
+    expect(dates).toEqual([...dates].sort().reverse());
+    for (const href of ['/essays/relayiq/', '/essays/retries-mid-refund/']) {
+      const link = rows.locator(`a[href="${href}"]`);
+      await expect(link).toHaveCount(1);
       await expect(link).toHaveAttribute('href', href);
       await expect(link.locator('h2')).not.toBeEmpty();
       await expect(link.locator('time')).toHaveText('2026');
