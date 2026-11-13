@@ -11,13 +11,15 @@ test.describe('essays: index and essay pages', () => {
     await expect(page).toHaveTitle('Essays - Karan Kapur');
     await expect(page.locator('.story h1')).toHaveText('Essays');
     const rows = page.locator('.list li');
-    await expect(rows).toHaveCount(1);
-    const link = rows.first().locator('a').first();
-    await expect(link).toHaveAttribute('href', '/essays/relayiq/');
-    await expect(link.locator('h2')).not.toBeEmpty();
-    await expect(link.locator('time')).toHaveText('2026');
-    await expect(link.locator('p')).not.toBeEmpty();
-    await expect(link.locator('.meta')).not.toBeEmpty();
+    await expect(rows).toHaveCount(2);
+    for (const [row, href] of [[0, '/essays/relayiq/'], [1, '/essays/retries-mid-refund/']] as const) {
+      const link = rows.nth(row).locator('a').first();
+      await expect(link).toHaveAttribute('href', href);
+      await expect(link.locator('h2')).not.toBeEmpty();
+      await expect(link.locator('time')).toHaveText('2026');
+      await expect(link.locator('p')).not.toBeEmpty();
+      await expect(link.locator('.meta')).not.toBeEmpty();
+    }
     // the way back to the home page, and a canonical URL for search
     await expect(page.locator('.chrome-mark')).toHaveAttribute('href', '/');
     await expect(page.locator('.crumb a').first()).toHaveAttribute('href', '/');
@@ -52,7 +54,7 @@ test.describe('essays: index and essay pages', () => {
   });
 
   test('no serious or critical axe violations on the essays pages', async ({ page }) => {
-    for (const path of ['/essays', '/essays/relayiq']) {
+    for (const path of ['/essays', '/essays/relayiq', '/essays/retries-mid-refund']) {
       await page.goto(path, { waitUntil: 'networkidle' });
       const results = await new AxeBuilder({ page }).analyze();
       const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
