@@ -115,7 +115,7 @@ const selected: Project[] = [
   {
     id: 'thaw',
     name: 'thaw',
-    desc: "Our team took a running LLM session from about 340 seconds to boot on an H100 to a 0.885 s median fork. I own the storage layer that makes it possible: it saves and restores the live state - weights, KV cache, prefix-cache metadata, scheduler state. Open source, built with N. Matteson and M. Yu, and the fork time has a public receipt.",
+    desc: "Our team's warm pool forks a round of four branches from a running LLM session in a 0.885 s median (H100 80GB, Llama-3.1-8B). I own the storage layer that makes it possible: it saves and restores the live state - weights, KV cache, prefix-cache metadata, scheduler state. Open source, built with N. Matteson and M. Yu, and the fork time has a public receipt.",
     shot: 'thaw',
     shotAlt: "The thaw.sh homepage: Snapshot, branch, and diff a running LLM session.",
     side: 0.05,
@@ -127,7 +127,7 @@ const selected: Project[] = [
   {
     id: 'relayiq',
     name: 'RelayIQ',
-    desc: 'RelayIQ decides whether a lead is worth enriching before a credit gets spent: on its own 495-submission benchmark with simulated providers, static field-level routing cut cost per usable lead 3.3x (13.24 to 4.07 credits). A calibrated confidence score (precision 0.682 to 0.784 across six strategies) holds low-confidence writes back from HubSpot and hands them to a human.',
+    desc: 'RelayIQ decides whether a lead is worth enriching before a credit gets spent: on its own 495-submission benchmark with simulated providers, static field-level routing cut cost per usable lead 3.3x (13.24 to 4.07 credits). Measured against that synthetic truth, its confidence score is overconfident above 0.8 (Brier 0.164, ECE 0.091, 783 fields) while precision runs 0.682 to 0.784 across six strategies - so low-confidence HubSpot writes are gated for human approval, fixture-tested with live sync unverified.',
     shot: 'relayiq-entity',
     shotAlt: "RelayIQ's entity detail screen: a contact's canonical fields with confidence scores, staleness chips, and a per-field lineage view.",
     side: 0.008,

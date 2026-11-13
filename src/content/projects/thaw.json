@@ -7,7 +7,7 @@
   "sub": "Co-founder and cloud storage engineer. Rust and CUDA.",
   "bullets": [
     {
-      "text": "Cut LLM session cold boots on H100s about 386x, from about 340 s to a 0.88 s median fork.",
+      "text": "A warm pool forks a round of four branches in a 0.885 s median (H100 80GB, Llama-3.1-8B) - a warm-pool result, not a fresh cold boot.",
       "link": {
         "label": "Receipt",
         "href": "https://github.com/thaw-ai/thaw/blob/main/site/receipts/2026-04-20_h100_fork_pool_rl.json"
