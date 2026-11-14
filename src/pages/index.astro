@@ -183,6 +183,7 @@ const catalog: Group[] = [
       { id: 'all-tell', name: 'Tell', meta: 'solo build · Oct 2026 · live data page', line: 'Public job boards, filings and news turned into dated, linked buying signals. 40+ clients tracked funded companies and found customers with it and reported closing deals.', links: [{ text: 'Code', href: gh('tell-ai') }] },
       { id: 'all-delivery-doctor', name: 'Delivery Doctor', meta: 'solo build · Oct 2026', line: 'Names the hop where agent telemetry died in transit.', links: [{ text: 'Code', href: gh('delivery-doctor') }] },
       { id: 'more-refund', name: 'Refund fault injection', meta: 'solo build · Nov 2026 · open source', line: 'One refund lands exactly once even after a crash: on 40 seeded fault runs (faults on 40% of provider calls) the naive flow broke 36 times and the hardened one held all 40.', links: [{ text: 'Code', href: gh('refund-fault-injection') }, { text: 'Essay', href: '/essays/retries-mid-refund/' }] },
+      { id: 'more-gtm-eval', name: 'GTM eval harness', meta: 'solo build · Nov 2026 · open source', line: 'Does your LLM lead qualification beat plain rules? On a synthetic 120-lead PLG dataset (3 repeats, 720 model calls) the LLM qualifier tiers 99.2% of lead-runs correctly, but its routing beats a deterministic rules baseline by only 6 of 360 lead-runs, 89.2% to 87.5% - every miss over-routes toward sales, and the placebo arm scores 27.5%/25.0%.', links: [{ text: 'Code', href: gh('gtm-eval-harness') }] },
 
       {
         id: 'more-postmaster',
