@@ -11,11 +11,11 @@ test.describe('essays: index and essay pages', () => {
     await expect(page).toHaveTitle('Essays - Karan Kapur');
     await expect(page.locator('.story h1')).toHaveText('Essays');
     const rows = page.locator('.list li');
-    await expect(rows).toHaveCount(2);
+    await expect(rows).toHaveCount(3);
     // Equal publication dates have no defined relative order across content loaders.
     const dates = await rows.locator('time').evaluateAll(nodes => nodes.map(node => node.getAttribute('datetime')));
     expect(dates).toEqual([...dates].sort().reverse());
-    for (const href of ['/essays/relayiq/', '/essays/retries-mid-refund/']) {
+    for (const href of ['/essays/relayiq/', '/essays/retries-mid-refund/', '/essays/pdf-vouch/']) {
       const link = rows.locator(`a[href="${href}"]`);
       await expect(link).toHaveCount(1);
       await expect(link).toHaveAttribute('href', href);
@@ -58,7 +58,7 @@ test.describe('essays: index and essay pages', () => {
   });
 
   test('no serious or critical axe violations on the essays pages', async ({ page }) => {
-    for (const path of ['/essays', '/essays/relayiq', '/essays/retries-mid-refund']) {
+    for (const path of ['/essays', '/essays/relayiq', '/essays/retries-mid-refund', '/essays/pdf-vouch']) {
       await page.goto(path, { waitUntil: 'networkidle' });
       const results = await new AxeBuilder({ page }).analyze();
       const serious = results.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
