@@ -22,6 +22,7 @@ test.describe('site invariants', () => {
     expect(urls).toEqual([
       '<loc>https://karankapur.com/</loc>',
       '<loc>https://karankapur.com/essays/</loc>',
+      '<loc>https://karankapur.com/essays/pdf-vouch/</loc>',
       '<loc>https://karankapur.com/essays/relayiq/</loc>',
       '<loc>https://karankapur.com/essays/retries-mid-refund/</loc>',
     ]);
