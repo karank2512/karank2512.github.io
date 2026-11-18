@@ -41,6 +41,6 @@ The rules already said no. The code hadn't caught up.
 
 ## Reproducing this
 
-The 19 targeted tests and the offline demo run without network, model or real sites, on Python 3.13 and 3.9. The full suite is green on 3.9. On this machine's Homebrew 3.13, three process-signal tests fail identically on old and new code: the test server's reverse-name lookup takes about 35 seconds on this machine's resolver, longer than the tests' 10-second wait. That is the environment, not the change.
+The 19 targeted tests and the offline demo run without network, model or real sites, on Python 3.13 and 3.9. The full suite is green on 3.9. On this machine's Homebrew 3.13, three process-signal tests fail identically on old and new code. Their cause is unverified.
 
-The change merged on November 18 into the project's review branch. It is not on the main branch and it is not deployed. The repository is private, so there is no public code link.
+The change merged on November 18, New Zealand time (November 17 UTC), into the project's review branch. It is not on the main branch and it is not deployed. The repository is private, so there is no public code link.
