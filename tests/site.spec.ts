@@ -55,9 +55,11 @@ test.describe('portfolio: eight song tiles under Listening lately, the outside l
     await open18(page);
     await expect(page.locator('#hero-name')).toHaveText('Karan Kapur');
     await expect(page.locator('#hero-line')).toHaveText('I build software with AI agents and the tooling around them.');
-    // v18: the hero's second paragraph is Karan's own final wording: current
-    // work, how he learns, the IPL origin, and the off-the-clock line.
-    await expect(page.locator('#hero-p')).toContainText('comparing data vendors to see which ones actually get company data right');
+    // Homepage v4 (owner-approved 21 Nov 2026): the hero's second paragraph is
+    // the approved wording: LLM infrastructure and agent reliability (live-session
+    // snapshot and fork, evals), agentic GTM tools, learning by building, the
+    // IPL origin, and the off-the-clock line.
+    await expect(page.locator('#hero-p')).toContainText('snapshotting and forking live sessions, and the evals that check whether an agent');
     await expect(page.locator('#hero-p')).toContainText('IPL');
     await expect(page.locator('#hero-p')).toContainText('DJing, watching the NBA, soccer and supporting RedBull in Formula 1');
     await expect(page.locator('#about-1')).toContainText('Data Analyst at the Wisconsin Union');
